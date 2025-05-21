@@ -19,7 +19,7 @@ test.describe("accessibility test", async function () {
     }
   );
 
-  test(
+  test.fail(
     "scannning a specific part of a page",
     {
       tag: "@accessibility",

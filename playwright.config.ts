@@ -34,21 +34,16 @@ export default defineConfig({
     },
     {
       name: "sauce_demo",
-      testDir: "./tests/ui-test/",
+      testDir: "./tests/ui-tests/",
       use: {
         ...devices["Desktop Firefox"],
         baseURL: "https://www.saucedemo.com",
       },
       dependencies: ["sauce_demo_setup"],
-      testIgnore: [
-        "/tests/ui-test/tutorials/*.spec.ts",
-        "/tests/ui-test/tests-examples/*.spec.ts",
-        "./tests/ui-test/readinfFilesTest.spec.ts",
-      ],
     },
     {
       name: "api_demo",
-      testDir: "./tests/api-test/",
+      testDir: "./tests/api-tests/",
       use: {
         ...devices["Desktop Firefox"],
         baseURL: "https://api.thecatapi.com/v1",

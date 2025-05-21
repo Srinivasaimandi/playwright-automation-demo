@@ -77,9 +77,6 @@ let invalidScenarios = {
 };
 
 test.describe("negative scenarios", async function () {
-  test.skip(({ browserName }) =>
-    browserName === "chromium"
-  );
   Array.from(Object.keys(invalidScenarios)).forEach((scenario) => {
     test(
       `test with ${scenario}`,
@@ -108,23 +105,4 @@ test.describe("negative scenarios", async function () {
       }
     );
   });
-});
-
-/**
- * below tests are ambitious at this stage
- */
-test.skip("locator_usage", async function ({ page }) {
-  // using locator and xpath
-  await page
-    .locator("xpath:.//input[@id='user-name']")
-    .fill(Constants.web_ui_automation.sauce_labs.users["standard user"]);
-  await page.locator("xpath:.//input[@id='password']").fill(Constants.web_ui_automation.sauce_labs.password);
-  await page.waitForTimeout(500);
-});
-
-test.skip("valdiate the title of forwarded website", async function ({ page }) {
-  await page.getByRole("link", { name: "docs.cypress.io" }).click();
-  await expect(page).toHaveTitle(
-    "Cypress testing solutions | Cypress Documentation | Cypress Documentation"
-  );
 });
