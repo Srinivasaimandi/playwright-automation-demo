@@ -1,0 +1,35 @@
+{
+  "name": "playwright-saucelabs-demo",
+  "version": "1.0.0",
+  "description": "This repo contains demo test automation code written using playwright for the following websites:   - http://saucedemo.com   - http://thecatapi.com",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Srinivasaimandi/playwright-saucelabs-demo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Srinivasaimandi/playwright-saucelabs-demo/issues"
+  },
+  "homepage": "https://github.com/Srinivasaimandi/playwright-saucelabs-demo#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.15.21"
+  },
+  "dependencies": {
+    "@axe-core/playwright": "^4.10.1",
+    "@faker-js/faker": "^9.7.0",
+    "@types/pixelmatch": "^5.2.6",
+    "csvtojson": "^2.0.10",
+    "dotenv": "^16.5.0",
+    "exceljs": "^4.4.0",
+    "pixelmatch": "^7.1.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.3"
+  }
+}
