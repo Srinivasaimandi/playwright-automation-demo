@@ -11,10 +11,6 @@ import { faker } from "@faker-js/faker";
 let loginPage: LoginPage;
 let inventoryPage: InventoryPage;
 
-// test.beforeAll("initiate pageobjects", async function () {
-//   // PENDING ITEM: needs to create a browser context or call from another class
-// });
-
 // beforeEach
 test.beforeEach(
   "setting up browser context & launch sauce demo site",
@@ -62,6 +58,10 @@ test.fail(
   }
 );
 
+/**
+ * parameterized tests
+ */
+
 let invalidScenarios = {
   empty_username: ["", "", "Epic sadface: Username is required"],
   empty_password: [
@@ -76,33 +76,30 @@ let invalidScenarios = {
   ],
 };
 
-test.describe("negative scenarios", async function () {
-  Array.from(Object.keys(invalidScenarios)).forEach((scenario) => {
-    test(
-      `test with ${scenario}`,
-      { tag: "@login @negative" },
-      async function ({ page }) {
-        let username = invalidScenarios[`${scenario}`][0];
-        let password = invalidScenarios[`${scenario}`][1];
-        let message = invalidScenarios[`${scenario}`][2];
-        await loginPage.login(username, password);
-        let errorMessage = await page
-          .locator(".error-message-container")
-          .textContent();
-        await expect(errorMessage).toEqual(message);
-      }
-    );
-  });
+Array.from(Object.keys(invalidScenarios)).forEach((scenario) => {
+  test(
+    `test with ${scenario}`,
+    { tag: "@login @negative" },
+    async function ({ page }) {
+      let username = invalidScenarios[`${scenario}`][0];
+      let password = invalidScenarios[`${scenario}`][1];
+      let message = invalidScenarios[`${scenario}`][2];
+      await loginPage.login(username, password);
+      let errorMessage = await page
+        .locator(".error-message-container")
+        .textContent();
+      await expect(errorMessage).toEqual(message);
+    }
+  );
+});
 
-  // parameterized test
-  Array.from(Object.values(Constants.web_ui_automation.sauce_labs.users)).forEach((username) => {
-    test(
-      `login test with username: '${username}'`,
-      { tag: "@login @positive_case @reg" },
-      async function () {
-        await loginPage.login(username, Constants.web_ui_automation.sauce_labs.password);
-        await inventoryPage.validateHeading(username);
-      }
-    );
-  });
+Array.from(Object.values(Constants.web_ui_automation.sauce_labs.users)).forEach((username) => {
+  test(
+    `login test with username: '${username}'`,
+    { tag: "@login @positive_case @reg" },
+    async function () {
+      await loginPage.login(username, Constants.web_ui_automation.sauce_labs.password);
+      await inventoryPage.validateHeading(username);
+    }
+  );
 });
