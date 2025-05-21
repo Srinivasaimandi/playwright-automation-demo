@@ -39,7 +39,7 @@ test.describe("accessibility test", async function () {
   );
 
   test(
-    "",
+    "scanning for wcag violations",
     {
       tag: "@accessibility",
       annotation: {
