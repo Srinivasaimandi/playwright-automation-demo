@@ -1,7 +1,7 @@
 import { expect, Page, test } from "@playwright/test";
-import { LoginPage } from "../../pageobjects/LoginPage.pageobject";
-import { InventoryPage } from "../../pageobjects/InventoryPage.pageobject";
-import * as Constants from "../../pageobjects/Constants";
+import { LoginPage } from "../../../pageobjects/LoginPage.pageobject";
+import { InventoryPage } from "../../../pageobjects/InventoryPage.pageobject";
+import * as Constants from "../../../pageobjects/Constants";
 
 let page: Page;
 let loginPage: LoginPage;

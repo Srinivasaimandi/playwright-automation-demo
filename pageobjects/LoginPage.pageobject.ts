@@ -25,7 +25,8 @@ export class LoginPage extends BasePage {
    * @description: loads the baseUrl and validates the title
    */
   async load(): Promise<void> {
-    await this.page.goto("/");
+    await this.page.goto(Constants.web_ui_automation.sauce_labs.base_url);
+    // validate the title
     await expect(this.page).toHaveTitle(Constants.web_ui_automation.sauce_labs.title);
   }
 
