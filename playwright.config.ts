@@ -22,18 +22,13 @@ export default defineConfig({
 
   /* Configure projects for major browsers */
   projects: [
-    /**
-     * global setup for sauce demo
-     */
     {
-      name: "sauce_demo_setup",
-      testMatch: /sauce_demo_global.setup.ts/,
+      name: "demo",
+      testDir: "./tests/",
     },
     {
-      name: "sauce_demo",
+      name: "ui_demo",
       testDir: "./tests/ui-tests/",
-  
-      dependencies: ["sauce_demo_setup"],
     },
     {
       name: "api_demo",
