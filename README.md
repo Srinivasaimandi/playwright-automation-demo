@@ -4,3 +4,15 @@ This repo contains demo test automation code written using playwright for the fo
   - https://the-internet.herokuapp.com
   - http://thecatapi.com
 
+
+# How do I run these scripts
+## Prequisite
+- setup node [Windows][1] | [Ubuntu][2] | [macOS][3]
+## Setup
+- open terminal in the repository path and run the below command
+> npm install 
+
+
+[1]:https://www.geeksforgeeks.org/install-node-js-on-windows/
+[2]:https://www.geeksforgeeks.org/installation-of-node-js-on-linux/
+[3]:https://www.geeksforgeeks.org/how-to-install-nodejs-on-macos/
