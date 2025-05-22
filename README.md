@@ -1,8 +1,9 @@
 # What is this Repository about?
 This repo contains demo test automation code written using playwright for the following websites:
   - http://saucedemo.com
-  - https://www.lambdatest.com
   - http://thecatapi.com
+  - https://dequeuniversity.com/demo/
+  - https://www.lambdatest.com/selenium-playground
 
 **Summary of scenarios covered:**
 - to be filled, in-progress
