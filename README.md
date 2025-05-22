@@ -13,14 +13,16 @@ This repo contains demo test automation code written using playwright for the fo
 
 **Setup**
 - open terminal in the repository path and run the below command
-> npm install
+<br>
+  > npm install
 
 **Running the scripts**
 - run the below command by updating the SUITE_NAME with the respective values 
   - demo : to run all scripts
   - ui-demo : to run the ui scripts
   - api-demo : to run the api scripts
-> npx playwright test --project SUITE_NAME --headed
+<br>
+  > npx playwright test --project SUITE_NAME --headed
 
 
 [1]:https://www.geeksforgeeks.org/install-node-js-on-windows/
