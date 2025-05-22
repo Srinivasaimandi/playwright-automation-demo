@@ -8,12 +8,12 @@ This repository contains demo test automation scripts built with Playwright for 
 **Summary of scenarios covered:**
 - to be filled, in-progress
 
-# How do I run these scripts
+# Getting Started
 **Prerequisite**
 - setup node: [Windows][1] | [Ubuntu][2] | [macOS][3]
 
 **Setup**
-- open terminal in the repository path and run the below command  
+- Open a terminal in the root of the repository and install the dependencies
 
   **```npm install```**
 
