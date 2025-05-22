@@ -13,7 +13,7 @@ This repo contains demo test automation code written using playwright for the fo
 
 **Setup**
 - open terminal in the repository path and run the below command
-> npm install g
+> npm install
 
 **Running the scripts**
 - run the below command to run all the scripts
