@@ -9,7 +9,7 @@ This repo contains demo test automation code written using playwright for the fo
 
 # How do I run these scripts
 **Prerequisite**
-- setup node [Windows][1] | [Ubuntu][2] | [macOS][3]
+- setup node: [Windows][1] | [Ubuntu][2] | [macOS][3]
 
 **Setup**
 - open terminal in the repository path and run the below command  
