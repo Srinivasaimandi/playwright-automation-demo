@@ -17,7 +17,8 @@ This repo contains demo test automation code written using playwright for the fo
   **```npm install```**
 
 **Running the scripts**
-- run the below command by updating the SUITE_NAME with the respective values 
+- run the below command by updating the SUITE_NAME with the respective values  
+
   **```npx playwright test --project SUITE_NAME --headed```**  
   <br>
   - **demo** : to run all scripts
