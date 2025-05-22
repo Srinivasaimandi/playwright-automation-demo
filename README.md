@@ -4,17 +4,18 @@ This repo contains demo test automation code written using playwright for the fo
   - https://the-internet.herokuapp.com
   - http://thecatapi.com
 
-## Summary of scenarios covered:
+**Summary of scenarios covered:**
 - to be filled, in-progress
 
 # How do I run these scripts
-## Prequisite
+**Prerequisite**
 - setup node [Windows][1] | [Ubuntu][2] | [macOS][3]
-## Setup
+
+**Setup**
 - open terminal in the repository path and run the below command
 > npm install g
 
-## Running the scripts
+**Running the scripts**
 - run the below command to run all the scripts
 > npx playwright test --project demo
 - run the below command to run the ui scripts
