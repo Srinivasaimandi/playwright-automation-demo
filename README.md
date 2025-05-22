@@ -4,13 +4,23 @@ This repo contains demo test automation code written using playwright for the fo
   - https://the-internet.herokuapp.com
   - http://thecatapi.com
 
+## Summary of scenarios covered:
+- to be filled, in-progress
 
 # How do I run these scripts
 ## Prequisite
 - setup node [Windows][1] | [Ubuntu][2] | [macOS][3]
 ## Setup
 - open terminal in the repository path and run the below command
-> npm install 
+> npm install g
+
+## Running the scripts
+- run the below command to run all the scripts
+> npx playwright test --project demo
+- run the below command to run the ui scripts
+> npx playwright test --project ui-demo
+- run the below command to run the api scripts
+> npx playwright test --project api-demo
 
 
 [1]:https://www.geeksforgeeks.org/install-node-js-on-windows/
