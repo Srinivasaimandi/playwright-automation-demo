@@ -22,7 +22,7 @@ test("test simple form", {
     }
 }, async function ({ browser }) {
 
-    const testMessage: string = "";
+    const testMessage: string = "this is a test message";
 
     await page.goto("https://www.lambdatest.com/selenium-playground/simple-form-demo");
     await page.waitForTimeout(5000);
