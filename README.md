@@ -1,5 +1,5 @@
 # What is this Repository about?
-This repo contains demo test automation code written using playwright for the following websites:
+This repository contains demo test automation scripts built with Playwright for the following websites
   - http://saucedemo.com
   - http://thecatapi.com
   - https://dequeuniversity.com/demo/
