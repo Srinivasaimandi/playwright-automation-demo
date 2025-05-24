@@ -1,11 +1,12 @@
-# What is this Repository about?
+# Playwright Automation Demo
+## ❓What is this Repository about?
 This repository contains demo test automation scripts built with Playwright for the following websites
   - http://saucedemo.com
   - http://thecatapi.com
   - https://dequeuniversity.com/demo/
   - https://www.lambdatest.com/selenium-playground
 
-# Getting Started
+## ⌘ Getting Started
 **Prerequisite**
 - setup node: [Windows][1] | [Ubuntu][2] | [macOS][3]
 
@@ -22,9 +23,6 @@ This repository contains demo test automation scripts built with Playwright for 
   - **demo** : to run all scripts
   - **ui-demo** : to run the ui scripts
   - **api-demo** : to run the api scripts  
-
-
-
 
 [1]:https://www.geeksforgeeks.org/install-node-js-on-windows/
 [2]:https://www.geeksforgeeks.org/installation-of-node-js-on-linux/
