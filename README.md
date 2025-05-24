@@ -5,9 +5,6 @@ This repository contains demo test automation scripts built with Playwright for 
   - https://dequeuniversity.com/demo/
   - https://www.lambdatest.com/selenium-playground
 
-**Summary of scenarios covered:**
-- to be filled, in-progress
-
 # Getting Started
 **Prerequisite**
 - setup node: [Windows][1] | [Ubuntu][2] | [macOS][3]
