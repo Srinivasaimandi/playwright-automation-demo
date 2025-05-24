@@ -66,3 +66,18 @@ test("radio button demo", {
     let textFromPage = await page.locator(".radiobutton").textContent();
     await expect(textFromPage).toBe("Radio button 'Male' is checked");
 })
+
+test("double click demo", {
+    tag: ["@demo", "@doubleClickDemo"],
+    annotation: {
+        type: "test",
+        description: "Double Click Demo",
+    }
+}, async function () {
+
+    await page.goto("https://www.lambdatest.com/selenium-playground/checkbox-demo");
+    await page.waitForTimeout(5000);
+    await page.locator("#isAgeSelected").dblclick();
+    await page.waitForTimeout(5000);
+    await expect(await page.locator("#isAgeSelected").isChecked()).toBeFalsy();
+})
