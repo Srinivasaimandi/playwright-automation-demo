@@ -14,13 +14,13 @@ test.afterAll(async () => {
     await page.close();
 })
 
-test("test simple form", {
+test("simple form demo", {
     tag: ["@demo", "@clickDemo"],
     annotation: {
         type: "test",
         description: "Click Demo",
     }
-}, async function ({ browser }) {
+}, async function () {
 
     const testMessage: string = "this is a test message";
 
@@ -30,5 +30,39 @@ test("test simple form", {
     await page.locator("#showInput").click();
     await page.waitForTimeout(5000);
     let textFromPage = await page.locator("#message").textContent();
-    expect(textFromPage).toBe(testMessage);
+    await expect(textFromPage).toBe(testMessage);
+})
+
+test("checkbox demo", {
+    tag: ["@demo", "@clickDemo"],
+    annotation: {
+        type: "test",
+        description: "Checkbox Demo",
+    }
+}, async function () {
+
+    await page.goto("https://www.lambdatest.com/selenium-playground/checkbox-demo");
+    await page.waitForTimeout(5000);
+    await page.locator("#isAgeSelected").check();
+    await page.waitForTimeout(5000);
+    await expect(await page.locator("#isAgeSelected").isChecked()).toBeTruthy();
+    let textFromPage = await page.locator("#txtAge").textContent();
+    await expect(textFromPage).toBe("Checked");
+})
+
+test("radio button demo", {
+    tag: ["@demo", "@clickDemo"],
+    annotation: {
+        type: "test",
+        description: "Radio Button Demo",
+    }
+}, async function () {
+
+    await page.goto("https://www.lambdatest.com/selenium-playground/radiobutton-demo");
+    await page.waitForTimeout(5000);
+    await page.locator("input[name=optradio]").first().check();
+    await page.locator("#buttoncheck").click();
+    await page.waitForTimeout(5000);
+    let textFromPage = await page.locator(".radiobutton").textContent();
+    await expect(textFromPage).toBe("Radio button 'Male' is checked");
 })
