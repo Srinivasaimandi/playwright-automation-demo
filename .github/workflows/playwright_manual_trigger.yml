@@ -9,8 +9,6 @@ on:
           - api_demo
           - ui_demo
           - demo
-      message:
-        required: true
 jobs:
   test:
     timeout-minutes: 60
