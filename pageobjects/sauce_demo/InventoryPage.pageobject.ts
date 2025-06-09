@@ -1,6 +1,6 @@
 import { expect, Page, Locator } from "@playwright/test";
-import { BasePage } from "./BasePage.pageobject";
-import * as Constants from "./Constants";
+import { BasePage } from "@pageobjects/sauce_demo/BasePage.pageobject";
+import * as Constants from "../Constants";
 
 /**
  * @author: srinivasaimandi

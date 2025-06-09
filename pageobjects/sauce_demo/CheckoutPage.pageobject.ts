@@ -1,5 +1,5 @@
 import { Page, Locator } from "@playwright/test";
-import { BasePage } from "./BasePage.pageobject";
+import { BasePage } from "@pageobjects/sauce_demo/BasePage.pageobject";
 import { faker } from "@faker-js/faker";
 
 /**

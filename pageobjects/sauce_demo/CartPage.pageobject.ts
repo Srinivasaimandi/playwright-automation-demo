@@ -1,5 +1,5 @@
 import { Page, Locator } from "@playwright/test";
-import { BasePage } from "./BasePage.pageobject";
+import { BasePage } from "@pageobjects/sauce_demo/BasePage.pageobject";
 
 /**
  * @author: srinivasaimandi
@@ -12,6 +12,7 @@ export class CartPage extends BasePage {
   constructor(page: Page) {
     super(page);
     this.cartItem = page.locator("div.cart_item");
+    this.productName = "";
   }
 
   setProductName(productName: string) {
