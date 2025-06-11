@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { test, request, expect } from "@playwright/test";
+import { test, request, expect, APIRequestContext } from "@playwright/test";
 import path from "path";
 import * as fs from "fs";
 import * as Constants from "../../pageobjects/Constants";
@@ -23,9 +23,9 @@ const reponseStatus = {
 };
 
 // run-time variables
-let catApiContext;
-let catImageId;
-let catImageUrl;
+let catApiContext: APIRequestContext;
+let catImageId: string;
+let catImageUrl: string;
 
 test.describe("cat api dependent tests", async function () {
   test.describe.configure({ mode: "serial" });

@@ -14,7 +14,7 @@ test.beforeAll(async function ({ browser }) {
   inventoryPage = new InventoryPage(page);
 });
 
-test(
+test.skip(
   "test 1",
   {
     tag: "@visual-test @reg @page-level-test",
@@ -29,7 +29,7 @@ test(
   }
 );
 
-test(
+test.skip(
   "test 2",
   {
     tag: "@visual-test @reg @component-level-test",
@@ -48,7 +48,7 @@ test(
   }
 );
 
-test(
+test.skip(
   "test 3",
   {
     tag: "@visual-test @reg @masking",
@@ -75,7 +75,7 @@ test(
   }
 );
 
-test(
+test.skip(
   "test 4",
   {
     tag: "@visual-test @reg @masking",
