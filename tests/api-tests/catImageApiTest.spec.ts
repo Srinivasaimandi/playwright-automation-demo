@@ -2,14 +2,14 @@ import { faker } from "@faker-js/faker";
 import { test, request, expect, APIRequestContext } from "@playwright/test";
 import path from "path";
 import * as fs from "fs";
-import * as Constants from "../../pageobjects/Constants";
+import * as CONSTANTS from "@pageobjects/Constants";
 
 /**
  * @author: srinivasaimandi
  */
 
-const ENDPOINT = Constants.api_automation.cat_api.base_url;
-const API_KEY = Constants.api_automation.cat_api.api_key;
+const ENDPOINT = CONSTANTS.CAT_API.BASE_URL;
+const API_KEY = CONSTANTS.CAT_API.API_KEY;
 const OPTIONS = {
   baseURL: ENDPOINT,
   extraHTTPHeaders: {

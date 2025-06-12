@@ -1,7 +1,7 @@
 import { expect, Page, test } from "@playwright/test";
 import { LoginPage } from "@pageobjects/sauce_demo/LoginPage.pageobject";
 import { InventoryPage } from "@pageobjects/sauce_demo/InventoryPage.pageobject";
-import * as Constants from "@pageobjects/Constants";
+import * as CONSTANTS from "@pageobjects/Constants";
 
 let page: Page;
 let loginPage: LoginPage;
@@ -38,8 +38,8 @@ test.skip(
   async function () {
     await loginPage.load();
     await loginPage.login(
-      Constants.web_ui_automation.sauce_labs.users["standard user"],
-      Constants.web_ui_automation.sauce_labs.password
+      CONSTANTS.SAUCE_LABS.USERS["standard user"],
+      CONSTANTS.SAUCE_LABS.PASSWORD
     );
     await inventoryPage.icoHamburger.click();
     await expect(page.locator(".bm-menu")).toHaveScreenshot({
@@ -61,8 +61,8 @@ test.skip(
   async function () {
     await loginPage.load();
     await loginPage.login(
-      Constants.web_ui_automation.sauce_labs.users["standard user"],
-      Constants.web_ui_automation.sauce_labs.password
+      CONSTANTS.SAUCE_LABS.USERS["standard user"],
+      CONSTANTS.SAUCE_LABS.PASSWORD
     );
     await (await inventoryPage.btnAddToCart("Sauce Labs Backpack")).click();
     await (await inventoryPage.btnAddToCart("Sauce Labs Bolt T-Shirt")).click();
@@ -88,8 +88,8 @@ test.skip(
   async function () {
     await loginPage.load();
     await loginPage.login(
-      Constants.web_ui_automation.sauce_labs.users["standard user"],
-      Constants.web_ui_automation.sauce_labs.password
+      CONSTANTS.SAUCE_LABS.USERS["standard user"],
+      CONSTANTS.SAUCE_LABS.PASSWORD
     );
 
     await loginPage.icoHamburger.click();

@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { LoginPage } from "@pageobjects/sauce_demo/LoginPage.pageobject";
 import { InventoryPage } from "@pageobjects/sauce_demo/InventoryPage.pageobject";
-import * as Constants from "@pageobjects/Constants";
+import * as CONSTANTS from "@pageobjects/Constants";
 import { faker } from "@faker-js/faker";
 
 /**
@@ -23,7 +23,7 @@ test.beforeEach(
 
 // afterEach
 test.afterEach("sleep for default timeout", async function ({ page }) {
-    await page.waitForTimeout(Constants.TIMEOUT);
+    await page.waitForTimeout(CONSTANTS.TIMEOUT);
 });
 
 let invalidScenarios: any = {
@@ -60,12 +60,12 @@ test.describe("negative scenarios", async function () {
     });
 
     // parameterized test: using json data from a file
-    Array.from(Object.values(Constants.web_ui_automation.sauce_labs.users)).forEach((username) => {
+    Array.from(Object.values(CONSTANTS.SAUCE_LABS.USERS)).forEach((username) => {
         test(
             `login test with username: '${username}'`,
             { tag: "@login @positive_case @reg" },
             async function () {
-                await loginPage.login(username, Constants.web_ui_automation.sauce_labs.password);
+                await loginPage.login(username, CONSTANTS.SAUCE_LABS.PASSWORD);
                 await inventoryPage.validateHeading(username);
             }
         );

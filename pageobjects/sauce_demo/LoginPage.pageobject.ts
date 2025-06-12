@@ -1,6 +1,6 @@
 import { Page, Locator, expect } from "@playwright/test";
 import { BasePage } from "@pageobjects/sauce_demo/BasePage.pageobject";
-import * as Constants from "../Constants";
+import * as CONSTANTS from "@pageobjects/Constants";
 
 /**
  * @author: srinivasaimandi
@@ -24,9 +24,9 @@ export class LoginPage extends BasePage {
    * @description: loads the baseUrl and validates the title
    */
   async load(): Promise<void> {
-    await this.page.goto(Constants.web_ui_automation.sauce_labs.base_url);
+    await this.page.goto(CONSTANTS.SAUCE_LABS.BASE_URL);
     // validate the title
-    await expect(this.page).toHaveTitle(Constants.web_ui_automation.sauce_labs.title);
+    await expect(this.page).toHaveTitle(CONSTANTS.SAUCE_LABS.TITLE);
   }
 
   /**

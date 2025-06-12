@@ -1,7 +1,7 @@
 import { test, expect, Page } from "@playwright/test";
 import { LoginPage } from "@pageobjects/sauce_demo/LoginPage.pageobject";
 import { InventoryPage } from "@pageobjects/sauce_demo/InventoryPage.pageobject";
-import * as Constants from "@pageobjects/Constants";
+import * as CONSTANTS from "@pageobjects/Constants";
 
 /**
  * @author: srinivasaimandi
@@ -18,7 +18,7 @@ test.beforeAll(async function ({ browser }) {
   inventoryPage = new InventoryPage(page);
 
   loginPage.load();
-  loginPage.login(Constants.web_ui_automation.sauce_labs.users["standard user"], Constants.web_ui_automation.sauce_labs.password);
+  loginPage.login(CONSTANTS.SAUCE_LABS.USERS["standard user"], CONSTANTS.SAUCE_LABS.PASSWORD);
 });
 
 test.afterAll(async function () {

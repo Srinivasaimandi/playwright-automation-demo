@@ -1,6 +1,6 @@
 import { expect, Page, Locator } from "@playwright/test";
 import { BasePage } from "@pageobjects/sauce_demo/BasePage.pageobject";
-import * as Constants from "../Constants";
+import * as CONSTANTS from "@pageobjects/Constants";
 
 /**
  * @author: srinivasaimandi
@@ -24,10 +24,10 @@ export class InventoryPage extends BasePage {
    */
   async validateHeading(username: string): Promise<void> {
     if (username === "locked_out_user") {
-      await expect(this.page).toHaveTitle(Constants.web_ui_automation.sauce_labs.title);
+      await expect(this.page).toHaveTitle(CONSTANTS.SAUCE_LABS.TITLE);
     } else {
       const heading = await this.heading.textContent();
-      await expect(heading).toEqual(Constants.web_ui_automation.sauce_labs.heading.products);
+      await expect(heading).toEqual(CONSTANTS.SAUCE_LABS.HEADING.PRODUCTS);
     }
   }
   /**
