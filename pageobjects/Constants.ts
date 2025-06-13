@@ -29,5 +29,5 @@ export const SAUCE_LABS = {
 
 export const CAT_API = {
   BASE_URL: "https://api.thecatapi.com/v1",
-  API_KEY: "live_RZPyVEv0nGUdmKYxu3WAOzz9bnymqeGukgS8hUqTx4ArYH6tdugzOgdoGGbBPdR8",
+  API_KEY: "sample-api-key",
 }
