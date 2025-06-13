@@ -17,7 +17,7 @@ const OPTIONS = {
     "x-api-key": API_KEY,
   },
 };
-const reponseStatus = {
+const RESPONSE_STATUS = {
   OK: "OK",
   BAD_REQUEST: "Bad Request",
 };
@@ -70,7 +70,7 @@ test.describe("cat api dependent tests", async function () {
       });
       await expect(fetchImageResponse.ok()).toBeTruthy();
       await expect(await fetchImageResponse.statusText()).toEqual(
-        reponseStatus.OK
+        RESPONSE_STATUS.OK
       );
     }
   );
@@ -99,7 +99,7 @@ test.describe("cat api dependent tests", async function () {
       });
       await expect(fetchImageResponse.ok()).toBeTruthy();
       await expect(await fetchImageResponse.statusText()).toEqual(
-        reponseStatus.OK
+        RESPONSE_STATUS.OK
       );
       let responseBody = await fetchImageResponse.json();
       catImageId = await responseBody[0].id;
@@ -124,7 +124,7 @@ test.describe("cat api dependent tests", async function () {
       let responseBody = await fetchImageResponse.json();
       await expect(await responseBody.url).toEqual(catImageUrl);
       await expect(await fetchImageResponse.statusText()).toEqual(
-        reponseStatus.OK
+        RESPONSE_STATUS.OK
       );
     }
   );
@@ -144,7 +144,7 @@ test.describe("cat api dependent tests", async function () {
       );
       await expect(await fetchImageResponse.status()).toBe(400);
       await expect(await fetchImageResponse.statusText()).toEqual(
-        reponseStatus.BAD_REQUEST
+        RESPONSE_STATUS.BAD_REQUEST
       );
     }
   );
