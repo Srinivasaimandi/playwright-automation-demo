@@ -1,9 +1,9 @@
 name: Playwright Tests
 on:
   push:
-    branches: [ git_workflow ]
+    branches: [ demo-branch ]
   pull_request:
-    branches: [ git_workflow ]
+    branches: [ demo-branch ]
 jobs:
   test:
     timeout-minutes: 60
