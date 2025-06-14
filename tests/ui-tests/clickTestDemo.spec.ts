@@ -53,3 +53,21 @@ test("checkbox demo test", {
     await expect(message).toBe("Checked!");
 }
 )
+
+test("radio button demo test", {
+    tag: "@actions-test @reg",
+    annotation: {
+        type: "test",
+        description: "click test on a radio button",
+    }
+}, async function () {
+    await page.goto("https://www.lambdatest.com/selenium-playground/radiobutton-demo");
+    await page.waitForURL("**/radiobutton-demo");
+    await page.waitForTimeout(5000);
+    let radio = page.locator("xpath=.//label[text()='Male']/input").first();
+    await radio.check();
+    await expect(radio).toBeChecked();
+    await page.locator("#buttoncheck").click();
+    const message = await page.locator("xpath=.//label[text()='Male']/following::p").first().textContent();
+    await expect(message).toBe("Radio button 'Male' is checked");
+})
