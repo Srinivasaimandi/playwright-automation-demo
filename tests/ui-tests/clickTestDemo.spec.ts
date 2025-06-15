@@ -46,7 +46,7 @@ test("checkbox demo test", {
 }, async function () {
     await page.goto("https://www.lambdatest.com/selenium-playground/checkbox-demo");
     await page.waitForURL("**/checkbox-demo");
-    let chkbox = page.locator("xpath=.//h2[text()='Single Checkbox Demo']/following-sibling::label/input");
+    const chkbox = page.locator("xpath=.//h2[text()='Single Checkbox Demo']/following-sibling::label/input");
     await chkbox.check();
     await expect(chkbox).toBeChecked();
     const message = await page.locator("xpath=.//h2[text()='Single Checkbox Demo']/following-sibling::p").textContent();
@@ -64,7 +64,7 @@ test("radio button demo test", {
     await page.goto("https://www.lambdatest.com/selenium-playground/radiobutton-demo");
     await page.waitForURL("**/radiobutton-demo");
     await page.waitForTimeout(5000);
-    let radio = page.locator("xpath=.//label[text()='Male']/input").first();
+    const radio = page.locator("xpath=.//label[text()='Male']/input").first();
     await radio.check();
     await expect(radio).toBeChecked();
     await page.locator("#buttoncheck").click();
@@ -81,8 +81,8 @@ test("mouse hover test", {
 }, async function () {
     await page.goto("https://www.lambdatest.com/selenium-playground/hover-demo");
     await page.waitForURL("**/hover-demo");
-    let hoverElement = await page.locator("xpath=.//div[h2[text()='CSS Hover Effects on Button']]/div[1]/div[1]");
-    const bgColorBeforeHover = await hoverElement.evaluate(el => window.getComputedStyle(el).getPropertyValue('background-color'));  
+    const hoverElement = await page.locator("xpath=.//div[h2[text()='CSS Hover Effects on Button']]/div[1]/div[1]");
+    const bgColorBeforeHover = await hoverElement.evaluate(el => window.getComputedStyle(el).getPropertyValue('background-color'));
     console.log("Background color before hover:", bgColorBeforeHover);
     expect(bgColorBeforeHover).toBe("rgb(40, 167, 69)");
     await hoverElement.hover();
@@ -131,5 +131,20 @@ test("simple form test using co-ordinates", {
     } else {
         throw new Error("Element bounding box not found");
     }
+}
+)
+
+test("double click test", {
+    tag: "@actions-test @reg",
+    annotation: {
+        type: "test",
+        description: "double click test on a button",
+    }
+}, async function () {
+    await page.goto("https://www.lambdatest.com/selenium-playground/checkbox-demo");
+    await page.waitForURL("**/checkbox-demo");
+    const chkbox = page.locator("xpath=.//h2[text()='Single Checkbox Demo']/following-sibling::label/input").first();
+    await chkbox.dblclick();
+    await expect(await page.locator("xpath=.//h2[text()='Single Checkbox Demo']/following-sibling::p")).not.toBeVisible();
 }
 )
