@@ -148,3 +148,46 @@ test("double click test", {
     await expect(await page.locator("xpath=.//h2[text()='Single Checkbox Demo']/following-sibling::p")).not.toBeVisible();
 }
 )
+
+test("click and drag test", {
+    tag: "@actions-test @reg",
+    annotation: {
+        type: "test",
+        description: "click and hold test on a button",
+    }
+}, async function () {
+    await page.goto("https://www.lambdatest.com/selenium-playground/drag-drop-range-sliders-demo");
+    await page.waitForURL("**/drag-drop-range-sliders-demo");
+    const slider = page.locator("#slider1 input.sp__range");
+    const dragItemBoundingBox = await slider.boundingBox();
+
+    let dragItemCenterX, dragItemCenterY;
+    if (!dragItemBoundingBox) {
+        throw new Error("Could not find bounding box for the slider element.");
+    } else {
+        dragItemCenterX = dragItemBoundingBox.x + dragItemBoundingBox.width / 2;
+        dragItemCenterY = dragItemBoundingBox.y + dragItemBoundingBox.height / 2;
+    }
+    await page.mouse.move(dragItemCenterX, dragItemCenterY);
+    await page.mouse.down();
+    await page.mouse.move(dragItemCenterX + 100, dragItemCenterY);
+    await page.mouse.up();
+    await expect(await page.locator("#range").textContent()).toBe("71");
+}
+)
+
+test("drag and drop test", {
+    tag: "@actions-test @reg",
+    annotation: {
+        type: "test",
+        description: "drag and drop test on a draggable element",
+    }
+}, async function () {
+    await page.goto("https://www.lambdatest.com/selenium-playground/drag-and-drop-demo");
+    await page.waitForURL("**/drag-and-drop-demo");
+    const source = page.locator("#todrag > span").first();
+    const target = page.locator("#mydropzone").first();
+    await source.dragTo(target);
+    await expect(await page.locator("#droppedlist span").textContent()).toContain("Draggable 1");
+}
+)
