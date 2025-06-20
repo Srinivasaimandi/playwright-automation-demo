@@ -65,7 +65,7 @@ test.describe("cat api dependent tests", async function () {
         page: 0,
         limit: 1,
       };
-      const fetchImageResponse = await catApiContext.get(`v1/images/search`, {
+      const fetchImageResponse = await catApiContext.get(`images/search`, {
         params: catParams,
       });
       await expect(fetchImageResponse.ok()).toBeTruthy();
@@ -94,7 +94,7 @@ test.describe("cat api dependent tests", async function () {
       catParams.set("page", "0");
       catParams.set("limit", "1");
 
-      const fetchImageResponse = await catApiContext.get(`v1/images/search`, {
+      const fetchImageResponse = await catApiContext.get(`images/search`, {
         params: catParams,
       });
       await expect(fetchImageResponse.ok()).toBeTruthy();
@@ -118,7 +118,7 @@ test.describe("cat api dependent tests", async function () {
     },
     async function () {
       const fetchImageResponse = await catApiContext.get(
-        `v1/images/${catImageId}`
+        `images/${catImageId}`
       );
       await expect(fetchImageResponse.ok()).toBeTruthy();
       let responseBody = await fetchImageResponse.json();
@@ -140,7 +140,7 @@ test.describe("cat api dependent tests", async function () {
     },
     async function () {
       let fetchImageResponse = await catApiContext.get(
-        `v1/images/${faker.string.alphanumeric(6)}`
+        `images/${faker.string.alphanumeric(6)}`
       );
       await expect(await fetchImageResponse.status()).toBe(400);
       await expect(await fetchImageResponse.statusText()).toEqual(
@@ -170,7 +170,7 @@ test.describe("cat api dependent tests", async function () {
       uploadImageOptions.extraHTTPHeaders["Content-Type"] =
         "multipart/form-data";
       catApiContext = await request.newContext(uploadImageOptions);
-      let uploadImageResponse = await catApiContext.post("v1/images/upload", {
+      let uploadImageResponse = await catApiContext.post("images/upload", {
         data: {
           file: {
             name: imagePath,
