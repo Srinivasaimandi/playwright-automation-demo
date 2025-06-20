@@ -11,9 +11,7 @@ This repository contains demo test automation scripts built with Playwright for 
 - setup node: [Windows][1] | [Ubuntu][2] | [macOS][3]
 
 **Setup**
-- api-key:
-  - generate your key by following the instructions on the [cat api official website](https://thecatapi.com)
-  - update the same in the [Constants](https://github.com/Srinivasaimandi/playwright-automation-demo/blob/main/pageobjects/Constants.ts) file
+- download [Users API](http://github.com/Srinivasaimandi/express-api-demo) and run it as documented
 - install dependencies:
   - open a terminal in the root of the repository and install the dependencies
 
