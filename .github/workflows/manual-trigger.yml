@@ -15,7 +15,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout this repo
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
     - name: Clone express-api-demo app
       run: git clone http://github.com/Srinivasaimandi/express-api-demo.git
     - name: Install and start server
