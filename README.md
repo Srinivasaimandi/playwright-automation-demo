@@ -5,6 +5,7 @@ This repository contains demo test automation scripts built with Playwright for 
   - http://thecatapi.com
   - https://dequeuniversity.com/demo/
   - https://www.lambdatest.com/selenium-playground
+  - http://github.com/Srinivasaimandi/express-api-demo
 
 ## ⌘ Getting Started
 **Prerequisite**
