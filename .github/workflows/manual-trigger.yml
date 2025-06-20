@@ -19,11 +19,11 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: lts/*
-    - name: Clone express-api-demo app
+    - name: Clone express-api-demo
       run: git clone http://github.com/Srinivasaimandi/express-api-demo.git
     - name: Install and start server
-      run: 
-        cd express-api-demo-main
+      run: |
+        cd express-api-demo
         npm install
         npm start
 
