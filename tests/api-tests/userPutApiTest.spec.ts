@@ -37,29 +37,23 @@ test.afterAll(async ({ }) => {
 });
 
 test(
-    "create a user",
+    "update a user",
     {
         tag: "@api @users-api",
         annotation: {
             type: "test",
-            description: "create a user",
+            description: "update a user",
         },
     },
     async function () {
 
         const userPayLoad = {
-            "name": "Samuel David",
-            "username": "samueldavid",
-            "password": "$test123#",
-            "email": "samueldavid@xyz.com"
+            "email": "johndoe@xyz.com"
         }
 
-        const response = (await httpRequestContext.post("users", {data: userPayLoad}));
-
+        const response = (await httpRequestContext.put("users/1", {data: userPayLoad}));
         const responseBody = await response.json();
-        expect(responseBody).toHaveProperty("name", userPayLoad.name);
-        expect(responseBody).toHaveProperty("username", userPayLoad.username);
-        expect(responseBody).toHaveProperty("password", userPayLoad.password);
+        
+        expect(response.status()).toBe(200);
         expect(responseBody).toHaveProperty("email", userPayLoad.email);
-        expect(response.status()).toBe(201);
     });
