@@ -10,11 +10,11 @@ This repository contains demo test automation scripts built with Playwright for 
 ## ⌘ Getting Started
 **Prerequisite**
 - setup node: [Windows][1] | [Ubuntu][2] | [macOS][3]
+- download [Users API](http://github.com/Srinivasaimandi/express-api-demo) and run it as documented
 
 **Setup**
-- download [Users API](http://github.com/Srinivasaimandi/express-api-demo) and run it as documented
-- install dependencies:
-  - open a terminal in the root of the repository and install the dependencies
+- download the repository
+- open a terminal in the root of the repository and install the dependencies
 
     **```npm install```**
 
