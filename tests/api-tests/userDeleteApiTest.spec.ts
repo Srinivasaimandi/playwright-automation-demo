@@ -1,20 +1,18 @@
 import { test, request, expect, APIRequestContext } from "@playwright/test";
+import * as CONSTANTS from "@pageobjects/Constants";
 
 /**
  * @author: srinivasaimandi
  */
 
-const ENDPOINT = "http://localhost:9899/api/";
+const ENDPOINT = CONSTANTS.USERS_API.BASE_URL;
+const API_KEY = CONSTANTS.USERS_API.API_KEY;
 const OPTIONS = {
     baseURL: ENDPOINT,
     extraHTTPHeaders: {
         "Content-Type": "application/json",
-        "x-api-key": "b7f2e1a4-9c3d-4e8a-8f2e-2c1a7d6b5e9c",
+        "x-api-key": API_KEY,
     },
-};
-const RESPONSE_STATUS = {
-    OK: "OK",
-    BAD_REQUEST: "Bad Request",
 };
 
 // run-time variables

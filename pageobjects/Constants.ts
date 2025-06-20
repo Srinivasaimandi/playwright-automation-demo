@@ -31,3 +31,9 @@ export const CAT_API = {
   BASE_URL: "https://api.thecatapi.com/v1/",
   API_KEY: "live_RZPyVEv0nGUdmKYxu3WAOzz9bnymqeGukgS8hUqTx4ArYH6tdugzOgdoGGbBPdR8",
 }
+
+export const USERS_API = {
+  BASE_URL: "http://localhost:9899/api/",
+  GRAPHQL_URL: "http://localhost:9899/graphql",
+  API_KEY: "b7f2e1a4-9c3d-4e8a-8f2e-2c1a7d6b5e9c"
+}
