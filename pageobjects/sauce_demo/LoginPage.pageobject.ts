@@ -1,23 +1,31 @@
 import { Page, Locator, expect } from "@playwright/test";
 import { BasePage } from "@pageobjects/sauce_demo/BasePage.pageobject";
+
 import * as CONSTANTS from "@pageobjects/Constants";
+import * as loginPageLocStrings from "../../locators/sauce_demo/LoginPage.locStrings.json";
+
+import { LocatorBuilder } from "@utils/LocatorBuilder";
 
 /**
  * @author: srinivasaimandi
  * @description: contains the locators and functions of login page
  */
 export class LoginPage extends BasePage {
-  iptUsername: Locator;
-  iptPassword: Locator;
-  btnSubmit: Locator;
+  iptUsername!: Locator;
+  iptPassword!: Locator;
+  btnSubmit!: Locator;
 
   constructor(page: Page) {
     super(page);
-    // getByPlaceholder usage
-    this.iptUsername = page.getByPlaceholder("Username");
-    this.iptPassword = page.locator("#password");
-    // getByRole usage
-    this.btnSubmit = page.getByRole("button", { name: "Login" });
+
+    Object.keys(loginPageLocStrings).forEach(key => {
+      // console.log(loginPageLocString.locStrings);
+      const locatorConfig = loginPageLocStrings[key as keyof typeof loginPageLocStrings];
+      const locator: Locator = new LocatorBuilder(page).buildElement(locatorConfig);
+      // console.log(`Assigning locator for key: ${key}`, locator);
+      (this as any)[key] = locator;
+    })
+
   }
 
   /**
