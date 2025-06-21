@@ -1,21 +1,28 @@
 import { Page, Locator } from "@playwright/test";
 import { BasePage } from "@pageobjects/sauce_demo/BasePage.pageobject";
 import { faker } from "@faker-js/faker";
+import * as checkoutPageLocString from "@locators/sauce_demo/CheckoutPage.locStrings";
+import { LocatorBuilder } from "@utils/LocatorBuilder";
 
 /**
  * @author: srinivasaimandi
  * @description: contains the locators and functions of checkout page
  */
 export class CheckoutPage extends BasePage {
-  private iptFirstName: Locator;
-  private iptLastName: Locator;
-  private iptPostalCode: Locator;
+  iptFirstName!: Locator;
+  iptLastName!: Locator;
+  iptPostalCode!: Locator;
 
   constructor(page: Page) {
     super(page);
-    this.iptFirstName = page.locator("#first-name");
-    this.iptLastName = page.locator("#last-name");
-    this.iptPostalCode = page.locator("#postal-code");
+
+    Object.keys(checkoutPageLocString.locStrings).forEach(key => {
+          // console.log(loginPageLocString.locStrings);
+          const locatorConfig = checkoutPageLocString.locStrings[key as keyof typeof checkoutPageLocString.locStrings];
+          const locator: Locator = new LocatorBuilder(page).buildElement(locatorConfig);
+          // console.log(`Assigning locator for key: ${key}`, locator);
+          (this as any)[key] = locator;
+        })
   }
 
   /**

@@ -1,18 +1,26 @@
 import { Page, Locator } from "@playwright/test";
 import { BasePage } from "@pageobjects/sauce_demo/BasePage.pageobject";
+import * as cartPageLocString from "@locators/sauce_demo/CartPage.locStrings";
+import { LocatorBuilder } from "@utils/LocatorBuilder";
 
 /**
  * @author: srinivasaimandi
  * @description: contains the locators and functions of cart page
  */
 export class CartPage extends BasePage {
-  private cartItem: Locator;
-  private productName: string;
+  cartItem!: Locator;
+  productName!: string;
 
   constructor(page: Page) {
     super(page);
-    this.cartItem = page.locator("div.cart_item");
-    this.productName = "";
+
+    Object.keys(cartPageLocString.locStrings).forEach(key => {
+          // console.log(loginPageLocString.locStrings);
+          const locatorConfig = cartPageLocString.locStrings[key as keyof typeof cartPageLocString.locStrings];
+          const locator: Locator = new LocatorBuilder(page).buildElement(locatorConfig);
+          // console.log(`Assigning locator for key: ${key}`, locator);
+          (this as any)[key] = locator;
+        })
   }
 
   setProductName(productName: string) {

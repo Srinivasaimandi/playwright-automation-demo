@@ -1,21 +1,27 @@
 import { expect, Page, Locator } from "@playwright/test";
 import { BasePage } from "@pageobjects/sauce_demo/BasePage.pageobject";
 import * as CONSTANTS from "@pageobjects/Constants";
+import * as inventoryPageLocString from "@locators/sauce_demo/InventoryPage.locStrings";
+import { LocatorBuilder } from "@utils/LocatorBuilder";
 
 /**
  * @author: srinivasaimandi
  * @description: contains the locators and functions of the inventory page
  */
 export class InventoryPage extends BasePage {
-  private productItem: Locator;
-  private productDescription: Locator;
-  private productPrice: Locator;
+  productItem!: Locator;
+  productDescription!: Locator;
+  productPrice!: Locator;
 
   constructor(page: Page) {
     super(page);
-    this.productItem = page.locator("div.inventory_item");
-    this.productDescription = page.locator(".inventory_item_desc");
-    this.productPrice = page.locator(".inventory_item_price");
+    Object.keys(inventoryPageLocString.locStrings).forEach(key => {
+          // console.log(loginPageLocString.locStrings);
+          const locatorConfig = inventoryPageLocString.locStrings[key as keyof typeof inventoryPageLocString.locStrings];
+          const locator: Locator = new LocatorBuilder(page).buildElement(locatorConfig);
+          // console.log(`Assigning locator for key: ${key}`, locator);
+          (this as any)[key] = locator;
+        })
   }
 
   /**

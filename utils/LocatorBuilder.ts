@@ -2,7 +2,7 @@ import { Locator, Page } from "@playwright/test";
 
 /**
  * @author: srinivasaimandi
- * @description: contains util functions for playwright
+ * @description: locator builder for all pageobjects
  */
 
 export class LocatorBuilder {

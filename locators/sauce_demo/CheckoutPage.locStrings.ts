@@ -1,0 +1,17 @@
+export let locStrings: Object = {
+    iptFirstName: {
+        locator: "#first-name",
+        locatorType: "css",
+        locatorOptions: {}
+    },
+    iptLastName: {
+        locator: "#last-name",
+        locatorType: "css",
+        locatorOptions: {}
+    },
+    iptPostalCode: {
+        locator: "#postal-code",
+        locatorType: "css",
+        locatorOptions: {}
+    }
+}

@@ -1,0 +1,17 @@
+export let locStrings: Object = {
+    productItem: {
+        locator: "div.inventory_item",
+        locatorType: "css",
+        locatorOptions: {}
+    },
+    productDescription: {
+        locator: ".inventory_item_desc",
+        locatorType: "css",
+        locatorOptions: {}
+    },
+    productPrice: {
+        locator: ".inventory_item_price",
+        locatorType: "css",
+        locatorOptions: {}
+    }
+}
