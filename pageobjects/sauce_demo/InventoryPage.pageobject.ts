@@ -1,7 +1,9 @@
 import { expect, Page, Locator } from "@playwright/test";
 import { BasePage } from "@pageobjects/sauce_demo/BasePage.pageobject";
+
 import * as CONSTANTS from "@pageobjects/Constants";
-import * as inventoryPageLocString from "@locators/sauce_demo/InventoryPage.locStrings";
+import * as inventoryPageLocStrings from "@locators/sauce_demo/InventoryPage.locStrings.json";
+
 import { LocatorBuilder } from "@utils/LocatorBuilder";
 
 /**
@@ -15,13 +17,13 @@ export class InventoryPage extends BasePage {
 
   constructor(page: Page) {
     super(page);
-    Object.keys(inventoryPageLocString.locStrings).forEach(key => {
-          // console.log(loginPageLocString.locStrings);
-          const locatorConfig = inventoryPageLocString.locStrings[key as keyof typeof inventoryPageLocString.locStrings];
-          const locator: Locator = new LocatorBuilder(page).buildElement(locatorConfig);
-          // console.log(`Assigning locator for key: ${key}`, locator);
-          (this as any)[key] = locator;
-        })
+    Object.keys(inventoryPageLocStrings).forEach(key => {
+      // console.log(loginPageLocString.locStrings);
+      const locatorConfig = inventoryPageLocStrings[key as keyof typeof inventoryPageLocStrings];
+      const locator: Locator = new LocatorBuilder(page).buildElement(locatorConfig);
+      // console.log(`Assigning locator for key: ${key}`, locator);
+      (this as any)[key] = locator;
+    })
   }
 
   /**
@@ -64,7 +66,7 @@ export class InventoryPage extends BasePage {
   async fetchProductDescription(productName: string): Promise<Locator> {
     this.productDescription = await (
       await this.fetchProductItem(productName)
-    ).locator(".inventory_item_desc");
+    ).locator(inventoryPageLocStrings.productDescription.locator);
     return this.productDescription;
   }
   /**

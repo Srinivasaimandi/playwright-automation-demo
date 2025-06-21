@@ -1,7 +1,9 @@
 import { Page, Locator } from "@playwright/test";
 import { BasePage } from "@pageobjects/sauce_demo/BasePage.pageobject";
 import { faker } from "@faker-js/faker";
-import * as checkoutPageLocString from "@locators/sauce_demo/CheckoutPage.locStrings";
+
+import * as checkoutPageLocStrings from "@locators/sauce_demo/CheckoutPage.locStrings.json";
+
 import { LocatorBuilder } from "@utils/LocatorBuilder";
 
 /**
@@ -16,13 +18,13 @@ export class CheckoutPage extends BasePage {
   constructor(page: Page) {
     super(page);
 
-    Object.keys(checkoutPageLocString.locStrings).forEach(key => {
-          // console.log(loginPageLocString.locStrings);
-          const locatorConfig = checkoutPageLocString.locStrings[key as keyof typeof checkoutPageLocString.locStrings];
-          const locator: Locator = new LocatorBuilder(page).buildElement(locatorConfig);
-          // console.log(`Assigning locator for key: ${key}`, locator);
-          (this as any)[key] = locator;
-        })
+    Object.keys(checkoutPageLocStrings).forEach(key => {
+      // console.log(loginPageLocString.locStrings);
+      const locatorConfig = checkoutPageLocStrings[key as keyof typeof checkoutPageLocStrings];
+      const locator: Locator = new LocatorBuilder(page).buildElement(locatorConfig);
+      // console.log(`Assigning locator for key: ${key}`, locator);
+      (this as any)[key] = locator;
+    })
   }
 
   /**

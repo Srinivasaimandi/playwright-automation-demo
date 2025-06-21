@@ -1,6 +1,8 @@
 import { Locator, Page } from "@playwright/test";
 import { BasePage } from "@pageobjects/sauce_demo/BasePage.pageobject";
-import * as inventoryItemPageLocString from "@locators/sauce_demo/InventoryItemPage.locStrings";
+
+import * as inventoryItemPageLocStrings from "@locators/sauce_demo/InventoryItemPage.locStrings.json";
+
 import { LocatorBuilder } from "@utils/LocatorBuilder";
 
 /**
@@ -15,12 +17,12 @@ export class InventoryItemPage extends BasePage {
   constructor(page: Page) {
     super(page);
 
-    Object.keys(inventoryItemPageLocString.locStrings).forEach(key => {
-          // console.log(loginPageLocString.locStrings);
-          const locatorConfig = inventoryItemPageLocString.locStrings[key as keyof typeof inventoryItemPageLocString.locStrings];
-          const locator: Locator = new LocatorBuilder(page).buildElement(locatorConfig);
-          // console.log(`Assigning locator for key: ${key}`, locator);
-          (this as any)[key] = locator;
-        })
+    Object.keys(inventoryItemPageLocStrings).forEach(key => {
+      // console.log(loginPageLocString.locStrings);
+      const locatorConfig = inventoryItemPageLocStrings[key as keyof typeof inventoryItemPageLocStrings];
+      const locator: Locator = new LocatorBuilder(page).buildElement(locatorConfig);
+      // console.log(`Assigning locator for key: ${key}`, locator);
+      (this as any)[key] = locator;
+    })
   }
 }

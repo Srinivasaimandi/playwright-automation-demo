@@ -1,5 +1,5 @@
 import { Page, Locator } from "@playwright/test";
-import * as basePageLocString from "@locators/sauce_demo/BasePage.locStrings";
+import * as basePageLocStrings from "@locators/sauce_demo/BasePage.locStrings.json";
 import { LocatorBuilder } from "@utils/LocatorBuilder";
 
 /**
@@ -28,9 +28,9 @@ export class BasePage {
   constructor(page: Page) {
     this.page = page;
 
-    Object.keys(basePageLocString.locStrings).forEach(key => {
+    Object.keys(basePageLocStrings).forEach(key => {
       // console.log(loginPageLocString.locStrings);
-      const locatorConfig = basePageLocString.locStrings[key as keyof typeof basePageLocString.locStrings];
+      const locatorConfig = basePageLocStrings[key as keyof typeof basePageLocStrings];
       const locator: Locator = new LocatorBuilder(page).buildElement(locatorConfig);
       // console.log(`Assigning locator for key: ${key}`, locator);
       (this as any)[key] = locator;

@@ -1,6 +1,6 @@
 import { Page, Locator } from "@playwright/test";
 import { BasePage } from "@pageobjects/sauce_demo/BasePage.pageobject";
-import * as cartPageLocString from "@locators/sauce_demo/CartPage.locStrings";
+import * as cartPageLocStrings from "@locators/sauce_demo/CartPage.locStrings.json";
 import { LocatorBuilder } from "@utils/LocatorBuilder";
 
 /**
@@ -9,18 +9,20 @@ import { LocatorBuilder } from "@utils/LocatorBuilder";
  */
 export class CartPage extends BasePage {
   cartItem!: Locator;
+  cartItemDesc!: Locator
+  cartItemPrice!: Locator;
   productName!: string;
 
   constructor(page: Page) {
     super(page);
 
-    Object.keys(cartPageLocString.locStrings).forEach(key => {
-          // console.log(loginPageLocString.locStrings);
-          const locatorConfig = cartPageLocString.locStrings[key as keyof typeof cartPageLocString.locStrings];
-          const locator: Locator = new LocatorBuilder(page).buildElement(locatorConfig);
-          // console.log(`Assigning locator for key: ${key}`, locator);
-          (this as any)[key] = locator;
-        })
+    Object.keys(cartPageLocStrings).forEach(key => {
+      // console.log(loginPageLocString.locStrings);
+      const locatorConfig = cartPageLocStrings[key as keyof typeof cartPageLocStrings];
+      const locator: Locator = new LocatorBuilder(page).buildElement(locatorConfig);
+      // console.log(`Assigning locator for key: ${key}`, locator);
+      (this as any)[key] = locator;
+    })
   }
 
   setProductName(productName: string) {
@@ -50,7 +52,8 @@ export class CartPage extends BasePage {
   async fetchCartItemDescription(productName: string): Promise<Locator> {
     return await (
       await this.fetchCartItem(productName)
-    ).locator(".inventory_item_desc");
+    ).locator(cartPageLocStrings.cartItemDesc.locator);
+    // ).locator(".inventory_item_desc");
   }
   /**
    *
@@ -70,6 +73,6 @@ export class CartPage extends BasePage {
   async fetchCartItemPrice(productName: string): Promise<Locator> {
     return await (
       await this.fetchCartItem(productName)
-    ).locator(".inventory_item_price");
+    ).locator(cartPageLocStrings.cartItemPrice.locator);
   }
 }
