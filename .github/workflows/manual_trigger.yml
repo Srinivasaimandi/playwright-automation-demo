@@ -1,4 +1,4 @@
-name: Trigger Tests Manually
+name: Manual Trigger
 on:
   workflow_dispatch:
     inputs:
