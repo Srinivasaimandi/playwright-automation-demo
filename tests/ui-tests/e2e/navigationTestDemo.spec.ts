@@ -17,8 +17,8 @@ test.beforeAll(async function ({ browser }) {
   loginPage = new LoginPage(page);
   inventoryPage = new InventoryPage(page);
 
-  loginPage.load();
-  loginPage.login(CONSTANTS.SAUCE_LABS.USERS["standard user"], CONSTANTS.SAUCE_LABS.PASSWORD);
+  await loginPage.load();
+  await loginPage.login(CONSTANTS.SAUCE_LABS.USERS["standard user"], CONSTANTS.SAUCE_LABS.PASSWORD);
 });
 
 test.afterAll(async function () {

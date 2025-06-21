@@ -1,0 +1,19 @@
+export let locStrings: Object = {
+    iptUsername: {
+        locator: "#user-name",
+        locatorType: "css",
+        locatorOptions: {}
+    },
+    iptPassword: {
+        locator: "#password",
+        locatorType: "css",
+        locatorOptions: {}
+    },
+    btnSubmit: {
+        locator: "button",
+        locatorType: "role",
+        locatorOptions: {
+            name: "Login"
+        }
+    }
+}
