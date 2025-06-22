@@ -20,7 +20,7 @@ export class InventoryPage extends BasePage {
     Object.keys(inventoryPageLocStrings).forEach(key => {
       // console.log(loginPageLocString.locStrings);
       const locatorConfig = inventoryPageLocStrings[key as keyof typeof inventoryPageLocStrings];
-      const locator: Locator = new LocatorBuilder(page).buildElement(locatorConfig);
+      const locator: Locator = new LocatorBuilder(page).buildElementWithAlternates(locatorConfig);
       // console.log(`Assigning locator for key: ${key}`, locator);
       (this as any)[key] = locator;
     })

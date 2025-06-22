@@ -2,67 +2,80 @@
     "heading": {
         "locator": "div .header_secondary_container > span",
         "locatorType": "css",
-        "locatorOptions": {}
+        "locatorOptions": {},
+        "alternates": []
     },
     "icoShoppingCart": {
         "locator": "#shopping_cart_container",
         "locatorType": "css",
-        "locatorOptions": {}
+        "locatorOptions": {},
+        "alternates": []
     },
     "icoHamburger": {
         "locator": "div .bm-burger-button > button",
         "locatorType": "css",
-        "locatorOptions": {}
+        "locatorOptions": {},
+        "alternates": []
     },
     "hlAllItems": {
         "locator": "#inventory_sidebar_link",
         "locatorType": "css",
-        "locatorOptions": {}
+        "locatorOptions": {},
+        "alternates": []
     },
     "hlAbout": {
         "locator": "#about_sidebar_link",
         "locatorType": "css",
-        "locatorOptions": {}
+        "locatorOptions": {},
+        "alternates": []
     },
     "hlLogout": {
         "locator": "#logout_sidebar_link",
         "locatorType": "css",
-        "locatorOptions": {}
+        "locatorOptions": {},
+        "alternates": []
     },
     "hlResetAppState": {
         "locator": "#reset_sidebar_link",
         "locatorType": "css",
-        "locatorOptions": {}
+        "locatorOptions": {},
+        "alternates": []
     },
     "icoCloseHamburgerMenu": {
         "locator": "#react-burger-cross-btn",
         "locatorType": "css",
-        "locatorOptions": {}
+        "locatorOptions": {},
+        "alternates": []
     },
     "btnContinueShopping": {
         "locator": "#continue-shopping",
         "locatorType": "css",
-        "locatorOptions": {}
+        "locatorOptions": {},
+        "alternates": []
     },
     "btnCheckout": {
         "locator": "#checkout",
         "locatorType": "css",
-        "locatorOptions": {}
+        "locatorOptions": {},
+        "alternates": []
     },
     "btnCancel": {
         "locator": "#cancel",
         "locatorType": "css",
-        "locatorOptions": {}
+        "locatorOptions": {},
+        "alternates": []
     },
     "btnContinue": {
         "locator": "#continue",
         "locatorType": "css",
-        "locatorOptions": {}
+        "locatorOptions": {},
+        "alternates": []
     },
     "btnFinish": {
         "locator": "#finish",
         "locatorType": "css",
-        "locatorOptions": {}
+        "locatorOptions": {},
+        "alternates": []
     },
     "btnRemove": {
         "locator": "button",
@@ -74,6 +87,7 @@
     "btnBackToProducts": {
         "locator": "#back-to-products",
         "locatorType": "css",
-        "locatorOptions": {}
+        "locatorOptions": {},
+        "alternates": []
     }
 }

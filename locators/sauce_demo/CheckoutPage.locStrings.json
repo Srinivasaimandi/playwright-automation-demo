@@ -2,16 +2,19 @@
     "iptFirstName": {
         "locator": "#first-name",
         "locatorType": "css",
-        "locatorOptions": {}
+        "locatorOptions": {},
+        "alternates": []
     },
     "iptLastName": {
         "locator": "#last-name",
         "locatorType": "css",
-        "locatorOptions": {}
+        "locatorOptions": {},
+        "alternates": []
     },
     "iptPostalCode": {
         "locator": "#postal-code",
         "locatorType": "css",
-        "locatorOptions": {}
+        "locatorOptions": {},
+        "alternates": []
     }
 }

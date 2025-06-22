@@ -19,7 +19,7 @@ export class CartPage extends BasePage {
     Object.keys(cartPageLocStrings).forEach(key => {
       // console.log(loginPageLocString.locStrings);
       const locatorConfig = cartPageLocStrings[key as keyof typeof cartPageLocStrings];
-      const locator: Locator = new LocatorBuilder(page).buildElement(locatorConfig);
+      const locator: Locator = new LocatorBuilder(page).buildElementWithAlternates(locatorConfig);
       // console.log(`Assigning locator for key: ${key}`, locator);
       (this as any)[key] = locator;
     })

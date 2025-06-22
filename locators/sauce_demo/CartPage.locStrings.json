@@ -2,16 +2,19 @@
     "cartItem": {
         "locator": "div.cart_item",
         "locatorType": "css",
-        "locatorOptions": {}
+        "locatorOptions": {},
+        "alternates": []
     },
     "cartItemDesc": {
         "locator": ".inventory_item_desc",
         "locatorType": "css",
-        "locatorOptions": {}
+        "locatorOptions": {},
+        "alternates": []
     },
     "cartItemPrice": {
         "locator": ".inventory_item_price",
         "locatorType": "css",
-        "locatorOptions": {}
+        "locatorOptions": {},
+        "alternates": []
     }
 }
