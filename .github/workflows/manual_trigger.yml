@@ -18,10 +18,14 @@ jobs:
     uses: Srinivasaimandi/srinivasaimandi-reusable-workflows/.github/workflows/setup-express-api.yml@main
 
   run-automation:
-    needs: [setup-api]
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    
+    # Always declare needs, but conditionally run this job
+    needs: [setup-api]
+    if: |
+      (inputs.name == 'api_demo' || inputs.name == 'demo') && always() ||
+      (inputs.name == 'ui_demo')
+
     steps:
       - name: Checkout this repo
         uses: actions/checkout@v4
