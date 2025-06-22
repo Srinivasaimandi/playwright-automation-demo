@@ -2,16 +2,19 @@
     "productItemName": {
         "locator": "div.inventory_details_desc_container> div.inventory_details_name",
         "locatorType": "css",
-        "locatorOptions": {}
+        "locatorOptions": {},
+        "alternates": []
     },
     "productItemDescription": {
         "locator": "div.inventory_details_desc_container> div.inventory_details_desc",
         "locatorType": "css",
-        "locatorOptions": {}
+        "locatorOptions": {},
+        "alternates": []
     },
     "productItemPrice": {
         "locator": "div.inventory_details_desc_container> div.inventory_details_price",
         "locatorType": "css",
-        "locatorOptions": {}
+        "locatorOptions": {},
+        "alternates": []
     }
 }

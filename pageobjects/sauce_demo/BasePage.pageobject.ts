@@ -31,7 +31,7 @@ export class BasePage {
     Object.keys(basePageLocStrings).forEach(key => {
       // console.log(loginPageLocString.locStrings);
       const locatorConfig = basePageLocStrings[key as keyof typeof basePageLocStrings];
-      const locator: Locator = new LocatorBuilder(page).buildElement(locatorConfig);
+      const locator: Locator = new LocatorBuilder(page).buildElementWithAlternates(locatorConfig);
       // console.log(`Assigning locator for key: ${key}`, locator);
       (this as any)[key] = locator;
     })

@@ -2,18 +2,27 @@
     "iptUsername": {
         "locator": "#user-name",
         "locatorType": "css",
-        "locatorOptions": {}
+        "locatorOptions": {},
+        "alternates": []
     },
     "iptPassword": {
         "locator": "#password",
         "locatorType": "css",
-        "locatorOptions": {}
+        "locatorOptions": {},
+        "alternates": []
     },
     "btnSubmit": {
         "locator": "button",
         "locatorType": "role",
         "locatorOptions": {
-            "name": "Login"
-        }
+            "name": "LoginButton"
+        },
+        "alternates": [
+            {
+                "locator": "#login-button",
+                "locatorType": "css",
+                "locatorOptions": {}
+            }
+        ]
     }
 }

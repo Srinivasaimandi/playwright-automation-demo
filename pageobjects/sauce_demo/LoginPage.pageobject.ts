@@ -21,7 +21,7 @@ export class LoginPage extends BasePage {
     Object.keys(loginPageLocStrings).forEach(key => {
       // console.log(loginPageLocString.locStrings);
       const locatorConfig = loginPageLocStrings[key as keyof typeof loginPageLocStrings];
-      const locator: Locator = new LocatorBuilder(page).buildElement(locatorConfig);
+      const locator: Locator = new LocatorBuilder(page).buildElementWithAlternates(locatorConfig);
       // console.log(`Assigning locator for key: ${key}`, locator);
       (this as any)[key] = locator;
     })
