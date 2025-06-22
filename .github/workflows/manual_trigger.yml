@@ -14,18 +14,13 @@ on:
 jobs:
   # Reusable workflow to set up express API server (only for api_demo or demo)
   setup-api:
-    if: ${{ inputs.name == 'api_demo' || inputs.name == 'demo' }}
     uses: Srinivasaimandi/srinivasaimandi-reusable-workflows/.github/workflows/setup-express-api.yml@main
 
   run-automation:
+    needs: [setup-api]
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    # Always declare needs, but conditionally run this job
-    needs: [setup-api]
-    if: |
-      (inputs.name == 'api_demo' || inputs.name == 'demo') && always() ||
-      (inputs.name == 'ui_demo')
-
+    
     steps:
       - name: Checkout this repo
         uses: actions/checkout@v4
@@ -42,7 +37,7 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Run Playwright tests
-        run: npx playwright test --project ${{ github.event.inputs.name }} --workers 1
+        run: npx playwright test --project ${{ github.event.inputs.name }}
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
