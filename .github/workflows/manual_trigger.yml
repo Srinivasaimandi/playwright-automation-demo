@@ -2,7 +2,13 @@ name: Manual Trigger
 on:
   workflow_dispatch:
     inputs:
-      name: 
+      express-api-branch: 
+        type: choice
+        description: choose the express-api app branch
+        options:
+          - main
+          - work-bench
+      test-type: 
         type: choice
         description: choose the type of tests to run
         options:
@@ -23,7 +29,7 @@ jobs:
           node-version: lts/*
 
       - name: Clone express-api-demo app
-        run: git clone http://github.com/Srinivasaimandi/express-api-demo.git
+        run: git clone -b ${{github.event.inputs.express-api-branch}} http://github.com/Srinivasaimandi/express-api-demo.git
 
       - name: Install and start server
         run: |
@@ -36,7 +42,7 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run Playwright tests
-        run: npx playwright test --project ${{github.event.inputs.name}}
+        run: npx playwright test --project ${{github.event.inputs.test-type}}
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
