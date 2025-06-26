@@ -27,7 +27,7 @@ This repository contains demo test automation scripts built with Playwright for 
   - **ui-demo** : to run the ui scripts
   - **api-demo** : to run the api scripts  
 
-## ☑️ Scenarios Covered(in-progress)
+## ✅ Scenarios Covered(in-progress)
 
 **API Tests**
 
