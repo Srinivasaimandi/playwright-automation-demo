@@ -1,11 +1,11 @@
 # Playwright Automation Demo
 ## ❓What is this Repository about?
 This repository contains demo test automation scripts built with Playwright for the following websites
-  - http://saucedemo.com
-  - http://thecatapi.com
-  - https://dequeuniversity.com/demo/
-  - https://www.lambdatest.com/selenium-playground
-  - http://github.com/Srinivasaimandi/express-api-demo
+  - [Swag Labs: Sauce Demo](http://saucedemo.com)
+  - [Cat API](http://thecatapi.com)
+  - [Deque Demo Website](https://dequeuniversity.com/demo/)
+  - [Lambda Test: Selenium Playground](https://www.lambdatest.com/selenium-playground)
+  - [Users API](http://github.com/Srinivasaimandi/express-api-demo)
 
 ## ⌘ Getting Started
 **Prerequisite**
