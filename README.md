@@ -29,6 +29,8 @@ This repository contains demo test automation scripts built with Playwright for 
 
 ## ☑️ Scenarios Covered(in-progress)
 
+**API Tests**
+
 | #  | Endpoint                     | Method | Input / Query / Body                                                                  | Scenario / Condition                                      | Expected Result                                               | Status Code |
 |----|------------------------------|--------|----------------------------------------------------------------------------------------|------------------------------------------------------------|----------------------------------------------------------------|-------------|
 | 1  | `/users`                    | GET    | –                                                                                      | Users present in data                                       | List of users returned                                         | 200         |
