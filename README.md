@@ -26,7 +26,7 @@ This repository contains demo test automation scripts built with Playwright for 
   - **demo** : to run all scripts
   - **ui-demo** : to run the ui scripts
   - **api-demo** : to run the api scripts
-  - 
+    
 
 [1]:https://www.geeksforgeeks.org/install-node-js-on-windows/
 [2]:https://www.geeksforgeeks.org/installation-of-node-js-on-linux/
