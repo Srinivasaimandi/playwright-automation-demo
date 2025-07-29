@@ -1,6 +1,8 @@
 import { faker } from "@faker-js/faker";
 import { test, request, expect, APIRequestContext } from "@playwright/test";
 import * as CONSTANTS from "@pageobjects/Constants";
+import { DockerFactory } from "../../services/DockerFactory";
+import Dockerode from "dockerode";
 
 /**
  * @author: srinivasaimandi
@@ -20,6 +22,7 @@ const OPTIONS = {
 let httpRequestContext: APIRequestContext;
 let userDetails: any = {}
 let createUserPayLoad: any = {}
+let container: Dockerode.Container;
 
 test.describe("users api tests", async function () {
     test.describe.configure({ mode: "serial" });
@@ -28,6 +31,11 @@ test.describe("users api tests", async function () {
      * setting up users api context
      */
     test.beforeAll(async function () {
+        container = await DockerFactory.createService('users-app');
+
+        console.log('Waiting for app to be ready...');
+        await new Promise(res => setTimeout(res, 10000));
+
         // creating a new context using options
         httpRequestContext = await request.newContext(OPTIONS);
     });
@@ -36,6 +44,10 @@ test.describe("users api tests", async function () {
      * disposing the users api context
      */
     test.afterAll(async ({ }) => {
+        await container.stop();
+        await container.remove();
+        console.log('Container stopped and removed.');
+
         // dispose all responses
         await httpRequestContext.dispose();
     });
