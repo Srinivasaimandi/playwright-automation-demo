@@ -5,7 +5,7 @@ import * as CONSTANTS from "@pageobjects/Constants";
  * @author: srinivasaimandi
  */
 
-const ENDPOINT = CONSTANTS.USERS_API.BASE_URL;
+const ENDPOINT = CONSTANTS.USERS_API.API_URL;
 const API_KEY = CONSTANTS.USERS_API.API_KEY;
 const OPTIONS = {
     baseURL: ENDPOINT,
@@ -52,7 +52,7 @@ test(
             "email": "samueldavid@xyz.com"
         }
 
-        const response = (await httpRequestContext.post("users", {data: userPayLoad}));
+        const response = (await httpRequestContext.post("users", { data: userPayLoad }));
 
         const responseBody = await response.json();
         expect(responseBody).toHaveProperty("name", userPayLoad.name);

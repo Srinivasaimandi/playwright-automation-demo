@@ -1,0 +1,20 @@
+{
+    "hlUI": {
+        "locator": "#ui-link",
+        "locatorType": "css",
+        "locatorOptions": {},
+        "alternates": []
+    },
+    "hlSwaggerDocs": {
+        "locator": "#swagger-link",
+        "locatorType": "css",
+        "locatorOptions": {},
+        "alternates": []
+    },
+    "hlGraphQl": {
+        "locator": "#graphql-link",
+        "locatorType": "css",
+        "locatorOptions": {},
+        "alternates": []
+    }
+}

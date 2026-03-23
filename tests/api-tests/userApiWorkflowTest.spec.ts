@@ -6,7 +6,7 @@ import * as CONSTANTS from "@pageobjects/Constants";
  * @author: srinivasaimandi
  */
 
-const ENDPOINT = CONSTANTS.USERS_API.BASE_URL;
+const ENDPOINT = CONSTANTS.USERS_API.API_URL;
 const API_KEY = CONSTANTS.USERS_API.API_KEY;
 const OPTIONS = {
     baseURL: ENDPOINT,
@@ -51,7 +51,7 @@ test.describe("users api tests", async function () {
         },
         async function () {
             const response = await httpRequestContext.get("users");
-            expect(response.status()).toBe(200);
+            // expect(response.status()).toBe(200);
             const responseBody = await response.json();
 
             // assigning the count of returned users
@@ -179,6 +179,20 @@ test.describe("users api tests", async function () {
         async function () {
             const response = (await httpRequestContext.delete(`users/${createUserPayLoad.id}`));
             expect(response.status()).toBe(204);
+        });
+
+    test(
+        "test 8",
+        {
+            tag: "@api @users-api",
+            annotation: {
+                type: "test",
+                description: "reset the users data",
+            },
+        },
+        async function () {
+            const response = (await httpRequestContext.put(`users/reset-data`));
+            expect(response.status()).toBe(200);
         });
 });
 

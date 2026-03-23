@@ -5,7 +5,7 @@ import * as CONSTANTS from "@pageobjects/Constants";
  * @author: srinivasaimandi
  */
 
-const ENDPOINT = CONSTANTS.USERS_API.BASE_URL;
+const ENDPOINT = CONSTANTS.USERS_API.API_URL;
 const API_KEY = CONSTANTS.USERS_API.API_KEY;
 const OPTIONS = {
     baseURL: ENDPOINT,
