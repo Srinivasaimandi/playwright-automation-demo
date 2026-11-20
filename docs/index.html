@@ -245,7 +245,8 @@
             </article>
           </div>
           <p>
-            The Users App is included in <code>app/</code>. For loopback targets under <code>TEST_ENV=local</code> or
+            The Users App is included in <code>app/</code> as a Git submodule. Initialize it with
+            <code>git submodule update --init --recursive</code>. For loopback targets under <code>TEST_ENV=local</code> or
             <code>TEST_ENV=test</code>, Playwright starts it with <code>npm --prefix app start</code> and waits for
             <code>BASE_URL</code>. Remote test, development, and staging targets must already be reachable.
           </p>
@@ -259,7 +260,8 @@
             <li>Copy an environment example and set the application URL and credentials.</li>
             <li>Run the desired test command; Playwright starts the bundled app for loopback targets.</li>
           </ol>
-          <pre><code>npm ci
+          <pre><code>git submodule update --init --recursive
+npm ci
 npm ci --prefix app
 npx playwright install chromium firefox webkit
 cp env/.env.example env/.env.local

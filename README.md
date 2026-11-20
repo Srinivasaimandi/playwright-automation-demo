@@ -12,12 +12,13 @@ See the [framework developer guide](./docs/index.html) for the architecture, fix
 ## Setup
 
 ```bash
+git submodule update --init --recursive
 npm ci
 npm ci --prefix app
 npx playwright install chromium firefox webkit
 ```
 
-The Users App source is in [`app/`](./app/), cloned from
+The Users App source is in [`app/`](./app/) as a Git submodule, cloned from
 [users-app-demo](https://github.com/srinivasaimandi/users-app-demo). Playwright starts it automatically for local
 and loopback test runs with `npm --prefix app start` (port 9899). If that URL is already serving the app, local runs
 reuse it; CI starts a fresh server. Remote development and staging targets are not started by Playwright.
