@@ -163,25 +163,41 @@ function renderPassRateChart(runs) {
   }
 
   const chart = { left: 52, right: 620, top: 18, bottom: 184 };
-  const xFor = (index) => points.length === 1
-    ? (chart.left + chart.right) / 2
-    : chart.left + (index / (points.length - 1)) * (chart.right - chart.left);
+  const xFor = (index) =>
+    points.length === 1
+      ? (chart.left + chart.right) / 2
+      : chart.left + (index / (points.length - 1)) * (chart.right - chart.left);
   const yFor = (rate) => chart.top + ((100 - rate) / 100) * (chart.bottom - chart.top);
-  const coordinates = points.map(({ run }, index) => `${xFor(index)},${yFor(run.passRate)}`).join(' ');
-  const gridLines = [100, 75, 50, 25, 0].map((rate) => {
-    const y = yFor(rate);
-    return `<g class="chart-gridline"><line x1="${chart.left}" y1="${y}" x2="${chart.right}" y2="${y}"></line><text x="${chart.left - 10}" y="${y + 4}" text-anchor="end">${rate}%</text></g>`;
-  }).join('');
-  const markers = points.map(({ run }, index) => {
-    const label = `${run.completedAt}: ${formatRate(run.passRate)}`;
-    return `<circle class="chart-point" cx="${xFor(index)}" cy="${yFor(run.passRate)}" r="5"><title>${escapeHtml(label)}</title></circle>`;
-  }).join('');
+  const coordinates = points
+    .map(({ run }, index) => `${xFor(index)},${yFor(run.passRate)}`)
+    .join(' ');
+  const gridLines = [100, 75, 50, 25, 0]
+    .map((rate) => {
+      const y = yFor(rate);
+      return `<g class="chart-gridline"><line x1="${chart.left}" y1="${y}" x2="${chart.right}" y2="${y}"></line><text x="${chart.left - 10}" y="${y + 4}" text-anchor="end">${rate}%</text></g>`;
+    })
+    .join('');
+  const markers = points
+    .map(({ run }, index) => {
+      const label = `${run.completedAt}: ${formatRate(run.passRate)}`;
+      return `<circle class="chart-point" cx="${xFor(index)}" cy="${yFor(run.passRate)}" r="5"><title>${escapeHtml(label)}</title></circle>`;
+    })
+    .join('');
   const labelIndexes = [...new Set([0, Math.floor((points.length - 1) / 2), points.length - 1])];
-  const runLabels = labelIndexes.map((index) => {
-    const x = xFor(index);
-    const anchor = points.length === 1 ? 'middle' : index === 0 ? 'start' : index === points.length - 1 ? 'end' : 'middle';
-    return `<text class="chart-axis-label" x="${x}" y="218" text-anchor="${anchor}">Run ${points[index].index + 1}</text>`;
-  }).join('');
+  const runLabels = labelIndexes
+    .map((index) => {
+      const x = xFor(index);
+      const anchor =
+        points.length === 1
+          ? 'middle'
+          : index === 0
+            ? 'start'
+            : index === points.length - 1
+              ? 'end'
+              : 'middle';
+      return `<text class="chart-axis-label" x="${x}" y="218" text-anchor="${anchor}">Run ${points[index].index + 1}</text>`;
+    })
+    .join('');
 
   const runWord = points.length === 1 ? 'run' : 'runs';
   return `<svg class="pass-rate-chart" viewBox="0 0 640 240" role="img" aria-label="Pass rate trend for the latest ${points.length} ${runWord}">
@@ -210,10 +226,17 @@ function renderLatestRunOutcomes(run) {
   const accessibleSummary = outcomes.map(({ label, count }) => `${label} ${count}`).join(', ');
   const segments = outcomes
     .filter(({ count }) => count > 0)
-    .map(({ status, count }) => `<span class="outcome-segment ${status}" style="width: ${(count / total) * 100}%"></span>`)
+    .map(
+      ({ status, count }) =>
+        `<span class="outcome-segment ${status}" style="width: ${(count / total) * 100}%"></span>`,
+    )
     .join('');
-  const legend = outcomes.map(({ status, label, count }) => `
-    <li><span class="legend-swatch ${status}"></span><span>${label}</span><strong>${count}</strong></li>`).join('');
+  const legend = outcomes
+    .map(
+      ({ status, label, count }) => `
+    <li><span class="legend-swatch ${status}"></span><span>${label}</span><strong>${count}</strong></li>`,
+    )
+    .join('');
 
   return `<div class="outcome-bar" role="img" aria-label="${escapeHtml(accessibleSummary)}">${segments}</div>
     <ul class="outcome-legend">${legend}</ul>`;
@@ -222,9 +245,7 @@ function renderLatestRunOutcomes(run) {
 /** Returns the landing page and companion report page paths. */
 export function getHistoryReportPaths(reportPath) {
   const extension = extname(reportPath) || '.html';
-  const basePath = extname(reportPath)
-    ? reportPath.slice(0, -extension.length)
-    : reportPath;
+  const basePath = extname(reportPath) ? reportPath.slice(0, -extension.length) : reportPath;
   return {
     overview: reportPath,
     tests: `${basePath}-tests${extension}`,
@@ -252,26 +273,36 @@ export function renderHistoryReport(history, { page = 'overview', links } = {}) 
   const latestRun = history.runs.at(-1);
   const cumulativeRate = calculatePassRate(cumulative.passed, cumulative.failed);
   const latestRate = latestRun?.passRate ?? null;
-  const allTags = [...new Set(Object.values(history.tests).flatMap((test) => test.tags ?? []))].sort();
-  const tagOptions = allTags.map((tag) => `<option value="${escapeHtml(tag)}">${escapeHtml(tag)}</option>`).join('');
+  const allTags = [
+    ...new Set(Object.values(history.tests).flatMap((test) => test.tags ?? [])),
+  ].sort();
+  const tagOptions = allTags
+    .map((tag) => `<option value="${escapeHtml(tag)}">${escapeHtml(tag)}</option>`)
+    .join('');
   const testRows = Object.values(history.tests)
     .sort((left, right) => {
       const statusOrder = { failed: 0, passed: 1, skipped: 2 };
-      return statusOrder[left.lastStatus] - statusOrder[right.lastStatus]
-        || (calculatePassRate(left.passed, left.failed) ?? 101)
-          - (calculatePassRate(right.passed, right.failed) ?? 101)
-        || left.title.localeCompare(right.title);
+      return (
+        statusOrder[left.lastStatus] - statusOrder[right.lastStatus] ||
+        (calculatePassRate(left.passed, left.failed) ?? 101) -
+          (calculatePassRate(right.passed, right.failed) ?? 101) ||
+        left.title.localeCompare(right.title)
+      );
     })
     .map((test) => {
       const category = test.category ?? getTestCategory(test.file);
       const tags = [...new Set(test.tags ?? [])].sort();
-      const trend = test.recent.map((result) => {
-        const label = `${result.runId}: ${statusLabel(result.status)}${result.flaky ? ' (flaky)' : ''}`;
-        const trendStatus = result.flaky ? 'flaky' : result.status;
-        return `<span class="trend ${trendStatus}" title="${escapeHtml(label)}" aria-label="${escapeHtml(label)}">●</span>`;
-      }).join('');
+      const trend = test.recent
+        .map((result) => {
+          const label = `${result.runId}: ${statusLabel(result.status)}${result.flaky ? ' (flaky)' : ''}`;
+          const trendStatus = result.flaky ? 'flaky' : result.status;
+          return `<span class="trend ${trendStatus}" title="${escapeHtml(label)}" aria-label="${escapeHtml(label)}">●</span>`;
+        })
+        .join('');
       const state = test.lastRunId === latestRun?.id ? 'Current run' : 'Not run recently';
-      const searchable = [test.title, test.file, test.project, category, ...tags].join(' ').toLowerCase();
+      const searchable = [test.title, test.file, test.project, category, ...tags]
+        .join(' ')
+        .toLowerCase();
       const encodedTags = tags.map((tag) => encodeURIComponent(tag)).join(' ');
 
       return `<tr data-test-row data-category="${escapeHtml(category)}" data-status="${escapeHtml(test.lastStatus)}"
@@ -287,9 +318,13 @@ export function renderHistoryReport(history, { page = 'overview', links } = {}) 
         <td>${test.flaky}</td>
         <td class="trend-cell">${trend || '<span class="muted">No runs</span>'}</td>
       </tr>`;
-    }).join('');
+    })
+    .join('');
 
-  const runRows = [...history.runs].reverse().map((run) => `<tr>
+  const runRows = [...history.runs]
+    .reverse()
+    .map(
+      (run) => `<tr>
     <td>${escapeHtml(run.completedAt)}</td>
     <td>${escapeHtml(run.environment)}</td>
     <td>${run.total}</td>
@@ -298,14 +333,21 @@ export function renderHistoryReport(history, { page = 'overview', links } = {}) 
     <td>${run.skipped}</td>
     <td>${run.flaky}</td>
     <td>${formatRate(run.passRate)}</td>
-  </tr>`).join('');
+  </tr>`,
+    )
+    .join('');
   const passRateChart = renderPassRateChart(history.runs);
   const latestRunOutcomes = renderLatestRunOutcomes(latestRun);
-  const trendRunCount = Math.min(12, history.runs.filter((run) => Number.isFinite(run.passRate)).length);
-  const navigation = Object.entries(pageNames).map(([key, label]) => {
-    const current = page === key ? ' aria-current="page"' : '';
-    return `<a href="${escapeHtml(encodeURI(basename(reportLinks[key])))}"${current}>${label}</a>`;
-  }).join('');
+  const trendRunCount = Math.min(
+    12,
+    history.runs.filter((run) => Number.isFinite(run.passRate)).length,
+  );
+  const navigation = Object.entries(pageNames)
+    .map(([key, label]) => {
+      const current = page === key ? ' aria-current="page"' : '';
+      return `<a href="${escapeHtml(encodeURI(basename(reportLinks[key])))}"${current}>${label}</a>`;
+    })
+    .join('');
   const statisticsContent = `
       <div class="stats-content">
         <div class="cards">
@@ -322,9 +364,11 @@ export function renderHistoryReport(history, { page = 'overview', links } = {}) 
           </section>
           <section class="chart-panel">
             <h2>Latest run outcomes</h2>
-            <p class="chart-caption">${latestRun
-              ? `${escapeHtml(latestRun.environment)} · ${escapeHtml(latestRun.completedAt)}`
-              : 'No completed runs yet'}</p>
+            <p class="chart-caption">${
+              latestRun
+                ? `${escapeHtml(latestRun.environment)} · ${escapeHtml(latestRun.completedAt)}`
+                : 'No completed runs yet'
+            }</p>
             ${latestRunOutcomes}
           </section>
         </div>
@@ -514,7 +558,9 @@ export function renderHistoryReport(history, { page = 'overview', links } = {}) 
       </header>
       ${pageContent}
     </main>
-    ${page === 'tests' ? `<script>
+    ${
+      page === 'tests'
+        ? `<script>
       const searchInput = document.getElementById('scenario-search');
       const categoryFilter = document.getElementById('category-filter');
       const statusFilter = document.getElementById('status-filter');
@@ -559,7 +605,9 @@ export function renderHistoryReport(history, { page = 'overview', links } = {}) 
       });
 
       applyFilters();
-    </script>` : ''}
+    </script>`
+        : ''
+    }
   </body>
 </html>`;
 }
@@ -585,7 +633,9 @@ export async function readHistoryFile(filePath) {
   }
 
   if (history.schemaVersion !== HISTORY_VERSION || !Array.isArray(history.runs) || !history.tests) {
-    throw new Error(`Cumulative test history at "${filePath}" has an unsupported or invalid format.`);
+    throw new Error(
+      `Cumulative test history at "${filePath}" has an unsupported or invalid format.`,
+    );
   }
 
   return history;

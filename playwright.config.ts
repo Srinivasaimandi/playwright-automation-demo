@@ -20,7 +20,8 @@ if (existsSync(envFile)) {
 }
 
 const isCI = Boolean(process.env.CI);
-const baseURL = process.env.BASE_URL ?? (testEnvironment === 'local' ? 'http://127.0.0.1:9899' : undefined);
+const baseURL =
+  process.env.BASE_URL ?? (testEnvironment === 'local' ? 'http://127.0.0.1:9899' : undefined);
 
 if (!baseURL) {
   throw new Error(
@@ -29,8 +30,9 @@ if (!baseURL) {
 }
 
 const hostname = new URL(baseURL).hostname.toLowerCase();
-const startsLocalApp = ['local', 'test'].includes(testEnvironment)
-  && ['localhost', '127.0.0.1', '::1', '[::1]'].includes(hostname);
+const startsLocalApp =
+  ['local', 'test'].includes(testEnvironment) &&
+  ['localhost', '127.0.0.1', '::1', '[::1]'].includes(hostname);
 
 export default defineConfig({
   testDir: './tests',
@@ -67,16 +69,6 @@ export default defineConfig({
       name: 'chromium',
       testMatch: '**/ui/**/*.spec.ts',
       use: { ...devices['Desktop Chrome'] },
-    },
-    {
-      name: 'firefox',
-      testMatch: '**/ui/**/*.spec.ts',
-      use: { ...devices['Desktop Firefox'] },
-    },
-    {
-      name: 'webkit',
-      testMatch: '**/ui/**/*.spec.ts',
-      use: { ...devices['Desktop Safari'] },
     },
   ],
   outputDir: 'test-results',

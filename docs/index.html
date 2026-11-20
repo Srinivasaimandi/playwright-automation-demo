@@ -233,7 +233,7 @@
           <div class="grid">
             <article class="card">
               <h3>UI tests</h3>
-              <p>Located in <code>tests/ui/</code>; executed in Chromium, Firefox, and WebKit.</p>
+              <p>Located in <code>tests/ui/</code>; executed in Chromium.</p>
             </article>
             <article class="card">
               <h3>API tests</h3>
@@ -255,7 +255,7 @@
         <section id="quick-start">
           <h2>Quick start</h2>
           <ol>
-            <li>Install Node.js 20 or newer and npm.</li>
+            <li>Install Node.js 20.19+, 22.13+, or 24+ and npm.</li>
             <li>Install framework and bundled app dependencies, then the three browser engines.</li>
             <li>Copy an environment example and set the application URL and credentials.</li>
             <li>Run the desired test command; Playwright starts the bundled app for loopback targets.</li>
@@ -263,7 +263,7 @@
           <pre><code>git submodule update --init --recursive
 npm ci
 npm ci --prefix app
-npx playwright install chromium firefox webkit
+npx playwright install chromium
 cp env/.env.example env/.env.local
 npm run test:local</code></pre>
           <p>
@@ -394,6 +394,9 @@ npm run test:local</code></pre>
               <tr><td><code>npm run test:history:report</code></td><td>Regenerates the cumulative report from saved history.</td></tr>
               <tr><td><code>npm run test:history:unit</code></td><td>Tests history merging, pass rates, flaky tracking, and HTML escaping.</td></tr>
               <tr><td><code>npm run typecheck</code></td><td>Runs TypeScript without emitting build output.</td></tr>
+              <tr><td><code>npm run lint</code></td><td>Runs ESLint on JavaScript configuration and utility files.</td></tr>
+              <tr><td><code>npm run format:check</code></td><td>Checks TypeScript and JavaScript formatting with Prettier.</td></tr>
+              <tr><td><code>npm run format</code></td><td>Formats TypeScript and JavaScript files with Prettier.</td></tr>
             </tbody>
           </table>
           <pre><code># Run one API file
@@ -506,7 +509,7 @@ test('searches by email', async ({ usersApi, testData }) => {
 
         <section id="ci">
           <h2>Continuous integration</h2>
-          <p>The GitHub Actions workflow installs and starts the bundled app, then runs typecheck and the full suite against it.</p>
+          <p>The GitHub Actions workflow installs the bundled app, runs lint, formatting, and type checks, then runs the full suite against it.</p>
           <table>
             <thead><tr><th>GitHub setting</th><th>Value</th></tr></thead>
             <tbody>
@@ -515,7 +518,7 @@ test('searches by email', async ({ usersApi, testData }) => {
             </tbody>
           </table>
           <p>
-            The workflow fails early when test credentials are missing. It installs Chromium, Firefox, and WebKit and
+            The workflow fails early when test credentials are missing. It installs Chromium and
             uploads the Playwright report, JSON results, cumulative history, and failure artifacts. On non-PR runs,
             it updates the dedicated <code>test-history</code> branch; workflow permissions grant the required
             <code>contents: write</code> access. Runs are serialized to prevent concurrent history updates.

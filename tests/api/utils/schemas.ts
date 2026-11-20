@@ -5,6 +5,12 @@ export const ApiKeySchema = z.object({
   apiKey: z.string().min(1),
 });
 
+/** Validates the message returned for API errors. */
+export const ApiErrorSchema = z.object({
+  message: z.string().min(1),
+  error: z.string().optional(),
+});
+
 /** Validates user fields consumed by tests; unmodeled response fields are stripped. */
 export const ApiUserSchema = z.object({
   id: z.number().int().nonnegative(),

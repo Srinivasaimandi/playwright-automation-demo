@@ -2,32 +2,52 @@ import { expect, test } from './fixtures.ts';
 
 /** Authenticated UI scenarios for browsing and managing users. */
 test.describe('Users screen', { tag: '@users' }, () => {
-  test('shows the users table and management controls', { tag: '@smoke' }, async ({ authenticatedUsersPage: usersPage }) => {
-    await expect(usersPage.heading).toBeVisible();
-    await expect(usersPage.searchInput).toBeVisible();
-    await expect(usersPage.addUserButton).toBeVisible();
-    await expect(usersPage.refreshUsersButton).toBeVisible();
-    await expect(usersPage.resetDataButton).toBeVisible();
-    await expect(usersPage.logoutLink).toBeVisible();
-    await expect(usersPage.usersTable).toBeVisible();
-    await expect(usersPage.columnHeaders).toHaveText(['ID', 'Name', 'Email', 'Username', 'Actions']);
-  });
+  test(
+    'shows the users table and management controls',
+    { tag: '@smoke' },
+    async ({ authenticatedUsersPage: usersPage }) => {
+      await expect(usersPage.heading).toBeVisible();
+      await expect(usersPage.searchInput).toBeVisible();
+      await expect(usersPage.addUserButton).toBeVisible();
+      await expect(usersPage.refreshUsersButton).toBeVisible();
+      await expect(usersPage.resetDataButton).toBeVisible();
+      await expect(usersPage.logoutLink).toBeVisible();
+      await expect(usersPage.usersTable).toBeVisible();
+      await expect(usersPage.columnHeaders).toHaveText([
+        'ID',
+        'Name',
+        'Email',
+        'Username',
+        'Actions',
+      ]);
+    },
+  );
 
-  test('filters users by email without case sensitivity', async ({ authenticatedUsersPage: usersPage, testData }) => {
+  test('filters users by email without case sensitivity', async ({
+    authenticatedUsersPage: usersPage,
+    testData,
+  }) => {
     await usersPage.searchFor(testData.searches.janeByEmailCaseInsensitive);
 
     await expect(usersPage.getUserRow(testData.existingUsers.jane.name)).toBeVisible();
     await expect(usersPage.userRows).toHaveCount(1);
   });
 
-  test('shows an API-created user in the users list', { tag: '@test-data' }, async ({ authenticatedUsersPage: usersPage, apiTestUser }) => {
-    await usersPage.refreshUsersButton.click();
-    await usersPage.searchFor(apiTestUser.email);
+  test(
+    'shows an API-created user in the users list',
+    { tag: '@test-data' },
+    async ({ authenticatedUsersPage: usersPage, apiTestUser }) => {
+      await usersPage.refreshUsersButton.click();
+      await usersPage.searchFor(apiTestUser.email);
 
-    await expect(usersPage.getUserRow(apiTestUser.name)).toBeVisible();
-  });
+      await expect(usersPage.getUserRow(apiTestUser.name)).toBeVisible();
+    },
+  );
 
-  test('shows no rows for an unmatched search and restores results when cleared', async ({ authenticatedUsersPage: usersPage, testData }) => {
+  test('shows no rows for an unmatched search and restores results when cleared', async ({
+    authenticatedUsersPage: usersPage,
+    testData,
+  }) => {
     await usersPage.searchFor(testData.searches.noResults);
     await expect(usersPage.userRows).toHaveCount(0);
 
@@ -35,7 +55,10 @@ test.describe('Users screen', { tag: '@users' }, () => {
     await expect(usersPage.getUserRow(testData.existingUsers.jane.name)).toBeVisible();
   });
 
-  test('opens the add-user form and can cancel without changes', async ({ authenticatedUsersPage: usersPage, testData }) => {
+  test('opens the add-user form and can cancel without changes', async ({
+    authenticatedUsersPage: usersPage,
+    testData,
+  }) => {
     await usersPage.openAddUserDialog();
 
     await expect(usersPage.addUserDialog).toBeVisible();
@@ -52,7 +75,9 @@ test.describe('Users screen', { tag: '@users' }, () => {
     await expect(usersPage.addUserDialog).toBeHidden();
   });
 
-  test('shows validation when saving the add-user form empty', async ({ authenticatedUsersPage: usersPage }) => {
+  test('shows validation when saving the add-user form empty', async ({
+    authenticatedUsersPage: usersPage,
+  }) => {
     await usersPage.openAddUserDialog();
     await usersPage.saveUserButton.click();
 
@@ -61,7 +86,10 @@ test.describe('Users screen', { tag: '@users' }, () => {
     await usersPage.cancelAddUser();
   });
 
-  test('opens a user row in edit mode with its existing values', async ({ authenticatedUsersPage: usersPage, testData }) => {
+  test('opens a user row in edit mode with its existing values', async ({
+    authenticatedUsersPage: usersPage,
+    testData,
+  }) => {
     const jane = testData.existingUsers.jane;
     await usersPage.searchFor(jane.name);
 
@@ -75,7 +103,11 @@ test.describe('Users screen', { tag: '@users' }, () => {
     await expect(editableFields.nth(2)).toHaveValue(jane.username);
   });
 
-  test('logs out and returns to the login form', async ({ page, loginPage, authenticatedUsersPage: usersPage }) => {
+  test('logs out and returns to the login form', async ({
+    page,
+    loginPage,
+    authenticatedUsersPage: usersPage,
+  }) => {
     await usersPage.logout();
 
     await expect(page).toHaveURL(/\/index\.html$/);

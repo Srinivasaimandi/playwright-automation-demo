@@ -6,7 +6,7 @@ See the [framework developer guide](./docs/index.html) for the architecture, fix
 
 ## Requirements
 
-- Node.js 20 or newer
+- Node.js 20.19+, 22.13+, or 24+
 - npm
 
 ## Setup
@@ -15,7 +15,7 @@ See the [framework developer guide](./docs/index.html) for the architecture, fix
 git submodule update --init --recursive
 npm ci
 npm ci --prefix app
-npx playwright install chromium firefox webkit
+npx playwright install chromium
 ```
 
 The Users App source is in [`app/`](./app/) as a Git submodule, cloned from
@@ -39,7 +39,11 @@ npm run test:report
 npm run test:history:report
 npm run test:history:unit
 npm run typecheck
+npm run lint
+npm run format:check
 ```
+
+Use `npm run format` to apply the configured Prettier formatting. ESLint checks JavaScript configuration and utility files; TypeScript is type-checked and formatted with Prettier.
 
 Every Playwright run writes its raw JSON results to `test-results/results.json`, updates the ignored local store at
 `.playwright-history/history.json`, and generates `reports/test-history-report.html` plus its companion pages. The report shows all-time per-test pass
@@ -66,7 +70,7 @@ cp env/.env.staging.example env/.env.staging
 
 The `test` environment is intended for a disposable test instance. Set `BASE_URL`, `LOGIN_USERNAME`, `LOGIN_PASSWORD`, and `TEST_DATA_ALLOWED_HOSTS` in `env/.env.test` or CI. A loopback URL starts the bundled app; remote test URLs must already be reachable. The API test-data fixture creates a unique user for its test and deletes it afterward; it only permits loopback hosts under `TEST_ENV=local`, or explicitly allowlisted hosts under `TEST_ENV=test`. Do not point it at development, staging, or production data.
 
-UI specs live under `tests/ui/` and run in Chromium, Firefox, and WebKit. Full user journeys live under `tests/ui/e2e/`. API specs live under `tests/api/` and run once in the `api` project. Run API tests alone with `npm run test:api`; `npm run test:local` runs the full suite. Development and staging scripts exclude tests tagged `@test-data`, which create or delete users.
+UI specs live under `tests/ui/` and run in Chromium. Full user journeys live under `tests/ui/e2e/`. API specs live under `tests/api/` and run once in the `api` project. Run API tests alone with `npm run test:api`; `npm run test:local` runs the full suite. Development and staging scripts exclude tests tagged `@test-data`, which create or delete users.
 
 The login spec covers form rendering, required-field validation, and successful authentication. Set `LOGIN_USERNAME` and `LOGIN_PASSWORD` in the selected environment file or CI secrets to run the authenticated test; it is skipped if either value is missing. Run the login tests with:
 
@@ -106,7 +110,7 @@ test('shows a created user', async ({ authenticatedUsersPage, apiTestUser }) => 
 - `tests/data/factories.ts` creates unique user data for tests.
 - `tests/utils/environment.ts` provides shared credential lookup and guards API data changes to loopback or allowlisted test hosts.
 
-The GitHub Actions workflow installs the bundled app and starts it through Playwright. Configure the `TEST_LOGIN_USERNAME` and `TEST_LOGIN_PASSWORD` secrets for the seeded test account. CI restores and updates `history.json` on the dedicated `test-history` branch and uploads the cumulative HTML report as a run artifact. The first non-PR run creates the branch. Ensure repository Actions settings allow the workflow's `contents: write` permission; pull-request runs report history but do not write to the branch.
+The GitHub Actions workflow installs the bundled app, runs lint, formatting, and type checks, and starts it through Playwright. Configure the `TEST_LOGIN_USERNAME` and `TEST_LOGIN_PASSWORD` secrets for the seeded test account. CI restores and updates `history.json` on the dedicated `test-history` branch and uploads the cumulative HTML report as a run artifact. The first non-PR run creates the branch. Ensure repository Actions settings allow the workflow's `contents: write` permission; pull-request runs report history but do not write to the branch.
 
 ## Playwright MCP in VS Code
 

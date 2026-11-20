@@ -52,16 +52,22 @@ test('categorizes API, UI, and end-to-end specs', () => {
 });
 
 test('pass rate excludes skipped tests and accumulates outcomes across runs', () => {
-  const firstRun = mergeTestRun(createEmptyHistory(), run('run-1', [
-    result('stable', 'passed'),
-    result('stable-fail', 'failed'),
-    result('stable-skip', 'skipped'),
-  ]));
-  const secondRun = mergeTestRun(firstRun, run('run-2', [
-    result('stable', 'passed'),
-    result('stable-fail', 'passed'),
-    result('stable-skip', 'skipped'),
-  ]));
+  const firstRun = mergeTestRun(
+    createEmptyHistory(),
+    run('run-1', [
+      result('stable', 'passed'),
+      result('stable-fail', 'failed'),
+      result('stable-skip', 'skipped'),
+    ]),
+  );
+  const secondRun = mergeTestRun(
+    firstRun,
+    run('run-2', [
+      result('stable', 'passed'),
+      result('stable-fail', 'passed'),
+      result('stable-skip', 'skipped'),
+    ]),
+  );
 
   assert.equal(calculatePassRate(3, 1), 75);
   assert.equal(calculatePassRate(0, 0), null);
@@ -79,9 +85,10 @@ test('pass rate excludes skipped tests and accumulates outcomes across runs', ()
 });
 
 test('a flaky final pass counts as passed and is tracked separately', () => {
-  const history = mergeTestRun(createEmptyHistory(), run('run-1', [
-    result('flaky-test', 'passed', { flaky: true, retries: 1 }),
-  ]));
+  const history = mergeTestRun(
+    createEmptyHistory(),
+    run('run-1', [result('flaky-test', 'passed', { flaky: true, retries: 1 })]),
+  );
 
   assert.equal(history.tests['flaky-test'].passed, 1);
   assert.equal(history.tests['flaky-test'].flaky, 1);
@@ -89,9 +96,12 @@ test('a flaky final pass counts as passed and is tracked separately', () => {
 });
 
 test('stores test tags and renders filter controls for category, status, tag, and search', () => {
-  const history = mergeTestRun(createEmptyHistory(), run('run-1', [
-    result('tagged', 'passed', { file: 'tests/ui/example.spec.ts', tags: ['@api', '@smoke'] }),
-  ]));
+  const history = mergeTestRun(
+    createEmptyHistory(),
+    run('run-1', [
+      result('tagged', 'passed', { file: 'tests/ui/example.spec.ts', tags: ['@api', '@smoke'] }),
+    ]),
+  );
   const html = renderHistoryReport(history, { page: 'tests' });
 
   assert.deepEqual(history.tests.tagged.tags, ['@api', '@smoke']);
@@ -107,9 +117,7 @@ test('stores test tags and renders filter controls for category, status, tag, an
 });
 
 test('renders statistics, per-test history, and recent runs as linked pages', () => {
-  const history = mergeTestRun(createEmptyHistory(), run('run-1', [
-    result('scenario', 'passed'),
-  ]));
+  const history = mergeTestRun(createEmptyHistory(), run('run-1', [result('scenario', 'passed')]));
   const paths = getHistoryReportPaths('/reports/cumulative.html');
   const links = Object.fromEntries(
     Object.entries(paths).map(([page, path]) => [page, path.split('/').at(-1)]),
@@ -124,21 +132,33 @@ test('renders statistics, per-test history, and recent runs as linked pages', ()
     runs: '/reports/cumulative-runs.html',
   });
   assert.match(overview, />Metrics<\/a>/);
-  assert.match(overview, /<footer class="stats-footer">\s*<p>Pass rate uses final outcomes[^<]*flaky\.<br>History, last updated/);
+  assert.match(
+    overview,
+    /<footer class="stats-footer">\s*<p>Pass rate uses final outcomes[^<]*flaky\.<br>History, last updated/,
+  );
   assert.match(overview, /\.stats-footer \{[^}]*font-size: \.82rem/);
   assert.match(overview, /\.cards \{[^}]*justify-content: center/s);
   assert.match(overview, /\.cards \{[^}]*max-width: 1590px/);
   assert.match(overview, /\.dashboard-grid \{[^}]*max-width: 1590px/);
   assert.match(overview, /<main class="stats-landing">/);
-  assert.match(overview, /main\.stats-landing \{[^}]*height: calc\(100svh - 4rem\);[^}]*overflow: hidden/);
+  assert.match(
+    overview,
+    /main\.stats-landing \{[^}]*height: calc\(100svh - 4rem\);[^}]*overflow: hidden/,
+  );
   assert.match(overview, /\.report-header \{[^}]*position: sticky/);
-  assert.match(overview, /\.stats-content \{[^}]*justify-content: space-evenly;[^}]*align-items: center/s);
+  assert.match(
+    overview,
+    /\.stats-content \{[^}]*justify-content: space-evenly;[^}]*align-items: center/s,
+  );
   assert.match(overview, /font-size: clamp\([^;]*2\.15rem\)/);
   assert.match(overview, /Latest run pass rate/);
   assert.match(overview, /Flaky outcomes \(all-time\)/);
   assert.match(overview, /Pass-rate trend/);
   assert.match(overview, /Latest run outcomes/);
-  assert.match(overview, /<svg class="pass-rate-chart"[^>]*aria-label="Pass rate trend for the latest 1 run"/);
+  assert.match(
+    overview,
+    /<svg class="pass-rate-chart"[^>]*aria-label="Pass rate trend for the latest 1 run"/,
+  );
   assert.match(overview, /role="img" aria-label="Passed 1, Failed 0, Skipped 0"/);
   assert.doesNotMatch(overview, /<h2>Per-test history<\/h2>|<h2>Recent runs<\/h2>/);
   assert.match(tests, /<h2>Per-test history<\/h2>/);
@@ -164,9 +184,10 @@ test('shows empty states when cumulative history has no runs', () => {
 });
 
 test('the HTML report escapes test titles', () => {
-  const history = mergeTestRun(createEmptyHistory(), run('run-1', [
-    result('escaped', 'passed', { title: '<script>alert(1)</script>' }),
-  ]));
+  const history = mergeTestRun(
+    createEmptyHistory(),
+    run('run-1', [result('escaped', 'passed', { title: '<script>alert(1)</script>' })]),
+  );
 
   const html = renderHistoryReport(history, { page: 'tests' });
   assert.match(html, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/);

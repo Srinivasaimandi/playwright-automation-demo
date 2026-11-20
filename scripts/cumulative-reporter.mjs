@@ -94,8 +94,12 @@ export default class CumulativeReporter {
       runnerStatus: result.status,
       tests,
     };
-    const historyPath = resolve(process.env.PLAYWRIGHT_HISTORY_FILE ?? '.playwright-history/history.json');
-    const reportPath = resolve(process.env.PLAYWRIGHT_HISTORY_REPORT ?? 'reports/test-history-report.html');
+    const historyPath = resolve(
+      process.env.PLAYWRIGHT_HISTORY_FILE ?? '.playwright-history/history.json',
+    );
+    const reportPath = resolve(
+      process.env.PLAYWRIGHT_HISTORY_REPORT ?? 'reports/test-history-report.html',
+    );
     const reportPaths = getHistoryReportPaths(reportPath);
     const reportLinks = Object.fromEntries(
       Object.entries(reportPaths).map(([page, path]) => [page, basename(path)]),
@@ -109,8 +113,8 @@ export default class CumulativeReporter {
 
     const latestRun = history.runs.at(-1);
     console.log(
-      `Cumulative test history: ${latestRun.passed} passed, ${latestRun.failed} failed, `
-      + `${latestRun.skipped} skipped; pass rate ${latestRun.passRate ?? '—'}%.`,
+      `Cumulative test history: ${latestRun.passed} passed, ${latestRun.failed} failed, ` +
+        `${latestRun.skipped} skipped; pass rate ${latestRun.passRate ?? '—'}%.`,
     );
     console.log(`Cumulative report pages written beside ${reportPath}.`);
   }

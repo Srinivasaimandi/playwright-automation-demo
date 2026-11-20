@@ -16,13 +16,20 @@
     "test:report": "playwright show-report",
     "test:history:report": "node scripts/render-test-history.mjs",
     "test:history:unit": "node --test scripts/test-history.test.mjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings=0",
+    "format": "prettier --write \"package.json\" \"playwright.config.ts\" \"tests/**/*.ts\" \"scripts/**/*.mjs\" \"eslint.config.mjs\" \".github/**/*.yml\"",
+    "format:check": "prettier --check \"package.json\" \"playwright.config.ts\" \"tests/**/*.ts\" \"scripts/**/*.mjs\" \"eslint.config.mjs\" \".github/**/*.yml\""
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.65.1",
     "@types/node": "^26.6.6",
     "cross-env": "^10.1.0",
     "dotenv": "^18.0.10",
+    "eslint": "^10.15.0",
+    "globals": "^17.14.0",
+    "prettier": "^3.10.1",
     "typescript": "^7.0.2",
     "zod": "^4.6.7"
   }

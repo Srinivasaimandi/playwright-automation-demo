@@ -13,7 +13,7 @@ export function assertApiStatus(response: APIResponse, expectedStatus: number) {
  * Checks the expected status and parses a JSON response with a Zod schema.
  * @param response Playwright's response from the API request.
  * @param schema Runtime schema for the response payload.
- * @param expectedStatus HTTP status expected for a successful response.
+ * @param expectedStatus HTTP status expected for the response.
  * @returns The schema-validated and typed response payload.
  */
 export async function parseApiResponse<T>(

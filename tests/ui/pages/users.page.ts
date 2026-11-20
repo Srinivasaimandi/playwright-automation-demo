@@ -34,7 +34,9 @@ export class UsersPage {
     this.columnHeaders = this.usersTable.getByRole('columnheader');
     this.userRows = this.usersTable.getByRole('rowgroup').nth(1).getByRole('row');
     this.addUserDialog = page.getByRole('dialog', { name: 'Add User' });
-    this.addUserValidationMessage = this.addUserDialog.getByText('Please fill out all fields.', { exact: true });
+    this.addUserValidationMessage = this.addUserDialog.getByText('Please fill out all fields.', {
+      exact: true,
+    });
     this.addUserNameInput = this.addUserDialog.getByRole('textbox', { name: 'Name', exact: true });
     this.addUserEmailInput = this.addUserDialog.getByRole('textbox', { name: 'Email' });
     this.addUserUsernameInput = this.addUserDialog.getByRole('textbox', { name: 'Username' });
