@@ -2,6 +2,7 @@ node_modules/
 dist/
 playwright-report/
 test-results/
+.playwright-mcp
 .playwright-history/
 reports/test-history-report*.html
 playwright/.cache/
