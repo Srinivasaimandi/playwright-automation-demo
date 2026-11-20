@@ -1,0 +1,64 @@
+- main [ref=e2]:
+  - generic [ref=e3]:
+    - heading "Users App Cumulative Report" [level=1] [ref=e4]
+    - navigation "Report pages" [ref=e5]:
+      - link "Metrics" [ref=e6] [cursor=pointer]:
+        - /url: test-history-report.html
+      - link "Per-test history" [ref=e7] [cursor=pointer]:
+        - /url: test-history-report-tests.html
+      - link "Recent runs" [ref=e8] [cursor=pointer]:
+        - /url: test-history-report-runs.html
+  - generic [ref=e9]:
+    - generic [ref=e10]:
+      - generic [ref=e11]:
+        - generic [ref=e12]: Latest run pass rate
+        - strong [ref=e13]: 100.0%
+      - generic [ref=e14]:
+        - generic [ref=e15]: All-time pass rate
+        - strong [ref=e16]: 97.9%
+      - generic [ref=e17]:
+        - generic [ref=e18]: Known test cases
+        - strong [ref=e19]: "51"
+      - generic [ref=e20]:
+        - generic [ref=e21]: Flaky outcomes (all-time)
+        - strong [ref=e22]: "0"
+    - generic [ref=e23]:
+      - generic [ref=e24]:
+        - heading "Pass-rate trend" [level=2] [ref=e25]
+        - paragraph [ref=e26]: Latest 12 runs with a pass rate
+        - img "Pass rate trend for the latest 12 runs" [ref=e27]:
+          - generic [ref=e28]: 100%
+          - generic [ref=e30]: 75%
+          - generic [ref=e32]: 50%
+          - generic [ref=e34]: 25%
+          - generic [ref=e36]: 0%
+          - 'generic "2026-11-19T22:06:53.823Z: 100.0%" [ref=e39]'
+          - 'generic "2026-11-19T22:07:22.456Z: 100.0%" [ref=e40]'
+          - 'generic "2026-11-19T22:07:53.005Z: 100.0%" [ref=e41]'
+          - 'generic "2026-11-19T22:11:45.569Z: 100.0%" [ref=e42]'
+          - 'generic "2026-11-19T22:16:06.923Z: 100.0%" [ref=e43]'
+          - 'generic "2026-11-19T22:17:48.264Z: 100.0%" [ref=e44]'
+          - 'generic "2026-11-19T22:18:36.164Z: 100.0%" [ref=e45]'
+          - 'generic "2026-11-19T22:25:45.144Z: 92.2%" [ref=e46]'
+          - 'generic "2026-11-19T22:25:57.072Z: 50.0%" [ref=e47]'
+          - 'generic "2026-11-19T22:26:31.634Z: 92.2%" [ref=e48]'
+          - 'generic "2026-11-19T22:27:10.460Z: 92.2%" [ref=e49]'
+          - 'generic "2026-11-20T01:03:23.768Z: 100.0%" [ref=e50]'
+          - generic [ref=e51]: Run 3
+          - generic [ref=e52]: Run 8
+          - generic [ref=e53]: Run 14
+      - generic [ref=e54]:
+        - heading "Latest run outcomes" [level=2] [ref=e55]
+        - paragraph [ref=e56]: local · 2026-11-20T01:03:23.768Z
+        - img "Passed 51, Failed 0, Skipped 0" [ref=e57]
+        - list [ref=e59]:
+          - listitem [ref=e60]:
+            - generic [ref=e62]: Passed
+            - strong [ref=e63]: "51"
+          - listitem [ref=e64]:
+            - generic [ref=e66]: Failed
+            - strong [ref=e67]: "0"
+          - listitem [ref=e68]:
+            - generic [ref=e70]: Skipped
+            - strong [ref=e71]: "0"
+  - paragraph [ref=e73]: Pass rate uses final outcomes with skipped tests excluded, and passes after retries are tracked as flaky.History, last updated 2026-11-20T01:03:23.768Z, retains up to 100 run summaries, 30 outcomes per test, and all-time per-test totals.

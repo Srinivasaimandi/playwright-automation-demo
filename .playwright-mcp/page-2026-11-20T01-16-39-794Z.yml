@@ -1,0 +1,25 @@
+- main [ref=f3e2]:
+  - generic [ref=f3e3]:
+    - heading "Users App Cumulative Report" [level=1] [ref=f3e4]
+    - navigation "Report pages" [ref=f3e5]:
+      - link "Metrics" [ref=f3e6] [cursor=pointer]:
+        - /url: test-history-report.html
+      - link "Per-test history" [ref=f3e7] [cursor=pointer]:
+        - /url: test-history-report-tests.html
+      - link "Recent runs" [ref=f3e8] [cursor=pointer]:
+        - /url: test-history-report-runs.html
+  - generic [ref=f3e9]:
+    - paragraph [ref=f3e10]: Pass rate uses final outcomes with skipped tests excluded, and passes after retries are tracked as flaky;History, last updated 2026-11-20T01:03:23.768Z, retains up to 100 run summaries, 30 outcomes per test, and all-time per-test totals.
+    - generic [ref=f3e11]:
+      - generic [ref=f3e12]:
+        - generic [ref=f3e13]: Latest run pass rate
+        - strong [ref=f3e14]: 100.0%
+      - generic [ref=f3e15]:
+        - generic [ref=f3e16]: All-time pass rate
+        - strong [ref=f3e17]: 97.9%
+      - generic [ref=f3e18]:
+        - generic [ref=f3e19]: Known test cases
+        - strong [ref=f3e20]: "51"
+      - generic [ref=f3e21]:
+        - generic [ref=f3e22]: Latest run (pass / fail / skip)
+        - strong [ref=f3e23]: 51 / 0 / 0

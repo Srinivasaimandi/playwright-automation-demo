@@ -1,0 +1,84 @@
+name: Playwright
+
+on:
+  push:
+    branches-ignore:
+      - test-history
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cumulative-playwright-history-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TEST_ENV: local
+      BASE_URL: http://127.0.0.1:9899
+      LOGIN_USERNAME: ${{ secrets.TEST_LOGIN_USERNAME }}
+      LOGIN_PASSWORD: ${{ secrets.TEST_LOGIN_PASSWORD }}
+      PLAYWRIGHT_HISTORY_BRANCH: test-history
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            app/package-lock.json
+
+      - name: Validate test credentials
+        run: |
+          if [ -z "$LOGIN_USERNAME" ] || [ -z "$LOGIN_PASSWORD" ]; then
+            echo "Configure TEST_LOGIN_USERNAME and TEST_LOGIN_PASSWORD secrets for the bundled app."
+            exit 1
+          fi
+
+      - run: npm ci
+
+      - name: Restore cumulative test history
+        run: |
+          mkdir -p .playwright-history
+          if git ls-remote --exit-code --heads origin "refs/heads/${PLAYWRIGHT_HISTORY_BRANCH}" >/dev/null 2>&1; then
+            git fetch --no-tags origin "refs/heads/${PLAYWRIGHT_HISTORY_BRANCH}"
+            git show FETCH_HEAD:history.json > .playwright-history/history.json
+          fi
+
+      - name: Install app dependencies
+        run: npm ci --prefix app
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - run: npm run typecheck
+
+      - name: Test cumulative history logic
+        run: npm run test:history:unit
+
+      - name: Run Playwright tests
+        id: playwright
+        run: npm run test:local
+
+      - name: Upload Playwright results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: |
+            playwright-report/
+            test-results/
+            .playwright-history/history.json
+            reports/test-history-report*.html
+          if-no-files-found: ignore
+
+      - name: Persist cumulative test history
+        if: always() && github.event_name != 'pull_request' && steps.playwright.outcome != 'skipped'
+        run: bash scripts/persist-test-history.sh

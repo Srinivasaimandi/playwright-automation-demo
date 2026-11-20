@@ -1,0 +1,12 @@
+node_modules/
+dist/
+playwright-report/
+test-results/
+.playwright-history/
+reports/test-history-report*.html
+playwright/.cache/
+# Keep local environment credentials ignored while allowing shared templates.
+.env
+.env.*
+!env/.env.example
+!env/.env.*.example

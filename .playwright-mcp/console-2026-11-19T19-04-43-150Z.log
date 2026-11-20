@@ -1,0 +1,4 @@
+[     122ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost:9899/:1
+[     154ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:9899/favicon.ico:1
+[   65234ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost:9899/usersPage.html:1
+[   95358ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost:9899/index.html:1
