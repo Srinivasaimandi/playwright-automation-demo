@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Architecture, setup, fixtures, and file reference for the Playwright test framework.">
+    <title>Users App Test Framework | Developer Guide</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #1c2733;
+        --muted: #526170;
+        --line: #d7e0e8;
+        --panel: #f3f7fa;
+        --accent: #145da0;
+        --accent-soft: #e6f1fb;
+        --warning: #fff6df;
+      }
+
+      * { box-sizing: border-box; }
+
+      html { scroll-behavior: smooth; }
+
+      body {
+        margin: 0;
+        background: #fff;
+        color: var(--ink);
+        font: 16px/1.65 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      a { color: var(--accent); }
+      a:hover { text-decoration-thickness: 2px; }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 260px minmax(0, 1fr);
+        min-height: 100vh;
+        max-width: 1440px;
+        margin: 0 auto;
+      }
+
+      aside {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+        border-right: 1px solid var(--line);
+        padding: 28px 20px;
+        background: #fbfdff;
+      }
+
+      aside h2 {
+        margin: 0 0 16px;
+        font-size: 1rem;
+      }
+
+      aside nav { display: grid; gap: 4px; }
+      aside nav a {
+        padding: 6px 9px;
+        border-radius: 6px;
+        color: var(--muted);
+        text-decoration: none;
+      }
+      aside nav a:hover { background: var(--accent-soft); color: var(--accent); }
+
+      main {
+        width: min(100%, 1050px);
+        padding: 42px clamp(22px, 5vw, 72px) 80px;
+      }
+
+      header {
+        margin-bottom: 36px;
+        padding-bottom: 28px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .eyebrow {
+        color: var(--accent);
+        font-size: .78rem;
+        font-weight: 750;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+      }
+
+      h1 { margin: 8px 0; font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.15; }
+      h2 { margin-top: 48px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+      h3 { margin-top: 28px; }
+      p, li { max-width: 82ch; }
+      .lead { color: var(--muted); font-size: 1.15rem; }
+
+      .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+      .badge {
+        display: inline-block;
+        padding: 3px 10px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--panel);
+        color: var(--muted);
+        font-size: .82rem;
+      }
+
+      .card, .notice {
+        margin: 18px 0;
+        padding: 16px 18px;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        background: var(--panel);
+      }
+
+      .notice { border-color: #ebd693; background: var(--warning); }
+      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+      .grid .card { margin: 0; }
+      .grid .card h3 { margin-top: 0; }
+
+      code, kbd {
+        border-radius: 4px;
+        background: #eef2f5;
+        padding: 2px 5px;
+        font: .9em ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+
+      pre {
+        overflow-x: auto;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #f7f9fb;
+      }
+      pre code { padding: 0; background: transparent; }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 18px 0;
+        font-size: .94rem;
+      }
+      th, td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+      th { background: var(--panel); }
+      td:first-child { min-width: 250px; }
+
+      .flow {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+        gap: 10px;
+        padding: 0;
+        list-style: none;
+        counter-reset: flow;
+      }
+      .flow li {
+        position: relative;
+        min-height: 88px;
+        padding: 14px 14px 14px 46px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        counter-increment: flow;
+      }
+      .flow li::before {
+        position: absolute;
+        top: 14px;
+        left: 13px;
+        display: grid;
+        width: 24px;
+        height: 24px;
+        place-items: center;
+        border-radius: 50%;
+        background: var(--accent-soft);
+        color: var(--accent);
+        content: counter(flow);
+        font-weight: 700;
+      }
+
+      footer { margin-top: 54px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); }
+
+      @media (max-width: 800px) {
+        .layout { display: block; }
+        aside { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+        aside nav { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+        main { padding-top: 28px; }
+        td:first-child { min-width: 0; }
+      }
+
+      @media print {
+        aside { display: none; }
+        .layout { display: block; }
+        main { width: 100%; padding: 0; }
+        a { color: inherit; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <aside aria-label="Documentation navigation">
+        <h2>Developer guide</h2>
+        <nav>
+          <a href="#overview">Overview</a>
+          <a href="#quick-start">Quick start</a>
+          <a href="#execution">How a run works</a>
+          <a href="#fixtures">Fixtures</a>
+          <a href="#api-validation">API validation</a>
+          <a href="#test-data">Test data &amp; safety</a>
+          <a href="#commands">Commands</a>
+          <a href="#history">Cumulative history</a>
+          <a href="#file-reference">File reference</a>
+          <a href="#adding-tests">Adding tests</a>
+          <a href="#ci">CI</a>
+        </nav>
+      </aside>
+
+      <main>
+        <header>
+          <div class="eyebrow">Project documentation</div>
+          <h1>Users App Test Framework</h1>
+          <p class="lead">
+            A practical guide to how this TypeScript framework configures environments, runs browser and API tests,
+            manages test data, validates API responses, and organizes its source files.
+          </p>
+          <div class="badges" aria-label="Framework capabilities">
+            <span class="badge">Playwright Test</span>
+            <span class="badge">TypeScript</span>
+            <span class="badge">Chromium · Firefox · WebKit</span>
+            <span class="badge">Zod API validation</span>
+          </div>
+        </header>
+
+        <section id="overview">
+          <h2>Overview</h2>
+          <p>
+            The framework tests the Users App at the <code>BASE_URL</code> selected for a run. Browser tests cover the
+            home page, login flow, users screen, and a complete login-to-logout journey. API tests cover the documented
+            user endpoints and validate successful response payloads at runtime.
+          </p>
+          <div class="grid">
+            <article class="card">
+              <h3>UI tests</h3>
+              <p>Located in <code>tests/ui/</code>; executed in Chromium, Firefox, and WebKit.</p>
+            </article>
+            <article class="card">
+              <h3>API tests</h3>
+              <p>Located in <code>tests/api/</code>; executed once in the dedicated <code>api</code> project.</p>
+            </article>
+            <article class="card">
+              <h3>Shared code</h3>
+              <p>Page objects, fixtures, test data, factories, API schemas, and environment checks are kept in focused modules.</p>
+            </article>
+          </div>
+          <p>
+            The Users App is included in <code>app/</code>. For loopback targets under <code>TEST_ENV=local</code> or
+            <code>TEST_ENV=test</code>, Playwright starts it with <code>npm --prefix app start</code> and waits for
+            <code>BASE_URL</code>. Remote test, development, and staging targets must already be reachable.
+          </p>
+        </section>
+
+        <section id="quick-start">
+          <h2>Quick start</h2>
+          <ol>
+            <li>Install Node.js 20 or newer and npm.</li>
+            <li>Install framework and bundled app dependencies, then the three browser engines.</li>
+            <li>Copy an environment example and set the application URL and credentials.</li>
+            <li>Run the desired test command; Playwright starts the bundled app for loopback targets.</li>
+          </ol>
+          <pre><code>npm ci
+npm ci --prefix app
+npx playwright install chromium firefox webkit
+cp env/.env.example env/.env.local
+npm run test:local</code></pre>
+          <p>
+            For API tests that create or delete users, use a loopback URL with <code>TEST_ENV=local</code> or a dedicated,
+            disposable <code>TEST_ENV=test</code> target with an explicit hostname allowlist.
+          </p>
+        </section>
+
+        <section id="execution">
+          <h2>How a test run works</h2>
+          <ol class="flow">
+            <li><strong>Select environment.</strong><br><code>TEST_ENV</code> chooses the matching <code>env/.env.*</code> file.</li>
+            <li><strong>Resolve URL.</strong><br><code>BASE_URL</code> is required except for the local default.</li>
+            <li><strong>Start local app.</strong><br>Loopback targets in the local or test environment start <code>app/</code>; local runs reuse a responding server.</li>
+            <li><strong>Select project.</strong><br>API specs run once and serially because the bundled app uses shared JSON storage; UI specs run in three browser engines.</li>
+            <li><strong>Set up fixtures.</strong><br>Each test receives only the page objects, data, and API client it requests.</li>
+            <li><strong>Capture diagnostics.</strong><br>Failures retain screenshots and video; traces are collected on retries.</li>
+            <li><strong>Update history.</strong><br>Final outcomes update per-test pass rates and the standalone cumulative report.</li>
+          </ol>
+          <p>
+            <a href="../playwright.config.ts"><code>playwright.config.ts</code></a> defines projects, reporters, retries,
+            browser settings, output locations, and environment loading. In CI, retries are enabled and
+            <code>test.only</code> is rejected.
+          </p>
+        </section>
+
+        <section id="fixtures">
+          <h2>Fixtures and lifecycles</h2>
+          <h3>API fixtures</h3>
+          <ul>
+            <li><code>usersApi</code> reads credentials and authenticates with <code>POST /api/login</code>.</li>
+            <li><code>testData</code> provides shared, read-only reference values.</li>
+            <li><code>apiTestUser</code> creates a uniquely named user for one test and deletes it in teardown.</li>
+          </ul>
+          <p>
+            API fixtures are defined in <a href="../tests/api/fixtures.ts"><code>tests/api/fixtures.ts</code></a>.
+            The API fixture is lazy: it does not log in or create a user unless a test requests it.
+          </p>
+
+          <h3>UI fixtures</h3>
+          <ul>
+            <li><code>loginPage</code> and <code>usersPage</code> construct page objects for the current test's page.</li>
+            <li><code>authenticatedUsersPage</code> logs in and verifies navigation to the users screen.</li>
+            <li>Every test receives an isolated Playwright page/context; authentication is performed per test.</li>
+          </ul>
+          <p>
+            UI fixtures extend the API fixtures in <a href="../tests/ui/fixtures.ts"><code>tests/ui/fixtures.ts</code></a>.
+            Authenticated tests are skipped when credentials are not configured.
+          </p>
+        </section>
+
+        <section id="api-validation">
+          <h2>API client and response validation</h2>
+          <p>
+            <a href="../tests/api/utils/users-api-client.ts"><code>UsersApiClient</code></a> centralizes authenticated
+            requests for list, search, count, create, retrieve, update, and delete operations. Its successful JSON
+            responses pass through <a href="../tests/api/utils/parse-response.ts"><code>parseApiResponse</code></a>.
+          </p>
+          <p>
+            Runtime contracts are declared with Zod in
+            <a href="../tests/api/utils/schemas.ts"><code>tests/api/utils/schemas.ts</code></a>:
+            login API key, individual user, user list, and user count. A response with an unexpected status, invalid
+            JSON, or invalid payload shape fails with endpoint context. Unmodeled user fields are stripped from the
+            parsed result.
+          </p>
+          <p>
+            API scenarios live in <a href="../tests/api/users.api.spec.ts"><code>tests/api/users.api.spec.ts</code></a>.
+            They verify listing, search, count, retrieval, update, and deletion. CRUD tests use a generated user and
+            are tagged <code>@test-data</code>.
+          </p>
+          <div class="notice">
+            <strong>API contract note:</strong> The app's current raw user response includes a password property.
+            The test schema does not expose that unmodeled property, but the application should avoid returning
+            credentials in API responses.
+          </div>
+        </section>
+
+        <section id="test-data">
+          <h2>Test data and safety rules</h2>
+          <ul>
+            <li><a href="../tests/data/users.ts"><code>tests/data/users.ts</code></a> contains typed reference data.</li>
+            <li><a href="../tests/data/factories.ts"><code>createUniqueUserData</code></a> generates collision-resistant users for CRUD tests.</li>
+            <li><a href="../tests/utils/environment.ts"><code>environment.ts</code></a> reads credentials and guards mutation targets.</li>
+            <li><code>@test-data</code> marks tests that create or delete application records.</li>
+          </ul>
+          <p>
+            The <code>apiTestUser</code> fixture creates and cleans up records only for loopback hosts under
+            <code>TEST_ENV=local</code> or hostnames listed in <code>TEST_DATA_ALLOWED_HOSTS</code> under
+            <code>TEST_ENV=test</code>. Development and staging scripts exclude tests tagged <code>@test-data</code>.
+            Do not configure a production host as a test-data target.
+          </p>
+          <h3>Environment variables</h3>
+          <table>
+            <thead>
+              <tr><th>Variable</th><th>Purpose</th><th>Required when</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>TEST_ENV</code></td><td>Selects <code>local</code>, <code>test</code>, <code>dev</code>, or <code>staging</code>.</td><td>Optional; defaults to <code>local</code>.</td></tr>
+              <tr><td><code>BASE_URL</code></td><td>Base URL for browser navigation and API requests.</td><td>Required outside the local fallback.</td></tr>
+              <tr><td><code>LOGIN_USERNAME</code>, <code>LOGIN_PASSWORD</code></td><td>Credentials used by UI and API authentication.</td><td>Authenticated tests; otherwise those tests skip.</td></tr>
+              <tr><td><code>TEST_DATA_ALLOWED_HOSTS</code></td><td>Comma-separated exact hostnames permitted for API data mutations.</td><td>When running mutating tests with <code>TEST_ENV=test</code>.</td></tr>
+            </tbody>
+          </table>
+          <p>
+            Templates are provided for local, test, development, and staging environments. Actual environment files are
+            ignored by Git; credentials belong in those files locally or in the CI secret store.
+          </p>
+          <p>
+            The local app listens on port <code>9899</code>. The local URL defaults to
+            <code>http://127.0.0.1:9899</code>, matching <a href="../app/README.md"><code>app/README.md</code></a>.
+            Install its locked dependencies with <code>npm ci --prefix app</code>.
+          </p>
+        </section>
+
+        <section id="commands">
+          <h2>Common commands</h2>
+          <table>
+            <thead><tr><th>Command</th><th>Behavior</th></tr></thead>
+            <tbody>
+              <tr><td><code>npm run test:local</code></td><td>Full suite against the local environment, including mutating tests.</td></tr>
+              <tr><td><code>npm run test:test</code></td><td>Full suite against the dedicated test environment.</td></tr>
+              <tr><td><code>npm run test:api</code></td><td>API project only, using the local environment.</td></tr>
+              <tr><td><code>npm run test:dev</code></td><td>Development suite, excluding <code>@test-data</code> mutations.</td></tr>
+              <tr><td><code>npm run test:staging</code></td><td>Staging suite, excluding <code>@test-data</code> mutations.</td></tr>
+              <tr><td><code>npm run test:local -- tests/ui/e2e</code></td><td>End-to-end UI journeys in all configured browser projects.</td></tr>
+              <tr><td><code>npm run test:ui</code></td><td>Opens Playwright's interactive UI mode.</td></tr>
+              <tr><td><code>npm run test:report</code></td><td>Opens the last HTML report.</td></tr>
+              <tr><td><code>npm run test:history:report</code></td><td>Regenerates the cumulative report from saved history.</td></tr>
+              <tr><td><code>npm run test:history:unit</code></td><td>Tests history merging, pass rates, flaky tracking, and HTML escaping.</td></tr>
+              <tr><td><code>npm run typecheck</code></td><td>Runs TypeScript without emitting build output.</td></tr>
+            </tbody>
+          </table>
+          <pre><code># Run one API file
+npm run test:api -- tests/api/users.api.spec.ts
+
+# Run smoke tests across the UI browser projects
+npm run test:local -- --grep @smoke</code></pre>
+        </section>
+
+        <section id="history">
+<h2>Cumulative test history</h2>
+<p>
+  Each Playwright run writes raw JSON results to <code>test-results/results.json</code>, updates the local
+  <code>.playwright-history/history.json</code> store, and generates <code>reports/test-history-report.html</code>
+  plus separate per-test history and recent runs pages under <code>reports/</code>, linked from the report header.
+  The standalone HTML pages can be
+  regenerated with <code>npm run test:history:report</code>.
+</p>
+<ul>
+  <li>Tests are identified by project, spec path, and full title path, so moving a test's source line does not reset its history.</li>
+  <li>Pass rate is passed divided by passed plus failed; skipped tests are shown separately and excluded.</li>
+  <li>A pass after a retry counts as passed and is also marked flaky.</li>
+  <li>Per-test totals are all-time; the latest 100 run summaries and 30 outcomes per test are retained.</li>
+  <li>The metrics landing page includes KPI cards, a pass-rate trend for up to 12 runs, and the latest run's outcome breakdown.</li>
+</ul>
+<p>
+  Use the report controls together to search scenario titles, spec paths, projects, and tags; filter by
+  <code>UI</code>, <code>API</code>, or <code>E2E</code> category; select a latest status or a tag; and reset
+  all filters. The <code>Flaky</code> status isolates tests whose latest result passed after retry.
+</p>
+<p>
+  The local history directory and generated HTML are Git-ignored. CI restores and updates
+  <code>history.json</code> on the dedicated <code>test-history</code> branch, and uploads the HTML report pages
+  with the run artifacts. The first non-PR run creates the branch. Repository Actions settings must allow
+  the workflow's <code>contents: write</code> permission; pull-request runs do not write to the branch.
+</p>
+        </section>
+
+        <section id="file-reference">
+          <h2>File-by-file reference</h2>
+          <p>Every TypeScript source under <code>tests/</code> is listed below.</p>
+          <table>
+            <thead><tr><th>File</th><th>Responsibility</th></tr></thead>
+            <tbody>
+              <tr><td><a href="../tests/api/fixtures.ts"><code>tests/api/fixtures.ts</code></a></td><td>Provides the authenticated API client, typed test data, and a disposable API user fixture.</td></tr>
+              <tr><td><a href="../tests/api/users.api.spec.ts"><code>tests/api/users.api.spec.ts</code></a></td><td>API contract and CRUD scenarios for user endpoints.</td></tr>
+              <tr><td><a href="../tests/api/utils/parse-response.ts"><code>tests/api/utils/parse-response.ts</code></a></td><td>Checks HTTP status, parses JSON, and validates response payloads with Zod.</td></tr>
+              <tr><td><a href="../tests/api/utils/schemas.ts"><code>tests/api/utils/schemas.ts</code></a></td><td>Runtime schemas and inferred API user type.</td></tr>
+              <tr><td><a href="../tests/api/utils/users-api-client.ts"><code>tests/api/utils/users-api-client.ts</code></a></td><td>Authenticated, schema-validating API operations.</td></tr>
+              <tr><td><a href="../tests/data/factories.ts"><code>tests/data/factories.ts</code></a></td><td>Creates unique user payloads for isolated tests.</td></tr>
+              <tr><td><a href="../tests/data/users.ts"><code>tests/data/users.ts</code></a></td><td>Shared data types and stable user/search test values.</td></tr>
+              <tr><td><a href="../tests/ui/e2e/users-journey.spec.ts"><code>tests/ui/e2e/users-journey.spec.ts</code></a></td><td>End-to-end login, user search, and logout journey.</td></tr>
+              <tr><td><a href="../tests/ui/fixtures.ts"><code>tests/ui/fixtures.ts</code></a></td><td>Extends API fixtures with page objects and authenticated UI setup.</td></tr>
+              <tr><td><a href="../tests/ui/login.spec.ts"><code>tests/ui/login.spec.ts</code></a></td><td>Login form rendering, required-field validation, and successful login.</td></tr>
+              <tr><td><a href="../tests/ui/smoke.spec.ts"><code>tests/ui/smoke.spec.ts</code></a></td><td>Real home-page smoke checks and Swagger link navigation.</td></tr>
+              <tr><td><a href="../tests/ui/users.spec.ts"><code>tests/ui/users.spec.ts</code></a></td><td>Users table, search, add form, edit mode, and logout scenarios.</td></tr>
+              <tr><td><a href="../tests/ui/pages/login.page.ts"><code>tests/ui/pages/login.page.ts</code></a></td><td>Login form locators and actions.</td></tr>
+              <tr><td><a href="../tests/ui/pages/users.page.ts"><code>tests/ui/pages/users.page.ts</code></a></td><td>Users screen locators and user-management actions.</td></tr>
+              <tr><td><a href="../tests/utils/environment.ts"><code>tests/utils/environment.ts</code></a></td><td>Credential lookup and safe-target validation for test-data mutations.</td></tr>
+            </tbody>
+          </table>
+          <h3>Related root files</h3>
+          <ul>
+            <li><a href="../playwright.config.ts"><code>playwright.config.ts</code></a> — environment loading, project matching, reporters, retries, and browser settings.</li>
+            <li><a href="../package.json"><code>package.json</code></a> — scripts and development dependencies.</li>
+            <li><a href="../scripts/cumulative-reporter.mjs"><code>scripts/cumulative-reporter.mjs</code></a> — records each run's final test outcomes.</li>
+            <li><a href="../scripts/test-history.mjs"><code>scripts/test-history.mjs</code></a> — merges history and renders the cumulative HTML report.</li>
+            <li><a href="../scripts/render-test-history.mjs"><code>scripts/render-test-history.mjs</code></a> — regenerates the report from an existing history file.</li>
+            <li><a href="../scripts/test-history.test.mjs"><code>scripts/test-history.test.mjs</code></a> — unit tests for history calculations and rendering.</li>
+            <li><a href="../scripts/persist-test-history.sh"><code>scripts/persist-test-history.sh</code></a> — stores CI history on the dedicated branch.</li>
+            <li><a href="../app/package.json"><code>app/package.json</code></a> and <a href="../app/README.md"><code>app/README.md</code></a> — bundled Users App scripts and setup.</li>
+            <li><a href="../tsconfig.json"><code>tsconfig.json</code></a> — strict TypeScript configuration for specs, fixtures, and configuration.</li>
+            <li><a href="../.github/workflows/playwright.yml"><code>.github/workflows/playwright.yml</code></a> — GitHub Actions validation and test artifacts.</li>
+            <li><a href="../env/.env.example"><code>env/.env.example</code></a>, <a href="../env/.env.test.example"><code>env/.env.test.example</code></a>, <a href="../env/.env.dev.example"><code>env/.env.dev.example</code></a>, and <a href="../env/.env.staging.example"><code>env/.env.staging.example</code></a> — environment templates.</li>
+          </ul>
+        </section>
+
+        <section id="adding-tests">
+          <h2>Adding tests</h2>
+          <h3>UI test</h3>
+          <ol>
+            <li>Add a spec under <code>tests/ui/</code> or a full user journey under <code>tests/ui/e2e/</code>.</li>
+            <li>Import <code>test</code> and <code>expect</code> from the UI fixture module.</li>
+            <li>Use page-object locators and role-based selectors; avoid fixed waits.</li>
+            <li>Use <code>authenticatedUsersPage</code> when authentication is setup, or <code>loginPage</code> when testing login itself.</li>
+          </ol>
+          <pre><code>import { expect, test } from './fixtures.ts';
+
+test('finds a seeded user', async ({ authenticatedUsersPage, testData }) => {
+  const jane = testData.existingUsers.jane;
+  await authenticatedUsersPage.searchFor(jane.email);
+  await expect(authenticatedUsersPage.getUserRow(jane.name)).toBeVisible();
+});</code></pre>
+
+          <h3>API test</h3>
+          <ol>
+            <li>Add a spec under <code>tests/api/</code>.</li>
+            <li>Use the <code>usersApi</code> fixture so requests are authenticated and response schemas are validated.</li>
+            <li>Use <code>apiTestUser</code> only for tests that need a record created for the test.</li>
+            <li>Tag data-changing tests <code>@test-data</code>; fixture teardown removes generated users.</li>
+          </ol>
+          <pre><code>import { expect, test } from './fixtures.ts';
+
+test('searches by email', async ({ usersApi, testData }) => {
+  const jane = testData.existingUsers.jane;
+  const results = await usersApi.searchUsers({ email: jane.email });
+  expect(results[0]).toMatchObject(jane);
+});</code></pre>
+        </section>
+
+        <section id="ci">
+          <h2>Continuous integration</h2>
+          <p>The GitHub Actions workflow installs and starts the bundled app, then runs typecheck and the full suite against it.</p>
+          <table>
+            <thead><tr><th>GitHub setting</th><th>Value</th></tr></thead>
+            <tbody>
+              <tr><td>Secret <code>TEST_LOGIN_USERNAME</code></td><td>Test account username.</td></tr>
+              <tr><td>Secret <code>TEST_LOGIN_PASSWORD</code></td><td>Test account password.</td></tr>
+            </tbody>
+          </table>
+          <p>
+            The workflow fails early when test credentials are missing. It installs Chromium, Firefox, and WebKit and
+            uploads the Playwright report, JSON results, cumulative history, and failure artifacts. On non-PR runs,
+            it updates the dedicated <code>test-history</code> branch; workflow permissions grant the required
+            <code>contents: write</code> access. Runs are serialized to prevent concurrent history updates.
+          </p>
+        </section>
+
+        <footer>
+          <p>Keep this guide aligned with the test fixtures, API schemas, and commands whenever the framework structure changes.</p>
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>

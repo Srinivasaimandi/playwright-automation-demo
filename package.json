@@ -1,0 +1,29 @@
+{
+  "name": "playwright-test-framework",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:local": "cross-env TEST_ENV=local playwright test",
+    "test:test": "cross-env TEST_ENV=test playwright test",
+    "test:api": "cross-env TEST_ENV=local playwright test --project=api",
+    "test:dev": "cross-env TEST_ENV=dev playwright test --grep-invert @test-data",
+    "test:staging": "cross-env TEST_ENV=staging playwright test --grep-invert @test-data",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report",
+    "test:history:report": "node scripts/render-test-history.mjs",
+    "test:history:unit": "node --test scripts/test-history.test.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1",
+    "@types/node": "^26.6.6",
+    "cross-env": "^10.1.0",
+    "dotenv": "^18.0.10",
+    "typescript": "^7.0.2",
+    "zod": "^4.6.7"
+  }
+}
