@@ -4,14 +4,21 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "pretest": "node scripts/update-app.mjs",
     "test": "playwright test",
+    "pretest:local": "node scripts/update-app.mjs",
     "test:local": "cross-env TEST_ENV=local playwright test",
+    "pretest:test": "node scripts/update-app.mjs",
     "test:test": "cross-env TEST_ENV=test playwright test",
+    "pretest:api": "node scripts/update-app.mjs",
     "test:api": "cross-env TEST_ENV=local playwright test --project=api",
     "test:dev": "cross-env TEST_ENV=dev playwright test --grep-invert @test-data",
     "test:staging": "cross-env TEST_ENV=staging playwright test --grep-invert @test-data",
+    "pretest:headed": "node scripts/update-app.mjs",
     "test:headed": "playwright test --headed",
+    "pretest:ui": "node scripts/update-app.mjs",
     "test:ui": "playwright test --ui",
+    "pretest:debug": "node scripts/update-app.mjs",
     "test:debug": "playwright test --debug",
     "test:report": "playwright show-report",
     "test:history:report": "node scripts/render-test-history.mjs",
@@ -19,7 +26,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings=0",
     "format": "prettier --write \"package.json\" \"playwright.config.ts\" \"tests/**/*.ts\" \"scripts/**/*.mjs\" \"eslint.config.mjs\" \".github/**/*.yml\"",
-    "format:check": "prettier --check \"package.json\" \"playwright.config.ts\" \"tests/**/*.ts\" \"scripts/**/*.mjs\" \"eslint.config.mjs\" \".github/**/*.yml\""
+    "format:check": "prettier --check \"package.json\" \"playwright.config.ts\" \"tests/**/*.ts\" \"scripts/**/*.mjs\" \"eslint.config.mjs\" \".github/**/*.yml\"",
+    "app:update": "node scripts/update-app.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
