@@ -23,15 +23,36 @@ test.describe('Users screen', { tag: '@users' }, () => {
     },
   );
 
-  test('filters users by email without case sensitivity', async ({
-    authenticatedUsersPage: usersPage,
-    testData,
-  }) => {
-    await usersPage.searchFor(testData.searches.janeByEmailCaseInsensitive);
+  test(
+    'filters users by part of a name',
+    { annotation: { type: 'requirement', description: 'REQ-001' } },
+    async ({ authenticatedUsersPage: usersPage, testData }) => {
+      const partialName = testData.searches.janeByPartialName;
+      const nameMatcher = new RegExp(partialName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+      await expect(usersPage.getUserRow(testData.existingUsers.jane.name)).toBeVisible();
+      const unfilteredCount = await usersPage.userRows.count();
 
-    await expect(usersPage.getUserRow(testData.existingUsers.jane.name)).toBeVisible();
-    await expect(usersPage.userRows).toHaveCount(1);
-  });
+      await usersPage.searchFor(partialName);
+
+      await expect(usersPage.getUserRow(testData.existingUsers.jane.name)).toBeVisible();
+      const filteredCount = await usersPage.userRows.count();
+      expect(filteredCount).toBeLessThan(unfilteredCount);
+      await expect(usersPage.userNameCells).toHaveText(
+        Array.from({ length: filteredCount }, () => nameMatcher),
+      );
+    },
+  );
+
+  test(
+    'filters users by email without case sensitivity',
+    { annotation: { type: 'requirement', description: 'REQ-001' } },
+    async ({ authenticatedUsersPage: usersPage, testData }) => {
+      await usersPage.searchFor(testData.searches.janeByEmailCaseInsensitive);
+
+      await expect(usersPage.getUserRow(testData.existingUsers.jane.name)).toBeVisible();
+      await expect(usersPage.userRows).toHaveCount(1);
+    },
+  );
 
   test(
     'shows an API-created user in the users list',
@@ -44,16 +65,21 @@ test.describe('Users screen', { tag: '@users' }, () => {
     },
   );
 
-  test('shows no rows for an unmatched search and restores results when cleared', async ({
-    authenticatedUsersPage: usersPage,
-    testData,
-  }) => {
-    await usersPage.searchFor(testData.searches.noResults);
-    await expect(usersPage.userRows).toHaveCount(0);
+  test(
+    'shows no rows for an unmatched search and restores results when cleared',
+    { annotation: { type: 'requirement', description: 'REQ-001' } },
+    async ({ authenticatedUsersPage: usersPage, testData }) => {
+      await expect(usersPage.getUserRow(testData.existingUsers.jane.name)).toBeVisible();
+      const unfilteredCount = await usersPage.userRows.count();
 
-    await usersPage.searchFor('');
-    await expect(usersPage.getUserRow(testData.existingUsers.jane.name)).toBeVisible();
-  });
+      await usersPage.searchFor(testData.searches.noResults);
+      await expect(usersPage.userRows).toHaveCount(0);
+
+      await usersPage.searchFor('');
+      await expect(usersPage.getUserRow(testData.existingUsers.jane.name)).toBeVisible();
+      await expect(usersPage.userRows).toHaveCount(unfilteredCount);
+    },
+  );
 
   test('opens the add-user form and can cancel without changes', async ({
     authenticatedUsersPage: usersPage,
