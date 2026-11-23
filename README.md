@@ -23,6 +23,10 @@ The Users App source is in [`app/`](./app/) as a Git submodule, cloned from
 and loopback test runs with `npm --prefix app start` (port 9899). If that URL is already serving the app, local runs
 reuse it; CI starts a fresh server. Remote development and staging targets are not started by Playwright.
 
+Before each local `npm test*` run, `scripts/update-app.mjs` force-updates `app/` to the latest commit of its tracked
+branch. Any local edits in `app/` are discarded, so fix app defects upstream in users-app-demo, not here. Set
+`SKIP_APP_UPDATE=1` to run against the current checkout unchanged.
+
 ## Run tests
 
 ```bash

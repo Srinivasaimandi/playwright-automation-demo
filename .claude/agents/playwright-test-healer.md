@@ -26,7 +26,13 @@ error output, the requirement's acceptance criteria, and the history of earlier 
 - **Never** make a test pass by: deleting or loosening an assertion that encodes an acceptance criterion, adding
   `test.skip`/`test.fixme`/`test.fail`, adding `waitForTimeout` or `force: true`, widening timeouts as the fix,
   catching and swallowing errors, or editing `app/` or `playwright.config.ts`.
-- For an application defect or environment problem, change nothing and report it.
+- For an application defect or environment problem, change nothing and report it, including a suggested app-side fix
+  for the app's maintainers to apply upstream.
+- **Never modify the application under test.** Do not edit, create, delete or revert any file under `app/`, and do
+  not run git commands (checkout, reset, stash, commit) inside `app/`. This holds even when the fix is obvious, a
+  one-line change, or the only way to make the test pass. `app/` is force-updated to upstream before every run, so
+  any local edit there would be discarded anyway and would hide a real defect in the meantime.
+- You may change only test code: specs, page objects, fixtures and test data under `tests/`.
 - Do not repeat a fix that an earlier attempt already tried.
 - Run `npx prettier --write` on changed files.
 

@@ -11,8 +11,8 @@ export class LoginPage {
   constructor(page: Page) {
     this.page = page;
     this.heading = page.getByRole('heading', { name: 'Login', level: 2 });
-    this.usernameInput = page.getByRole('textbox', { name: 'Username' });
-    this.passwordInput = page.getByRole('textbox', { name: 'Password' });
+    this.usernameInput = page.getByRole('textbox', { name: 'Enter Username', exact: true });
+    this.passwordInput = page.getByRole('textbox', { name: 'Enter Password', exact: true });
     this.submitButton = page.getByRole('button', { name: 'Login' });
   }
 

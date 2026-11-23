@@ -44,11 +44,11 @@ export default defineConfig({
   retries: isCI ? 2 : 0,
   webServer: startsLocalApp
     ? {
-      command: 'npm --prefix app start',
-      url: baseURL,
-      reuseExistingServer: !isCI,
-      timeout: 120_000,
-    }
+        command: 'npm --prefix app start',
+        url: baseURL,
+        reuseExistingServer: !isCI,
+        timeout: 120_000,
+      }
     : undefined,
   reporter: [
     ['list'],
@@ -68,11 +68,11 @@ export default defineConfig({
   projects: [
     ...(hasLoginCredentials
       ? [
-        {
-          name: 'setup',
-          testMatch: '**/ui/auth.setup.ts',
-        },
-      ]
+          {
+            name: 'setup',
+            testMatch: '**/ui/auth.setup.ts',
+          },
+        ]
       : []),
     {
       name: 'api',

@@ -1,6 +1,7 @@
-// Updates the `app` submodule to the latest commit of its tracked branch before a local test run.
-// Never fails the run: if the update is not possible (offline, slow network, local edits in app/),
-// it prints a warning and the tests use the app code that is already checked out.
+// Force-updates the `app` submodule to the latest commit of its tracked branch before a local test run.
+// Local edits in app/ are always discarded so tests run against the real upstream app.
+// Never fails the run for network problems: if the fetch is not possible (offline, slow network),
+// it prints a warning and the tests use the app commit that is already checked out (with local edits discarded).
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import process from 'node:process';
@@ -50,9 +51,21 @@ if (!existsSync(`${appDir}/.git`)) {
   }
 }
 
-const dirty = git('-C', appDir, 'status', '--porcelain', '--untracked-files=no');
+// Discard any local edits in app/ (tracked changes and untracked files; ignored files such as node_modules are kept).
+const dirty = git('-C', appDir, 'status', '--porcelain');
 if (!dirty.ok) keepExisting(`could not read app status: ${dirty.reason}`);
-if (dirty.output) keepExisting('app/ has uncommitted changes');
+if (dirty.output) {
+  log('Discarding local changes in app/:');
+  for (const line of dirty.output.split('\n')) log(`  ${line}`);
+  const reset = git('-C', appDir, 'reset', '--hard', '--quiet', 'HEAD');
+  const clean = git('-C', appDir, 'clean', '-fd', '--quiet');
+  if (!reset.ok || !clean.ok) {
+    console.error(
+      `[update-app] Could not discard local changes in app/: ${reset.reason ?? clean.reason}`,
+    );
+    process.exit(1);
+  }
+}
 
 const branchSetting = git('config', '-f', '.gitmodules', `submodule.${appDir}.branch`);
 const branch = branchSetting.ok && branchSetting.output ? branchSetting.output : 'main';
@@ -64,7 +77,7 @@ const fetch = run('git', ['-C', appDir, 'fetch', '--no-tags', 'origin', branch],
 });
 if (!fetch.ok) keepExisting(`fetch failed, probably offline: ${fetch.reason}`);
 
-const checkout = git('-C', appDir, 'checkout', '--quiet', '--detach', 'FETCH_HEAD');
+const checkout = git('-C', appDir, 'checkout', '--quiet', '--force', '--detach', 'FETCH_HEAD');
 if (!checkout.ok) keepExisting(`checkout failed: ${checkout.reason}`);
 
 const after = git('-C', appDir, 'rev-parse', 'HEAD').output;
