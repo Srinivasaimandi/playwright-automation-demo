@@ -19,6 +19,8 @@ export const usersTestData = {
     },
   },
   searches: {
+    /** Lower-case fragment of seeded names (Jane Smith, Srinivasa Rao Imandi) that no other seeded field contains. */
+    janeByPartialName: 'an',
     janeByEmailCaseInsensitive: 'JANESMITH@EXAMPLE.COM',
     noResults: 'no-such-user-998',
   },
@@ -33,6 +35,7 @@ export const usersTestData = {
     jane: Pick<NewUserData, 'name' | 'email' | 'username'>;
   };
   searches: {
+    janeByPartialName: string;
     janeByEmailCaseInsensitive: string;
     noResults: string;
   };

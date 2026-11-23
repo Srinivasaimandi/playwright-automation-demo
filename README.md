@@ -2,7 +2,7 @@
 
 TypeScript end-to-end testing with Playwright Test, plus a workspace Playwright MCP server for VS Code.
 
-See the [framework developer guide](./docs/index.html) for the architecture, fixtures, API validation, environment safety rules, and file-by-file reference.
+See the [framework developer guide](./docs/index.html) for the architecture, fixtures, API validation, environment safety rules, the requirement-to-test orchestrator, and file-by-file reference. Test conventions are in [`docs/test-writing-standards.md`](./docs/test-writing-standards.md).
 
 ## Requirements
 
@@ -114,6 +114,62 @@ The GitHub Actions workflow installs the bundled app, runs lint, formatting, and
 
 ## Playwright MCP in VS Code
 
-The root `.mcp.json` configures the official `@playwright/mcp` server for Copilot in VS Code. Open this folder in VS Code, trust the workspace/server when prompted, then start or enable the `playwright` MCP server from the MCP servers UI. If VS Code does not load workspace-root MCP configuration, enable the `chat.mcp.workspaceRootConfig.enabled` setting or add the same server through **Chat: Open Customizations → MCP Servers**.
+The root `.mcp.json` configures the official `@playwright/mcp` server for Copilot in VS Code. Claude Code reads the same file; the orchestrator's agents use it to explore the running app. Open this folder in VS Code, trust the workspace/server when prompted, then start or enable the `playwright` MCP server from the MCP servers UI. If VS Code does not load workspace-root MCP configuration, enable the `chat.mcp.workspaceRootConfig.enabled` setting or add the same server through **Chat: Open Customizations → MCP Servers**.
 
 The MCP server is an agent-facing browser tool; automated test runs use Playwright Test directly. Playwright MCP may launch browser sessions independently of the test runner.
+
+## Requirement-to-test orchestrator (Claude Code)
+
+`/requirement-to-test <requirement-id-or-path>` turns a requirement from the [`requirement/`](requirement/) folder
+into Playwright tests. Nothing is committed or pushed until you approve. The
+[developer guide](./docs/index.html#orchestrator) covers the flow in detail.
+
+```bash
+/requirement-to-test REQ-001
+```
+
+### Prerequisites
+
+- Claude Code opened at the repository root, with the `playwright` MCP server from `.mcp.json` enabled.
+- Dependencies installed as in [Setup](#setup).
+- `LOGIN_USERNAME` and `LOGIN_PASSWORD` in `env/.env.local`. Without them, authenticated tests skip and the
+  orchestrator reports them as not verified.
+
+### Writing a requirement
+
+Copy `requirement/_template.md` to `requirement/REQ-<nnn>-<slug>.md`, describe the feature, list numbered
+acceptance criteria (`AC1`, `AC2`, …) as observable outcomes, and set `status: ready`. Each criterion becomes at
+least one test. See [`requirement/README.md`](requirement/README.md) for the format and
+[`REQ-001-user-search.md`](requirement/REQ-001-user-search.md) for an example. Generated tests carry the annotation
+`{ type: 'requirement', description: 'REQ-001' }`, so you can find a requirement's tests by its ID.
+
+### What a run does
+
+1. **Preconditions**: finds the requirement file, warns about uncommitted test changes, and creates the branch
+   `tests/<id>` (for example `tests/req-001`).
+2. **Read**: extracts acceptance criteria, out-of-scope notes and test-data hints. A `draft` requirement or unclear
+   criteria make it stop and ask.
+3. **Plan**: maps each criterion to a test, file and tags, skipping criteria that existing tests already cover.
+4. **Write**: the `playwright-test-writer` agent checks locators in the live app through Playwright MCP, then adds
+   specs, page objects and test data.
+5. **Verify**: runs Prettier, `npm run typecheck`, `npm run lint` and the changed specs.
+6. **Heal**: on failure, the `playwright-test-healer` agent works out whether the test, the app or the environment
+   is at fault, and fixes only test defects. At most three attempts; it stops early on an app or environment
+   problem.
+7. **Stability**: reruns passing specs with `--repeat-each=3` to catch flaky tests.
+8. **Approve**: shows coverage per criterion, the diff, run results and suspected app defects, then asks you to
+   **approve and commit** (no push), **request changes** (back to step 4 with your notes), or **reject and
+   discard** (removes the run's changes and branch).
+
+The healer never makes a test pass by loosening or deleting an assertion tied to a criterion, skipping the test,
+adding fixed waits or `force: true`, raising timeouts, or editing `app/` or `playwright.config.ts`. The orchestrator
+checks the diff after each heal and reverts any weakened assertion. Verification runs use the `list` reporter, so they
+don't add entries to the cumulative test history.
+
+| File | Role |
+| --- | --- |
+| `requirement/*.md` | Requirements with numbered acceptance criteria (the orchestrator's input) |
+| `.claude/skills/requirement-to-test/SKILL.md` | Orchestrator: phases, heal limit, approval step |
+| `.claude/agents/playwright-test-writer.md` | Explores the app with Playwright MCP and writes the tests |
+| `.claude/agents/playwright-test-healer.md` | Diagnoses failures and fixes test defects only (never weakens assertions) |
+| `docs/test-writing-standards.md` | The writing standard both agents follow |

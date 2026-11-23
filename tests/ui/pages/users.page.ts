@@ -13,6 +13,7 @@ export class UsersPage {
   readonly usersTable: Locator;
   readonly columnHeaders: Locator;
   readonly userRows: Locator;
+  readonly userNameCells: Locator;
   readonly addUserDialog: Locator;
   readonly addUserValidationMessage: Locator;
   readonly addUserNameInput: Locator;
@@ -33,6 +34,8 @@ export class UsersPage {
     this.usersTable = page.getByRole('table');
     this.columnHeaders = this.usersTable.getByRole('columnheader');
     this.userRows = this.usersTable.getByRole('rowgroup').nth(1).getByRole('row');
+    // Cells expose no column-specific accessible name, so the Name column is selected by position.
+    this.userNameCells = this.userRows.locator('td:nth-child(2)');
     this.addUserDialog = page.getByRole('dialog', { name: 'Add User' });
     this.addUserValidationMessage = this.addUserDialog.getByText('Please fill out all fields.', {
       exact: true,
