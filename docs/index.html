@@ -306,8 +306,9 @@ npm run test:local</code></pre>
           <h3>UI fixtures</h3>
           <ul>
             <li><code>loginPage</code> and <code>usersPage</code> construct page objects for the current test's page.</li>
-            <li><code>authenticatedUsersPage</code> logs in and verifies navigation to the users screen.</li>
-            <li>Every test receives an isolated Playwright page/context; authentication is performed per test.</li>
+            <li>The <code>setup</code> project logs in once and saves the app's local-storage token to the ignored <code>.auth/user.json</code> file.</li>
+            <li><code>authenticatedUsersPage</code> opens the users screen using the saved state; each test still receives an isolated browser context.</li>
+            <li>Login-flow tests continue to navigate and submit the login form directly.</li>
           </ul>
           <p>
             UI fixtures extend the API fixtures in <a href="../tests/ui/fixtures.ts"><code>tests/ui/fixtures.ts</code></a>.

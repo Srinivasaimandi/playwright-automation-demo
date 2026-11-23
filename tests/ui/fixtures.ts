@@ -20,15 +20,15 @@ export const test = apiTest.extend<UiFixtures>({
     await use(new UsersPage(page));
   },
 
-  authenticatedUsersPage: async ({ page, loginPage, usersPage }, use) => {
+  authenticatedUsersPage: async ({ page, usersPage }, use) => {
     const credentials = getLoginCredentials();
     if (!credentials) {
       apiTest.skip(true, 'Set LOGIN_USERNAME and LOGIN_PASSWORD to run authenticated users tests');
       return;
     }
 
-    await loginPage.goto();
-    await loginPage.login(credentials.username, credentials.password);
+    await page.goto('/usersPage.html');
+    await expect(usersPage.heading).toBeVisible();
     await expect(page).toHaveURL(/\/usersPage\.html$/);
     await use(usersPage);
   },

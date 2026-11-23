@@ -4,6 +4,7 @@ playwright-report/
 test-results/
 .playwright-mcp
 .playwright-history/
+.auth/
 reports/test-history-report*.html
 playwright/.cache/
 # Keep local environment credentials ignored while allowing shared templates.

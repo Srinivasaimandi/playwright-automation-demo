@@ -80,7 +80,7 @@ npm run test:local -- --grep @login
 
 ## Playwright fixtures
 
-`tests/ui/fixtures.ts` extends the API fixtures with reusable `loginPage` and `usersPage` page objects, plus `authenticatedUsersPage`, which logs in before providing the users screen. `tests/api/fixtures.ts` provides the API key and `apiTestUser` fixtures, while `testData` supplies typed shared values from `tests/data/`. Authenticated tests are skipped when `LOGIN_USERNAME` or `LOGIN_PASSWORD` is missing. The `testData` fixture itself is read-only; `apiTestUser` is the separate fixture for creating and cleaning up an application record.
+`tests/ui/fixtures.ts` extends the API fixtures with reusable `loginPage` and `usersPage` page objects, plus `authenticatedUsersPage`, which opens the users screen using saved browser state. When login credentials are configured, the `setup` project logs in once and saves the app's local-storage token to `.auth/user.json`; the Chromium project loads that state for each isolated test context. The `.auth/` directory is ignored by Git because the state contains an authentication token. Login-flow tests still exercise the login form directly. Authenticated tests are skipped when `LOGIN_USERNAME` or `LOGIN_PASSWORD` is missing. `tests/api/fixtures.ts` provides the API key and `apiTestUser` fixtures, while `testData` supplies typed shared values from `tests/data/`. The `testData` fixture itself is read-only; `apiTestUser` is the separate fixture for creating and cleaning up an application record.
 
 Import the extended `test` in specs that use these fixtures:
 

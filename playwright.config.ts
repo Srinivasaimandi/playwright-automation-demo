@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 import { config as loadEnv } from 'dotenv';
 import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import process from 'node:process';
 
 const testEnvironment = process.env.TEST_ENV ?? 'local';
@@ -20,6 +21,8 @@ if (existsSync(envFile)) {
 }
 
 const isCI = Boolean(process.env.CI);
+const hasLoginCredentials = Boolean(process.env.LOGIN_USERNAME && process.env.LOGIN_PASSWORD);
+const authStatePath = resolve(process.cwd(), '.auth/user.json');
 const baseURL =
   process.env.BASE_URL ?? (testEnvironment === 'local' ? 'http://127.0.0.1:9899' : undefined);
 
@@ -41,11 +44,11 @@ export default defineConfig({
   retries: isCI ? 2 : 0,
   webServer: startsLocalApp
     ? {
-        command: 'npm --prefix app start',
-        url: baseURL,
-        reuseExistingServer: !isCI,
-        timeout: 120_000,
-      }
+      command: 'npm --prefix app start',
+      url: baseURL,
+      reuseExistingServer: !isCI,
+      timeout: 120_000,
+    }
     : undefined,
   reporter: [
     ['list'],
@@ -58,8 +61,19 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
+    launchOptions: {
+      slowMo: 500,
+    },
   },
   projects: [
+    ...(hasLoginCredentials
+      ? [
+        {
+          name: 'setup',
+          testMatch: '**/ui/auth.setup.ts',
+        },
+      ]
+      : []),
     {
       name: 'api',
       testMatch: '**/api/**/*.spec.ts',
@@ -68,7 +82,11 @@ export default defineConfig({
     {
       name: 'chromium',
       testMatch: '**/ui/**/*.spec.ts',
-      use: { ...devices['Desktop Chrome'] },
+      ...(hasLoginCredentials ? { dependencies: ['setup'] } : {}),
+      use: {
+        ...devices['Desktop Chrome'],
+        ...(hasLoginCredentials ? { storageState: authStatePath } : {}),
+      },
     },
   ],
   outputDir: 'test-results',
