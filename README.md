@@ -4,10 +4,44 @@ TypeScript end-to-end testing with Playwright Test, plus a workspace Playwright 
 
 See the [framework developer guide](./docs/index.html) for the architecture, fixtures, API validation, environment safety rules, the requirement-to-test orchestrator, and file-by-file reference. Test conventions are in [`docs/test-writing-standards.md`](./docs/test-writing-standards.md).
 
+## What it covers
+
+- **UI**: login, users screen, end-to-end journeys, axe-core accessibility scans, and network-mocked failure states,
+  in Chromium, Firefox, WebKit and a Pixel 7 mobile viewport.
+- **API**: REST CRUD and bulk endpoints, the GraphQL API, and the published OpenAPI contract, with Zod validation of
+  every response.
+- **Tooling**: per-environment config, safe disposable test data, a cumulative pass-rate history report, GitHub
+  Actions CI, and a Claude Code orchestrator that writes tests from requirements.
+
+## Project structure
+
+```text
+.
+├── app/                      # Users App under test (Git submodule, auto-updated before local runs)
+├── docs/                     # Developer guide (index.html) and test-writing standards
+├── env/                      # .env.<environment>.example templates
+├── requirement/              # Requirements read by the requirement-to-test orchestrator
+├── scripts/                  # App updater, cumulative history reporter and report renderer
+├── tests/
+│   ├── api/                  # REST, GraphQL and OpenAPI specs, fixtures, clients and Zod schemas
+│   │   └── destructive/      # Data-reset specs, run last
+│   ├── data/                 # Reference data and unique-data factories
+│   ├── ui/                   # UI specs, fixtures, auth setup
+│   │   ├── e2e/              # Multi-screen journeys
+│   │   ├── mocks/            # page.route() network mocks
+│   │   └── pages/            # Page objects
+│   └── utils/                # Credential lookup and data-safety guards
+├── .claude/                  # Orchestrator skill and writer/healer agents
+├── .github/                  # CI workflow and Dependabot config
+├── .mcp.json                 # Playwright MCP server
+└── playwright.config.ts      # Environments, projects, reporters, web server
+```
+
 ## Requirements
 
 - Node.js 20.19+, 22.13+, or 24+
 - npm
+- Git (the app is a submodule)
 
 ## Setup
 
@@ -25,7 +59,10 @@ reuse it; CI starts a fresh server. Remote development and staging targets are n
 
 Before each local `npm test*` run, `scripts/update-app.mjs` force-updates `app/` to the latest commit of its tracked
 branch. Any local edits in `app/` are discarded, so fix app defects upstream in users-app-demo, not here. Set
-`SKIP_APP_UPDATE=1` to run against the current checkout unchanged.
+`SKIP_APP_UPDATE=1` to run against the current checkout unchanged. App dependencies are reinstalled only when they
+changed. If the fetch fails or takes longer than `APP_UPDATE_TIMEOUT_MS` (default 15000), the run continues on the
+current checkout. Run `npm run app:update` to update the app without running tests. The update is skipped in CI (the
+workflow updates the submodule itself) and by `test:dev` and `test:staging`, which target remote apps.
 
 ## Run tests
 
@@ -45,6 +82,7 @@ npm run test:history:unit
 npm run typecheck
 npm run lint
 npm run format:check
+npm run app:update
 ```
 
 Use `npm run format` to apply the configured Prettier formatting. ESLint checks JavaScript configuration and utility files; TypeScript is type-checked and formatted with Prettier.
@@ -82,6 +120,32 @@ The login spec covers form rendering, required-field validation, and successful 
 npm run test:local -- --grep @login
 ```
 
+## Projects and tags
+
+| Project                                          | Runs                                          | Notes                                                        |
+| ------------------------------------------------ | --------------------------------------------- | ------------------------------------------------------------ |
+| `setup`                                          | `tests/ui/auth.setup.ts`                      | Only when login credentials are set; saves `.auth/user.json` |
+| `chromium`, `firefox`, `webkit`, `mobile-chrome` | `tests/ui/**/*.spec.ts`                       | Depend on `setup` when credentials are set                   |
+| `api`                                            | `tests/api/**/*.spec.ts` (not `destructive/`) | REST, GraphQL and OpenAPI specs, run once                    |
+| `api-destructive`                                | `tests/api/destructive/**/*.spec.ts`          | Runs after all other projects; skipped if any of them fails  |
+
+| Tag                             | Meaning                                                                 |
+| ------------------------------- | ----------------------------------------------------------------------- |
+| `@smoke`                        | Fast critical-path checks                                               |
+| `@login`, `@users`              | Login form and users screen suites                                      |
+| `@validation`, `@auth`          | Input validation; tests that need credentials                           |
+| `@e2e`                          | Multi-screen journeys                                                   |
+| `@a11y`                         | axe-core WCAG 2.1 A/AA scans                                            |
+| `@mocked`                       | UI tests that mock the users API                                        |
+| `@api`, `@graphql`, `@contract` | REST, GraphQL and OpenAPI contract suites                               |
+| `@test-data`                    | Creates, edits or deletes data; excluded from `test:dev`/`test:staging` |
+
+Filter with `--grep @tag` or exclude with `--grep-invert @tag`.
+
+Note: `playwright.config.ts` sets `slowMo: 500` for every browser action, so UI runs are deliberately slow and easy
+to watch. Traces are recorded on the first retry (CI only, where retries are 2); screenshots and video are kept for
+failures.
+
 ## Accessibility and failure-state tests
 
 - `tests/ui/accessibility.spec.ts` (`@a11y`) scans the login page, users page and add-user dialog with
@@ -104,6 +168,17 @@ npm run test:local -- --grep @login
   of them has a failing test.
 
 ## Playwright fixtures
+
+| Fixture                  | Defined in              | Provides                                                                  |
+| ------------------------ | ----------------------- | ------------------------------------------------------------------------- |
+| `usersApi`               | `tests/api/fixtures.ts` | Authenticated, schema-validating REST client                              |
+| `graphqlApi`             | `tests/api/fixtures.ts` | Authenticated GraphQL client                                              |
+| `apiTestUser`            | `tests/api/fixtures.ts` | A unique user created for the test and deleted afterwards                 |
+| `testData`               | `tests/api/fixtures.ts` | Read-only reference data from `tests/data/users.ts`                       |
+| `loginPage`, `usersPage` | `tests/ui/fixtures.ts`  | Page objects for the current page                                         |
+| `authenticatedUsersPage` | `tests/ui/fixtures.ts`  | Users screen opened with saved login state                                |
+| `makeAxeBuilder`         | `tests/ui/fixtures.ts`  | Factory for an axe-core builder preset to WCAG 2.1 A/AA                   |
+| `usersApiMock`           | `tests/ui/fixtures.ts`  | `fulfill`, `respondWithUsers`, `abort` and `hold` mocks for the users API |
 
 `tests/ui/fixtures.ts` extends the API fixtures with reusable `loginPage` and `usersPage` page objects, plus `authenticatedUsersPage`, which opens the users screen using saved browser state. When login credentials are configured, the `setup` project logs in once and saves the app's local-storage token to `.auth/user.json`; each browser project loads that state for each isolated test context. The `.auth/` directory is ignored by Git because the state contains an authentication token. Login-flow tests still exercise the login form directly. Authenticated tests are skipped when `LOGIN_USERNAME` or `LOGIN_PASSWORD` is missing. `tests/api/fixtures.ts` provides the API key and `apiTestUser` fixtures, while `testData` supplies typed shared values from `tests/data/`. The `testData` fixture itself is read-only; `apiTestUser` is the separate fixture for creating and cleaning up an application record.
 
@@ -138,7 +213,12 @@ test('shows a created user', async ({ authenticatedUsersPage, apiTestUser }) => 
 - `tests/data/factories.ts` creates unique user data for tests.
 - `tests/utils/environment.ts` provides shared credential lookup and guards API data changes to loopback or allowlisted test hosts.
 
-The GitHub Actions workflow installs the bundled app, runs lint, formatting, and type checks, and starts it through Playwright. Configure the `TEST_LOGIN_USERNAME` and `TEST_LOGIN_PASSWORD` secrets for the seeded test account. CI restores and updates `history.json` on the dedicated `test-history` branch and uploads the cumulative HTML report as a run artifact. The first non-PR run creates the branch. Ensure repository Actions settings allow the workflow's `contents: write` permission; pull-request runs report history but do not write to the branch.
+## Continuous integration
+
+The GitHub Actions workflow (`.github/workflows/playwright.yml`, Node.js 22) runs on pushes, pull requests and manual
+dispatch. It updates the `app` submodule to the latest `main`, installs the bundled app, runs lint, formatting, type
+checks and the history unit tests, then runs `npm run test:local`, which starts the app through Playwright. Configure the `TEST_LOGIN_USERNAME` and `TEST_LOGIN_PASSWORD` secrets for the seeded test account. CI restores and updates `history.json` on the dedicated `test-history` branch and uploads the cumulative HTML report as a run artifact. The first non-PR run creates the branch. Ensure repository Actions settings allow the workflow's `contents: write` permission; pull-request runs report history but do not write to the branch. Dependabot (`.github/dependabot.yml`) proposes
+weekly npm and GitHub Actions updates.
 
 ## Playwright MCP in VS Code
 
