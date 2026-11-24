@@ -221,7 +221,7 @@
           <div class="badges" aria-label="Framework capabilities">
             <span class="badge">Playwright Test</span>
             <span class="badge">TypeScript</span>
-            <span class="badge">Chromium · Firefox · WebKit · Mobile Chrome</span>
+            <span class="badge">Chromium</span>
             <span class="badge">REST · GraphQL · OpenAPI</span>
             <span class="badge">Zod API validation</span>
             <span class="badge">axe-core accessibility</span>
@@ -240,7 +240,7 @@
           <div class="grid">
             <article class="card">
               <h3>UI tests</h3>
-              <p>Located in <code>tests/ui/</code>; executed in Chromium, Firefox, WebKit, and a Pixel 7 mobile viewport. Includes axe accessibility scans and network-mocked API failures, slow responses, and row actions.</p>
+              <p>Located in <code>tests/ui/</code>; executed in Chromium (Firefox, WebKit, and a Pixel 7 mobile viewport are configured but disabled). Includes axe accessibility scans and network-mocked API failures, slow responses, and row actions.</p>
             </article>
             <article class="card">
               <h3>API tests</h3>
@@ -282,7 +282,7 @@
           <pre><code>git submodule update --init --recursive
 npm ci
 npm ci --prefix app
-npx playwright install chromium firefox webkit
+npx playwright install chromium
 cp env/.env.example env/.env.local
 npm run test:local</code></pre>
           <p>
@@ -314,7 +314,7 @@ npm run test:local</code></pre>
             <thead><tr><th>Setting</th><th>Value</th></tr></thead>
             <tbody>
               <tr><td><code>fullyParallel</code></td><td><code>true</code> for UI projects; <code>false</code> for <code>api</code> and <code>api-destructive</code>, so tests within one API file run in order against the app's shared data.</td></tr>
-              <tr><td><code>launchOptions.slowMo</code></td><td><code>500</code> ms between browser actions, in every environment. This makes runs easier to watch but slower; lower it in <code>playwright.config.ts</code> if you need faster local feedback.</td></tr>
+              <tr><td><code>launchOptions.slowMo</code></td><td>Not set: the <code>slowMo: 500</code> line is commented out in <code>playwright.config.ts</code>, so UI runs at full speed. Uncomment it to slow browser actions down when watching a run.</td></tr>
               <tr><td><code>trace</code></td><td><code>on-first-retry</code> (so only in CI, where retries are enabled).</td></tr>
               <tr><td><code>screenshot</code> / <code>video</code></td><td><code>only-on-failure</code> / <code>retain-on-failure</code>.</td></tr>
               <tr><td>Reporters</td><td><code>list</code>, <code>html</code> (<code>playwright-report/</code>), <code>json</code> (<code>test-results/results.json</code>), and the cumulative history reporter.</td></tr>
@@ -329,13 +329,13 @@ npm run test:local</code></pre>
             <thead><tr><th>Project</th><th>Runs</th><th>Notes</th></tr></thead>
             <tbody>
               <tr><td><code>setup</code></td><td><code>tests/ui/auth.setup.ts</code></td><td>Defined only when <code>LOGIN_USERNAME</code> and <code>LOGIN_PASSWORD</code> are set. Saves the <code>x-api-token</code> local-storage entry to <code>.auth/user.json</code>.</td></tr>
-              <tr><td><code>chromium</code>, <code>firefox</code>, <code>webkit</code>, <code>mobile-chrome</code></td><td><code>tests/ui/**/*.spec.ts</code></td><td>Desktop Chrome, Desktop Firefox, Desktop Safari, and Pixel 7 device profiles. Depend on <code>setup</code> and load its storage state when credentials are set.</td></tr>
+              <tr><td><code>chromium</code></td><td><code>tests/ui/**/*.spec.ts</code></td><td>Desktop Chrome device profile. Depends on <code>setup</code> and loads its storage state when credentials are set. <code>firefox</code>, <code>webkit</code>, and <code>mobile-chrome</code> (Pixel 7) are defined in <code>browserProjects</code> but commented out; uncomment one (and install its browser) to add it.</td></tr>
               <tr><td><code>api</code></td><td><code>tests/api/**/*.spec.ts</code> except <code>destructive/</code></td><td>REST, GraphQL, and OpenAPI contract specs, run once (no browser).</td></tr>
               <tr><td><code>api-destructive</code></td><td><code>tests/api/destructive/**/*.spec.ts</code></td><td>Depends on <code>api</code> and every browser project, so it starts last and is skipped if any of them has a failing test.</td></tr>
             </tbody>
           </table>
-          <pre><code># Run one browser project
-npm run test:local -- --project=firefox
+          <pre><code># Run only the Chromium UI project
+npm run test:local -- --project=chromium
 
 # Run only the API and Chromium projects (api-destructive is not selected, so it does not run)
 npm run test:local -- --project=api --project=chromium</code></pre>
@@ -582,7 +582,7 @@ SKIP_APP_UPDATE=1 npm run test:local</code></pre>
               <tr><td><a href="../tests/ui/fixtures.ts"><code>tests/ui/fixtures.ts</code></a></td><td>Extends API fixtures with page objects, authenticated UI setup, and the users-API mock.</td></tr>
               <tr><td><a href="../tests/ui/mocks/users-api-mock.ts"><code>tests/ui/mocks/users-api-mock.ts</code></a></td><td>Network mocks for users-API endpoints: fulfil, abort, and hold requests.</td></tr>
               <tr><td><a href="../tests/ui/login.spec.ts"><code>tests/ui/login.spec.ts</code></a></td><td>Login form rendering, required-field validation, and successful login.</td></tr>
-              <tr><td><a href="../tests/ui/smoke.spec.ts"><code>tests/ui/smoke.spec.ts</code></a></td><td>Real home-page smoke checks and Swagger link navigation.</td></tr>
+              <tr><td><a href="../tests/ui/smoke.spec.ts"><code>tests/ui/smoke.spec.ts</code></a></td><td>Real home-page smoke checks. The Swagger link navigation test is currently skipped (<code>test.skip</code>).</td></tr>
               <tr><td><a href="../tests/ui/users.spec.ts"><code>tests/ui/users.spec.ts</code></a></td><td>Users table, search, add form, edit mode, logout, and network-mocked failure, slow-response, edit, delete, and reset scenarios.</td></tr>
               <tr><td><a href="../tests/ui/pages/login.page.ts"><code>tests/ui/pages/login.page.ts</code></a></td><td>Login form locators and actions.</td></tr>
               <tr><td><a href="../tests/ui/pages/users.page.ts"><code>tests/ui/pages/users.page.ts</code></a></td><td>Users screen locators and user-management actions.</td></tr>
@@ -784,13 +784,13 @@ A signed-in user on the Users screen can narrow the users table by typing in the
           <p>
             The GitHub Actions workflow (<a href="../.github/workflows/playwright.yml"><code>playwright.yml</code></a>) runs
             on every push except to <code>test-history</code>, on pull requests, and on manual dispatch. It uses Node.js 22
-            on Ubuntu with a 30-minute timeout and runs these steps in order:
+            on <code>ubuntu-24.04</code> with a 30-minute timeout and runs these steps in order:
           </p>
           <ol>
             <li>Check out the repository with submodules, then run <code>git submodule update --remote</code> so the app is tested at the latest <code>main</code> commit (logged in the job output).</li>
             <li>Fail early if the credential secrets are missing; install framework dependencies; restore <code>history.json</code> from the <code>test-history</code> branch.</li>
             <li>Install app dependencies, then run <code>lint</code>, <code>format:check</code>, and <code>typecheck</code>.</li>
-            <li>Install Chromium, Firefox, and WebKit with system dependencies, and run <code>test:history:unit</code>.</li>
+            <li>Set short apt timeouts so a slow mirror fails fast, restore cached Playwright browsers, install Chromium with system dependencies (only system dependencies on a cache hit), and run <code>test:history:unit</code>.</li>
             <li>Run <code>npm run test:local</code> against <code>http://127.0.0.1:9899</code>.</li>
             <li>Upload results and, on non-PR runs, persist history.</li>
           </ol>
@@ -802,7 +802,7 @@ A signed-in user on the Users screen can narrow the users table by typing in the
             </tbody>
           </table>
           <p>
-            The workflow fails early when test credentials are missing. It installs Chromium, Firefox, and WebKit and
+            The workflow fails early when test credentials are missing. It installs only Chromium and
             uploads the Playwright report, JSON results, cumulative history, and failure artifacts. On non-PR runs,
             it updates the dedicated <code>test-history</code> branch; workflow permissions grant the required
             <code>contents: write</code> access. Runs are serialized to prevent concurrent history updates.

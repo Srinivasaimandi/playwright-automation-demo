@@ -6,8 +6,9 @@ See the [framework developer guide](./docs/index.html) for the architecture, fix
 
 ## What it covers
 
-- **UI**: login, users screen, end-to-end journeys, axe-core accessibility scans, and network-mocked failure states,
-  in Chromium, Firefox, WebKit and a Pixel 7 mobile viewport.
+- **UI**: login, users screen, home-page smoke checks, end-to-end journeys, axe-core accessibility scans, and
+  network-mocked failure states, in Chromium (Firefox, WebKit and a Pixel 7 mobile viewport are configured but
+  disabled).
 - **API**: REST CRUD and bulk endpoints, the GraphQL API, and the published OpenAPI contract, with Zod validation of
   every response.
 - **Tooling**: per-environment config, safe disposable test data, a cumulative pass-rate history report, GitHub
@@ -49,8 +50,10 @@ See the [framework developer guide](./docs/index.html) for the architecture, fix
 git submodule update --init --recursive
 npm ci
 npm ci --prefix app
-npx playwright install chromium firefox webkit
+npx playwright install chromium
 ```
+
+Install `firefox` and `webkit` too only if you enable those projects (see [Projects and tags](#projects-and-tags)).
 
 The Users App source is in [`app/`](./app/) as a Git submodule, cloned from
 [users-app-demo](https://github.com/srinivasaimandi/users-app-demo). Playwright starts it automatically for local
@@ -112,7 +115,7 @@ cp env/.env.staging.example env/.env.staging
 
 The `test` environment is intended for a disposable test instance. Set `BASE_URL`, `LOGIN_USERNAME`, `LOGIN_PASSWORD`, and `TEST_DATA_ALLOWED_HOSTS` in `env/.env.test` or CI. A loopback URL starts the bundled app; remote test URLs must already be reachable. The API test-data fixture creates a unique user for its test and deletes it afterward; it only permits loopback hosts under `TEST_ENV=local`, or explicitly allowlisted hosts under `TEST_ENV=test`. Do not point it at development, staging, or production data.
 
-UI specs live under `tests/ui/` and run in four projects: `chromium`, `firefox`, `webkit` and `mobile-chrome` (Pixel 7). Run one with `--project`, for example `npm run test:local -- --project=firefox`. Full user journeys live under `tests/ui/e2e/`. API specs live under `tests/api/` and run once in the `api` project. Run API tests alone with `npm run test:api`; `npm run test:local` runs the full suite. Development and staging scripts exclude tests tagged `@test-data`, which create or delete users.
+UI specs live under `tests/ui/` and run in the `chromium` project. Firefox, WebKit and Pixel 7 projects are defined but commented out in `playwright.config.ts`; uncomment them in `browserProjects` to run there too, then select one with `--project`, for example `npm run test:local -- --project=firefox`. Full user journeys live under `tests/ui/e2e/`. API specs live under `tests/api/` and run once in the `api` project. Run API tests alone with `npm run test:api`; `npm run test:local` runs the full suite. Development and staging scripts exclude tests tagged `@test-data`, which create or delete users.
 
 The login spec covers form rendering, required-field validation, and successful authentication. Set `LOGIN_USERNAME` and `LOGIN_PASSWORD` in the selected environment file or CI secrets to run the authenticated test; it is skipped if either value is missing. Run the login tests with:
 
@@ -122,12 +125,12 @@ npm run test:local -- --grep @login
 
 ## Projects and tags
 
-| Project                                          | Runs                                          | Notes                                                        |
-| ------------------------------------------------ | --------------------------------------------- | ------------------------------------------------------------ |
-| `setup`                                          | `tests/ui/auth.setup.ts`                      | Only when login credentials are set; saves `.auth/user.json` |
-| `chromium`, `firefox`, `webkit`, `mobile-chrome` | `tests/ui/**/*.spec.ts`                       | Depend on `setup` when credentials are set                   |
-| `api`                                            | `tests/api/**/*.spec.ts` (not `destructive/`) | REST, GraphQL and OpenAPI specs, run once                    |
-| `api-destructive`                                | `tests/api/destructive/**/*.spec.ts`          | Runs after all other projects; skipped if any of them fails  |
+| Project           | Runs                                          | Notes                                                        |
+| ----------------- | --------------------------------------------- | ------------------------------------------------------------ |
+| `setup`           | `tests/ui/auth.setup.ts`                      | Only when login credentials are set; saves `.auth/user.json` |
+| `chromium`        | `tests/ui/**/*.spec.ts`                       | Depends on `setup` when credentials are set                  |
+| `api`             | `tests/api/**/*.spec.ts` (not `destructive/`) | REST, GraphQL and OpenAPI specs, run once                    |
+| `api-destructive` | `tests/api/destructive/**/*.spec.ts`          | Runs after all other projects; skipped if any of them fails  |
 
 | Tag                             | Meaning                                                                 |
 | ------------------------------- | ----------------------------------------------------------------------- |
@@ -142,12 +145,17 @@ npm run test:local -- --grep @login
 
 Filter with `--grep @tag` or exclude with `--grep-invert @tag`.
 
-Note: `playwright.config.ts` sets `slowMo: 500` for every browser action, so UI runs are deliberately slow and easy
-to watch. Traces are recorded on the first retry (CI only, where retries are 2); screenshots and video are kept for
+`firefox`, `webkit` and `mobile-chrome` (Pixel 7) are defined in `browserProjects` in `playwright.config.ts` but
+commented out. Uncommenting one adds it as a UI project, and `api-destructive` waits for it automatically.
+
+Note: `slowMo` is commented out in `playwright.config.ts`, so UI runs at full speed. Uncomment it (500 ms) under
+`launchOptions` to slow actions down for watching. Traces are recorded on the first retry (CI only, where retries are 2); screenshots and video are kept for
 failures.
 
-## Accessibility and failure-state tests
+## Smoke, accessibility and failure-state tests
 
+- `tests/ui/smoke.spec.ts` (`@smoke`) loads the real home page and checks for console and network errors. Its
+  Swagger documentation navigation test is currently skipped (`test.skip`).
 - `tests/ui/accessibility.spec.ts` (`@a11y`) scans the login page, users page and add-user dialog with
   [axe-core](https://github.com/dequelabs/axe-core) against WCAG 2.1 A/AA rules. Any violation fails the test.
 - The `@mocked` tests in `tests/ui/users.spec.ts` use the `usersApiMock` fixture (`tests/ui/mocks/users-api-mock.ts`),
@@ -217,7 +225,9 @@ test('shows a created user', async ({ authenticatedUsersPage, apiTestUser }) => 
 
 The GitHub Actions workflow (`.github/workflows/playwright.yml`, Node.js 22) runs on pushes, pull requests and manual
 dispatch. It updates the `app` submodule to the latest `main`, installs the bundled app, runs lint, formatting, type
-checks and the history unit tests, then runs `npm run test:local`, which starts the app through Playwright. Configure the `TEST_LOGIN_USERNAME` and `TEST_LOGIN_PASSWORD` secrets for the seeded test account. CI restores and updates `history.json` on the dedicated `test-history` branch and uploads the cumulative HTML report as a run artifact. The first non-PR run creates the branch. Ensure repository Actions settings allow the workflow's `contents: write` permission; pull-request runs report history but do not write to the branch. Dependabot (`.github/dependabot.yml`) proposes
+checks and the history unit tests, then runs `npm run test:local`, which starts the app through Playwright. It runs on `ubuntu-24.04`, installs only
+Chromium (`playwright install --with-deps chromium`), caches browsers between runs, and sets short apt timeouts so a
+slow mirror fails fast instead of stalling the job. Configure the `TEST_LOGIN_USERNAME` and `TEST_LOGIN_PASSWORD` secrets for the seeded test account. CI restores and updates `history.json` on the dedicated `test-history` branch and uploads the cumulative HTML report as a run artifact. The first non-PR run creates the branch. Ensure repository Actions settings allow the workflow's `contents: write` permission; pull-request runs report history but do not write to the branch. Dependabot (`.github/dependabot.yml`) proposes
 weekly npm and GitHub Actions updates.
 
 ## Playwright MCP in VS Code
