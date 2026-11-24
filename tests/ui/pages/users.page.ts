@@ -13,7 +13,6 @@ export class UsersPage {
   readonly usersTable: Locator;
   readonly columnHeaders: Locator;
   readonly userRows: Locator;
-  readonly userNameCells: Locator;
   readonly addUserDialog: Locator;
   readonly addUserValidationMessage: Locator;
   readonly addUserNameInput: Locator;
@@ -34,8 +33,6 @@ export class UsersPage {
     this.usersTable = page.getByRole('table');
     this.columnHeaders = this.usersTable.getByRole('columnheader');
     this.userRows = this.usersTable.getByRole('rowgroup').nth(1).getByRole('row');
-    // Cells expose no column-specific accessible name, so the Name column is selected by position.
-    this.userNameCells = this.userRows.locator('td:nth-child(2)');
     this.addUserDialog = page.getByRole('dialog', { name: 'Add User' });
     this.addUserValidationMessage = this.addUserDialog.getByText('Please fill out all fields.', {
       exact: true,
@@ -74,6 +71,21 @@ export class UsersPage {
   /** Ends the current session through the page's logout link. */
   async logout() {
     await this.logoutLink.click();
+  }
+
+  /**
+   * Locates every body cell under the column with the given header text.
+   * Cells expose no column-specific accessible name, so the header's position is resolved at runtime
+   * to keep lookups correct if columns are reordered.
+   */
+  async getColumnCells(header: string) {
+    await this.columnHeaders.first().waitFor();
+    const headers = (await this.columnHeaders.allInnerTexts()).map((text) => text.trim());
+    const index = headers.indexOf(header);
+    if (index === -1) {
+      throw new Error(`Users table has no "${header}" column. Found: ${headers.join(', ')}`);
+    }
+    return this.userRows.locator(`td:nth-child(${index + 1})`);
   }
 
   /** Locates a table row containing the supplied user name. */
