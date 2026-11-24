@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-11-24T03:16:52.839Z",
+  "updatedAt": "2026-11-24T03:24:59.225Z",
   "runs": [
     {
       "id": "github-44667173401-attempt-1",
@@ -118,6 +118,19 @@
       "skipped": 1,
       "flaky": 0,
       "passRate": 100
+    },
+    {
+      "id": "github-45319201450-attempt-1",
+      "startedAt": "2026-11-24T03:24:33.092Z",
+      "completedAt": "2026-11-24T03:24:59.225Z",
+      "environment": "local",
+      "runnerStatus": "passed",
+      "total": 26,
+      "passed": 25,
+      "failed": 0,
+      "skipped": 1,
+      "flaky": 0,
+      "passRate": 100
     }
   ],
   "tests": {
@@ -126,8 +139,8 @@
       "project": "api",
       "file": "tests/api/users.api.spec.ts",
       "title": "api › api/users.api.spec.ts › Users API › GET /users returns the seeded users",
-      "totalRuns": 9,
-      "passed": 9,
+      "totalRuns": 10,
+      "passed": 10,
       "failed": 0,
       "skipped": 0,
       "flaky": 0,
@@ -176,6 +189,11 @@
           "runId": "github-45317592963-attempt-1",
           "status": "passed",
           "flaky": false
+        },
+        {
+          "runId": "github-45319201450-attempt-1",
+          "status": "passed",
+          "flaky": false
         }
       ],
       "category": "api",
@@ -184,16 +202,16 @@
       ],
       "lastStatus": "passed",
       "lastFlaky": false,
-      "lastRunId": "github-45317592963-attempt-1",
-      "lastRunAt": "2026-11-24T03:16:52.839Z"
+      "lastRunId": "github-45319201450-attempt-1",
+      "lastRunAt": "2026-11-24T03:24:59.225Z"
     },
     "545954ea240d766ebafb6548a5c2991909c77c629b0fbc11b01cdd328f9f0ddc": {
       "id": "545954ea240d766ebafb6548a5c2991909c77c629b0fbc11b01cdd328f9f0ddc",
       "project": "api",
       "file": "tests/api/users.api.spec.ts",
       "title": "api › api/users.api.spec.ts › Users API › GET /users/search filters by email",
-      "totalRuns": 9,
-      "passed": 9,
+      "totalRuns": 10,
+      "passed": 10,
       "failed": 0,
       "skipped": 0,
       "flaky": 0,
@@ -242,6 +260,11 @@
           "runId": "github-45317592963-attempt-1",
           "status": "passed",
           "flaky": false
+        },
+        {
+          "runId": "github-45319201450-attempt-1",
+          "status": "passed",
+          "flaky": false
         }
       ],
       "category": "api",
@@ -250,16 +273,16 @@
       ],
       "lastStatus": "passed",
       "lastFlaky": false,
-      "lastRunId": "github-45317592963-attempt-1",
-      "lastRunAt": "2026-11-24T03:16:52.839Z"
+      "lastRunId": "github-45319201450-attempt-1",
+      "lastRunAt": "2026-11-24T03:24:59.225Z"
     },
     "7dea3c0586d4f2d54e7cd1abf9cfd22fb9660d30cfd08a376730070cf0f78448": {
       "id": "7dea3c0586d4f2d54e7cd1abf9cfd22fb9660d30cfd08a376730070cf0f78448",
       "project": "api",
       "file": "tests/api/users.api.spec.ts",
       "title": "api › api/users.api.spec.ts › Users API › GET /users/count returns a positive count",
-      "totalRuns": 9,
-      "passed": 9,
+      "totalRuns": 10,
+      "passed": 10,
       "failed": 0,
       "skipped": 0,
       "flaky": 0,
@@ -306,6 +329,11 @@
         },
         {
           "runId": "github-45317592963-attempt-1",
+          "status": "passed",
+          "flaky": false
+        },
+        {
+          "runId": "github-45319201450-attempt-1",
           "status": "passed",
           "flaky": false
         }
@@ -316,16 +344,16 @@
       ],
       "lastStatus": "passed",
       "lastFlaky": false,
-      "lastRunId": "github-45317592963-attempt-1",
-      "lastRunAt": "2026-11-24T03:16:52.839Z"
+      "lastRunId": "github-45319201450-attempt-1",
+      "lastRunAt": "2026-11-24T03:24:59.225Z"
     },
     "9ba113a56f3f715e7209b394e7da687ba6bd7473cea52f6a178cff171cdd6480": {
       "id": "9ba113a56f3f715e7209b394e7da687ba6bd7473cea52f6a178cff171cdd6480",
       "project": "api",
       "file": "tests/api/users.api.spec.ts",
       "title": "api › api/users.api.spec.ts › Users API › GET /users/{id} returns a created user",
-      "totalRuns": 9,
-      "passed": 9,
+      "totalRuns": 10,
+      "passed": 10,
       "failed": 0,
       "skipped": 0,
       "flaky": 0,
@@ -374,6 +402,11 @@
           "runId": "github-45317592963-attempt-1",
           "status": "passed",
           "flaky": false
+        },
+        {
+          "runId": "github-45319201450-attempt-1",
+          "status": "passed",
+          "flaky": false
         }
       ],
       "category": "api",
@@ -383,16 +416,16 @@
       ],
       "lastStatus": "passed",
       "lastFlaky": false,
-      "lastRunId": "github-45317592963-attempt-1",
-      "lastRunAt": "2026-11-24T03:16:52.839Z"
+      "lastRunId": "github-45319201450-attempt-1",
+      "lastRunAt": "2026-11-24T03:24:59.225Z"
     },
     "9bcd975a75dc3459355f8be9409565a136284772b760797bccaaa00c605436a6": {
       "id": "9bcd975a75dc3459355f8be9409565a136284772b760797bccaaa00c605436a6",
       "project": "api",
       "file": "tests/api/users.api.spec.ts",
       "title": "api › api/users.api.spec.ts › Users API › PUT /users/{id} updates a created user",
-      "totalRuns": 9,
-      "passed": 9,
+      "totalRuns": 10,
+      "passed": 10,
       "failed": 0,
       "skipped": 0,
       "flaky": 0,
@@ -441,6 +474,11 @@
           "runId": "github-45317592963-attempt-1",
           "status": "passed",
           "flaky": false
+        },
+        {
+          "runId": "github-45319201450-attempt-1",
+          "status": "passed",
+          "flaky": false
         }
       ],
       "category": "api",
@@ -450,16 +488,16 @@
       ],
       "lastStatus": "passed",
       "lastFlaky": false,
-      "lastRunId": "github-45317592963-attempt-1",
-      "lastRunAt": "2026-11-24T03:16:52.839Z"
+      "lastRunId": "github-45319201450-attempt-1",
+      "lastRunAt": "2026-11-24T03:24:59.225Z"
     },
     "805a34b15e931e3f1715ea21812c6df2cc850e0209b8c5d7dea78bab6fb1ff7d": {
       "id": "805a34b15e931e3f1715ea21812c6df2cc850e0209b8c5d7dea78bab6fb1ff7d",
       "project": "api",
       "file": "tests/api/users.api.spec.ts",
       "title": "api › api/users.api.spec.ts › Users API › DELETE /users/{id} removes a created user",
-      "totalRuns": 9,
-      "passed": 9,
+      "totalRuns": 10,
+      "passed": 10,
       "failed": 0,
       "skipped": 0,
       "flaky": 0,
@@ -506,6 +544,11 @@
         },
         {
           "runId": "github-45317592963-attempt-1",
+          "status": "passed",
+          "flaky": false
+        },
+        {
+          "runId": "github-45319201450-attempt-1",
           "status": "passed",
           "flaky": false
         }
@@ -517,16 +560,16 @@
       ],
       "lastStatus": "passed",
       "lastFlaky": false,
-      "lastRunId": "github-45317592963-attempt-1",
-      "lastRunAt": "2026-11-24T03:16:52.839Z"
+      "lastRunId": "github-45319201450-attempt-1",
+      "lastRunAt": "2026-11-24T03:24:59.225Z"
     },
     "b022d3457f6629705e91ac2bc28a55412e23c3e16e2ce01820943327fb687958": {
       "id": "b022d3457f6629705e91ac2bc28a55412e23c3e16e2ce01820943327fb687958",
       "project": "chromium",
       "file": "tests/ui/e2e/users-journey.spec.ts",
       "title": "chromium › ui/e2e/users-journey.spec.ts › Users end-to-end journey › logs in, searches for a user, and logs out",
-      "totalRuns": 9,
-      "passed": 9,
+      "totalRuns": 10,
+      "passed": 10,
       "failed": 0,
       "skipped": 0,
       "flaky": 0,
@@ -573,6 +616,11 @@
         },
         {
           "runId": "github-45317592963-attempt-1",
+          "status": "passed",
+          "flaky": false
+        },
+        {
+          "runId": "github-45319201450-attempt-1",
           "status": "passed",
           "flaky": false
         }
@@ -583,16 +631,16 @@
       ],
       "lastStatus": "passed",
       "lastFlaky": false,
-      "lastRunId": "github-45317592963-attempt-1",
-      "lastRunAt": "2026-11-24T03:16:52.839Z"
+      "lastRunId": "github-45319201450-attempt-1",
+      "lastRunAt": "2026-11-24T03:24:59.225Z"
     },
     "da688fbb3d04212d561bff609e08095bc2db3aaa0c204b19bfc53b5a6b236cac": {
       "id": "da688fbb3d04212d561bff609e08095bc2db3aaa0c204b19bfc53b5a6b236cac",
       "project": "chromium",
       "file": "tests/ui/login.spec.ts",
       "title": "chromium › ui/login.spec.ts › Login flow › shows the login form with accessible fields and an enabled submit button",
-      "totalRuns": 9,
-      "passed": 9,
+      "totalRuns": 10,
+      "passed": 10,
       "failed": 0,
       "skipped": 0,
       "flaky": 0,
@@ -639,6 +687,11 @@
         },
         {
           "runId": "github-45317592963-attempt-1",
+          "status": "passed",
+          "flaky": false
+        },
+        {
+          "runId": "github-45319201450-attempt-1",
           "status": "passed",
           "flaky": false
         }
@@ -650,16 +703,16 @@
       ],
       "lastStatus": "passed",
       "lastFlaky": false,
-      "lastRunId": "github-45317592963-attempt-1",
-      "lastRunAt": "2026-11-24T03:16:52.839Z"
+      "lastRunId": "github-45319201450-attempt-1",
+      "lastRunAt": "2026-11-24T03:24:59.225Z"
     },
     "17456221e2c2811699ca823ffca454f66b04d45824f800de6fac5d06c2daae39": {
       "id": "17456221e2c2811699ca823ffca454f66b04d45824f800de6fac5d06c2daae39",
       "project": "chromium",
       "file": "tests/ui/login.spec.ts",
       "title": "chromium › ui/login.spec.ts › Login flow › requires username and password before submitting",
-      "totalRuns": 9,
-      "passed": 9,
+      "totalRuns": 10,
+      "passed": 10,
       "failed": 0,
       "skipped": 0,
       "flaky": 0,
@@ -706,6 +759,11 @@
         },
         {
           "runId": "github-45317592963-attempt-1",
+          "status": "passed",
+          "flaky": false
+        },
+        {
+          "runId": "github-45319201450-attempt-1",
           "status": "passed",
           "flaky": false
         }
@@ -717,16 +775,16 @@
       ],
       "lastStatus": "passed",
       "lastFlaky": false,
-      "lastRunId": "github-45317592963-attempt-1",
-      "lastRunAt": "2026-11-24T03:16:52.839Z"
+      "lastRunId": "github-45319201450-attempt-1",
+      "lastRunAt": "2026-11-24T03:24:59.225Z"
     },
     "4e1ef873ab8e9f3cdd65ab71d967520fde59081abce4d75499ce9f42b9df0d69": {
       "id": "4e1ef873ab8e9f3cdd65ab71d967520fde59081abce4d75499ce9f42b9df0d69",
       "project": "chromium",
       "file": "tests/ui/e2e/users-journey.spec.ts",
       "title": "chromium › ui/e2e/users-journey.spec.ts › Users end-to-end journey › logs in, adds a user, updates it, and deletes it",
-      "totalRuns": 9,
-      "passed": 9,
+      "totalRuns": 10,
+      "passed": 10,
       "failed": 0,
       "skipped": 0,
       "flaky": 0,
@@ -773,6 +831,11 @@
         },
         {
           "runId": "github-45317592963-attempt-1",
+          "status": "passed",
+          "flaky": false
+        },
+        {
+          "runId": "github-45319201450-attempt-1",
           "status": "passed",
           "flaky": false
         }
@@ -784,16 +847,16 @@
       ],
       "lastStatus": "passed",
       "lastFlaky": false,
-      "lastRunId": "github-45317592963-attempt-1",
-      "lastRunAt": "2026-11-24T03:16:52.839Z"
+      "lastRunId": "github-45319201450-attempt-1",
+      "lastRunAt": "2026-11-24T03:24:59.225Z"
     },
     "b711068d1311457d28c16f221cd580a9dc6cfa5b286884cc6fe5a706a00a8e9e": {
       "id": "b711068d1311457d28c16f221cd580a9dc6cfa5b286884cc6fe5a706a00a8e9e",
       "project": "chromium",
       "file": "tests/ui/smoke.spec.ts",
       "title": "chromium › ui/smoke.spec.ts › Application home smoke tests › loads the application home page and login form",
-      "totalRuns": 9,
-      "passed": 9,
+      "totalRuns": 10,
+      "passed": 10,
       "failed": 0,
       "skipped": 0,
       "flaky": 0,
@@ -840,6 +903,11 @@
         },
         {
           "runId": "github-45317592963-attempt-1",
+          "status": "passed",
+          "flaky": false
+        },
+        {
+          "runId": "github-45319201450-attempt-1",
           "status": "passed",
           "flaky": false
         }
@@ -850,16 +918,16 @@
       ],
       "lastStatus": "passed",
       "lastFlaky": false,
-      "lastRunId": "github-45317592963-attempt-1",
-      "lastRunAt": "2026-11-24T03:16:52.839Z"
+      "lastRunId": "github-45319201450-attempt-1",
+      "lastRunAt": "2026-11-24T03:24:59.225Z"
     },
     "9f5c7f901930ab36d9eccd6e39d4f77339ebd7f9b58c95a872a4fdb38497ecf3": {
       "id": "9f5c7f901930ab36d9eccd6e39d4f77339ebd7f9b58c95a872a4fdb38497ecf3",
       "project": "chromium",
       "file": "tests/ui/login.spec.ts",
       "title": "chromium › ui/login.spec.ts › Login flow › logs in with valid credentials and opens the users list",
-      "totalRuns": 9,
-      "passed": 9,
+      "totalRuns": 10,
+      "passed": 10,
       "failed": 0,
       "skipped": 0,
       "flaky": 0,
@@ -906,6 +974,11 @@
         },
         {
           "runId": "github-45317592963-attempt-1",
+          "status": "passed",
+          "flaky": false
+        },
+        {
+          "runId": "github-45319201450-attempt-1",
           "status": "passed",
           "flaky": false
         }
@@ -917,16 +990,16 @@
       ],
       "lastStatus": "passed",
       "lastFlaky": false,
-      "lastRunId": "github-45317592963-attempt-1",
-      "lastRunAt": "2026-11-24T03:16:52.839Z"
+      "lastRunId": "github-45319201450-attempt-1",
+      "lastRunAt": "2026-11-24T03:24:59.225Z"
     },
     "fd5377a89e56ff8bffd1714b652a8155bd1703831c4e67e9ee335b26810a44ec": {
       "id": "fd5377a89e56ff8bffd1714b652a8155bd1703831c4e67e9ee335b26810a44ec",
       "project": "chromium",
       "file": "tests/ui/users.spec.ts",
       "title": "chromium › ui/users.spec.ts › Users screen › shows the users table and management controls",
-      "totalRuns": 9,
-      "passed": 9,
+      "totalRuns": 10,
+      "passed": 10,
       "failed": 0,
       "skipped": 0,
       "flaky": 0,
@@ -973,6 +1046,11 @@
         },
         {
           "runId": "github-45317592963-attempt-1",
+          "status": "passed",
+          "flaky": false
+        },
+        {
+          "runId": "github-45319201450-attempt-1",
           "status": "passed",
           "flaky": false
         }
@@ -984,16 +1062,16 @@
       ],
       "lastStatus": "passed",
       "lastFlaky": false,
-      "lastRunId": "github-45317592963-attempt-1",
-      "lastRunAt": "2026-11-24T03:16:52.839Z"
+      "lastRunId": "github-45319201450-attempt-1",
+      "lastRunAt": "2026-11-24T03:24:59.225Z"
     },
     "05cab97aad557dc5b6c3ce0f9683c332f2efa76e12332b94c8b3213ef9e77148": {
       "id": "05cab97aad557dc5b6c3ce0f9683c332f2efa76e12332b94c8b3213ef9e77148",
       "project": "chromium",
       "file": "tests/ui/users.spec.ts",
       "title": "chromium › ui/users.spec.ts › Users screen › filters users by email without case sensitivity",
-      "totalRuns": 9,
-      "passed": 9,
+      "totalRuns": 10,
+      "passed": 10,
       "failed": 0,
       "skipped": 0,
       "flaky": 0,
@@ -1040,6 +1118,11 @@
         },
         {
           "runId": "github-45317592963-attempt-1",
+          "status": "passed",
+          "flaky": false
+        },
+        {
+          "runId": "github-45319201450-attempt-1",
           "status": "passed",
           "flaky": false
         }
@@ -1050,18 +1133,18 @@
       ],
       "lastStatus": "passed",
       "lastFlaky": false,
-      "lastRunId": "github-45317592963-attempt-1",
-      "lastRunAt": "2026-11-24T03:16:52.839Z"
+      "lastRunId": "github-45319201450-attempt-1",
+      "lastRunAt": "2026-11-24T03:24:59.225Z"
     },
     "3885c0a0d4deceb2627b8548f3c874768bebd296bf707c17ca4c54895a746801": {
       "id": "3885c0a0d4deceb2627b8548f3c874768bebd296bf707c17ca4c54895a746801",
       "project": "chromium",
       "file": "tests/ui/smoke.spec.ts",
       "title": "chromium › ui/smoke.spec.ts › Application home smoke tests › opens the Swagger documentation from the home page",
-      "totalRuns": 9,
+      "totalRuns": 10,
       "passed": 0,
       "failed": 3,
-      "skipped": 6,
+      "skipped": 7,
       "flaky": 0,
       "recent": [
         {
@@ -1108,6 +1191,11 @@
           "runId": "github-45317592963-attempt-1",
           "status": "skipped",
           "flaky": false
+        },
+        {
+          "runId": "github-45319201450-attempt-1",
+          "status": "skipped",
+          "flaky": false
         }
       ],
       "category": "ui",
@@ -1116,16 +1204,16 @@
       ],
       "lastStatus": "skipped",
       "lastFlaky": false,
-      "lastRunId": "github-45317592963-attempt-1",
-      "lastRunAt": "2026-11-24T03:16:52.839Z"
+      "lastRunId": "github-45319201450-attempt-1",
+      "lastRunAt": "2026-11-24T03:24:59.225Z"
     },
     "e7a997845b69cef92a26fd6cde47f53e5a74b944f7d963368064f26271423a76": {
       "id": "e7a997845b69cef92a26fd6cde47f53e5a74b944f7d963368064f26271423a76",
       "project": "chromium",
       "file": "tests/ui/users.spec.ts",
       "title": "chromium › ui/users.spec.ts › Users screen › shows an API-created user in the users list",
-      "totalRuns": 9,
-      "passed": 9,
+      "totalRuns": 10,
+      "passed": 10,
       "failed": 0,
       "skipped": 0,
       "flaky": 0,
@@ -1172,6 +1260,11 @@
         },
         {
           "runId": "github-45317592963-attempt-1",
+          "status": "passed",
+          "flaky": false
+        },
+        {
+          "runId": "github-45319201450-attempt-1",
           "status": "passed",
           "flaky": false
         }
@@ -1183,16 +1276,16 @@
       ],
       "lastStatus": "passed",
       "lastFlaky": false,
-      "lastRunId": "github-45317592963-attempt-1",
-      "lastRunAt": "2026-11-24T03:16:52.839Z"
+      "lastRunId": "github-45319201450-attempt-1",
+      "lastRunAt": "2026-11-24T03:24:59.225Z"
     },
     "54eaf7fafb14ce8740d95a647133e077d2d66d3f718eb24273aca0cd087006dc": {
       "id": "54eaf7fafb14ce8740d95a647133e077d2d66d3f718eb24273aca0cd087006dc",
       "project": "chromium",
       "file": "tests/ui/users.spec.ts",
       "title": "chromium › ui/users.spec.ts › Users screen › shows no rows for an unmatched search and restores results when cleared",
-      "totalRuns": 9,
-      "passed": 9,
+      "totalRuns": 10,
+      "passed": 10,
       "failed": 0,
       "skipped": 0,
       "flaky": 0,
@@ -1241,6 +1334,11 @@
           "runId": "github-45317592963-attempt-1",
           "status": "passed",
           "flaky": false
+        },
+        {
+          "runId": "github-45319201450-attempt-1",
+          "status": "passed",
+          "flaky": false
         }
       ],
       "category": "ui",
@@ -1249,16 +1347,16 @@
       ],
       "lastStatus": "passed",
       "lastFlaky": false,
-      "lastRunId": "github-45317592963-attempt-1",
-      "lastRunAt": "2026-11-24T03:16:52.839Z"
+      "lastRunId": "github-45319201450-attempt-1",
+      "lastRunAt": "2026-11-24T03:24:59.225Z"
     },
     "aff3a3c5d93f255683abd5f11e323c14887b3d8222b5f4b49e73400ee18d75a9": {
       "id": "aff3a3c5d93f255683abd5f11e323c14887b3d8222b5f4b49e73400ee18d75a9",
       "project": "chromium",
       "file": "tests/ui/users.spec.ts",
       "title": "chromium › ui/users.spec.ts › Users screen › opens the add-user form and can cancel without changes",
-      "totalRuns": 9,
-      "passed": 9,
+      "totalRuns": 10,
+      "passed": 10,
       "failed": 0,
       "skipped": 0,
       "flaky": 0,
@@ -1307,6 +1405,11 @@
           "runId": "github-45317592963-attempt-1",
           "status": "passed",
           "flaky": false
+        },
+        {
+          "runId": "github-45319201450-attempt-1",
+          "status": "passed",
+          "flaky": false
         }
       ],
       "category": "ui",
@@ -1315,16 +1418,16 @@
       ],
       "lastStatus": "passed",
       "lastFlaky": false,
-      "lastRunId": "github-45317592963-attempt-1",
-      "lastRunAt": "2026-11-24T03:16:52.839Z"
+      "lastRunId": "github-45319201450-attempt-1",
+      "lastRunAt": "2026-11-24T03:24:59.225Z"
     },
     "6bf17565ea5c50783bc8fed4fc6a76e469194cce78aae5d843e9ab9614cd207d": {
       "id": "6bf17565ea5c50783bc8fed4fc6a76e469194cce78aae5d843e9ab9614cd207d",
       "project": "chromium",
       "file": "tests/ui/users.spec.ts",
       "title": "chromium › ui/users.spec.ts › Users screen › shows validation when saving the add-user form empty",
-      "totalRuns": 9,
-      "passed": 9,
+      "totalRuns": 10,
+      "passed": 10,
       "failed": 0,
       "skipped": 0,
       "flaky": 0,
@@ -1373,6 +1476,11 @@
           "runId": "github-45317592963-attempt-1",
           "status": "passed",
           "flaky": false
+        },
+        {
+          "runId": "github-45319201450-attempt-1",
+          "status": "passed",
+          "flaky": false
         }
       ],
       "category": "ui",
@@ -1381,16 +1489,16 @@
       ],
       "lastStatus": "passed",
       "lastFlaky": false,
-      "lastRunId": "github-45317592963-attempt-1",
-      "lastRunAt": "2026-11-24T03:16:52.839Z"
+      "lastRunId": "github-45319201450-attempt-1",
+      "lastRunAt": "2026-11-24T03:24:59.225Z"
     },
     "8d265eb968a67da2b56ce7b6846b1986f95bddc28d01185692fbf9491389287a": {
       "id": "8d265eb968a67da2b56ce7b6846b1986f95bddc28d01185692fbf9491389287a",
       "project": "chromium",
       "file": "tests/ui/users.spec.ts",
       "title": "chromium › ui/users.spec.ts › Users screen › opens a user row in edit mode with its existing values",
-      "totalRuns": 9,
-      "passed": 9,
+      "totalRuns": 10,
+      "passed": 10,
       "failed": 0,
       "skipped": 0,
       "flaky": 0,
@@ -1439,6 +1547,11 @@
           "runId": "github-45317592963-attempt-1",
           "status": "passed",
           "flaky": false
+        },
+        {
+          "runId": "github-45319201450-attempt-1",
+          "status": "passed",
+          "flaky": false
         }
       ],
       "category": "ui",
@@ -1447,16 +1560,16 @@
       ],
       "lastStatus": "passed",
       "lastFlaky": false,
-      "lastRunId": "github-45317592963-attempt-1",
-      "lastRunAt": "2026-11-24T03:16:52.839Z"
+      "lastRunId": "github-45319201450-attempt-1",
+      "lastRunAt": "2026-11-24T03:24:59.225Z"
     },
     "7f7f79070d46582fe22b4ececad30391d71361199c2bcb68a8ef0f1b9948801b": {
       "id": "7f7f79070d46582fe22b4ececad30391d71361199c2bcb68a8ef0f1b9948801b",
       "project": "chromium",
       "file": "tests/ui/users.spec.ts",
       "title": "chromium › ui/users.spec.ts › Users screen › logs out and returns to the login form",
-      "totalRuns": 9,
-      "passed": 9,
+      "totalRuns": 10,
+      "passed": 10,
       "failed": 0,
       "skipped": 0,
       "flaky": 0,
@@ -1505,6 +1618,11 @@
           "runId": "github-45317592963-attempt-1",
           "status": "passed",
           "flaky": false
+        },
+        {
+          "runId": "github-45319201450-attempt-1",
+          "status": "passed",
+          "flaky": false
         }
       ],
       "category": "ui",
@@ -1513,8 +1631,8 @@
       ],
       "lastStatus": "passed",
       "lastFlaky": false,
-      "lastRunId": "github-45317592963-attempt-1",
-      "lastRunAt": "2026-11-24T03:16:52.839Z"
+      "lastRunId": "github-45319201450-attempt-1",
+      "lastRunAt": "2026-11-24T03:24:59.225Z"
     },
     "c1d2283614b60cac4047fe1f046b0bbae9eba14adbb5aa6ce0b368931a42216f": {
       "id": "c1d2283614b60cac4047fe1f046b0bbae9eba14adbb5aa6ce0b368931a42216f",
@@ -2463,8 +2581,8 @@
       "project": "api",
       "file": "tests/api/users.api.spec.ts",
       "title": "api › api/users.api.spec.ts › Users API › GET /users rejects requests without an API key",
-      "totalRuns": 7,
-      "passed": 7,
+      "totalRuns": 8,
+      "passed": 8,
       "failed": 0,
       "skipped": 0,
       "flaky": 0,
@@ -2503,6 +2621,11 @@
           "runId": "github-45317592963-attempt-1",
           "status": "passed",
           "flaky": false
+        },
+        {
+          "runId": "github-45319201450-attempt-1",
+          "status": "passed",
+          "flaky": false
         }
       ],
       "category": "api",
@@ -2511,16 +2634,16 @@
       ],
       "lastStatus": "passed",
       "lastFlaky": false,
-      "lastRunId": "github-45317592963-attempt-1",
-      "lastRunAt": "2026-11-24T03:16:52.839Z"
+      "lastRunId": "github-45319201450-attempt-1",
+      "lastRunAt": "2026-11-24T03:24:59.225Z"
     },
     "347f8e89dacbb41057a9b3e0316ab0dc723ffd649a0f672ede9e7c27a0400648": {
       "id": "347f8e89dacbb41057a9b3e0316ab0dc723ffd649a0f672ede9e7c27a0400648",
       "project": "api",
       "file": "tests/api/users.api.spec.ts",
       "title": "api › api/users.api.spec.ts › Users API › POST /users rejects incomplete payloads with a schema-valid error",
-      "totalRuns": 7,
-      "passed": 7,
+      "totalRuns": 8,
+      "passed": 8,
       "failed": 0,
       "skipped": 0,
       "flaky": 0,
@@ -2559,6 +2682,11 @@
           "runId": "github-45317592963-attempt-1",
           "status": "passed",
           "flaky": false
+        },
+        {
+          "runId": "github-45319201450-attempt-1",
+          "status": "passed",
+          "flaky": false
         }
       ],
       "category": "api",
@@ -2567,16 +2695,16 @@
       ],
       "lastStatus": "passed",
       "lastFlaky": false,
-      "lastRunId": "github-45317592963-attempt-1",
-      "lastRunAt": "2026-11-24T03:16:52.839Z"
+      "lastRunId": "github-45319201450-attempt-1",
+      "lastRunAt": "2026-11-24T03:24:59.225Z"
     },
     "0eaf2f6e9d5f90a141e9cc11144293a27c8f43bcaa40a1853ad851b5aeb8cf03": {
       "id": "0eaf2f6e9d5f90a141e9cc11144293a27c8f43bcaa40a1853ad851b5aeb8cf03",
       "project": "api",
       "file": "tests/api/users.api.spec.ts",
       "title": "api › api/users.api.spec.ts › Users API › GET, PUT, and DELETE /users/{id} return schema-valid errors for missing users",
-      "totalRuns": 7,
-      "passed": 7,
+      "totalRuns": 8,
+      "passed": 8,
       "failed": 0,
       "skipped": 0,
       "flaky": 0,
@@ -2615,6 +2743,11 @@
           "runId": "github-45317592963-attempt-1",
           "status": "passed",
           "flaky": false
+        },
+        {
+          "runId": "github-45319201450-attempt-1",
+          "status": "passed",
+          "flaky": false
         }
       ],
       "category": "api",
@@ -2623,16 +2756,16 @@
       ],
       "lastStatus": "passed",
       "lastFlaky": false,
-      "lastRunId": "github-45317592963-attempt-1",
-      "lastRunAt": "2026-11-24T03:16:52.839Z"
+      "lastRunId": "github-45319201450-attempt-1",
+      "lastRunAt": "2026-11-24T03:24:59.225Z"
     },
     "94073c2893d379c25b2f456cbfa178bd47a4fa4b9e736ebaaa979f537d38e6e0": {
       "id": "94073c2893d379c25b2f456cbfa178bd47a4fa4b9e736ebaaa979f537d38e6e0",
       "project": "setup",
       "file": "tests/ui/auth.setup.ts",
       "title": "setup › ui/auth.setup.ts › authenticate and save browser storage state",
-      "totalRuns": 4,
-      "passed": 4,
+      "totalRuns": 5,
+      "passed": 5,
       "failed": 0,
       "skipped": 0,
       "flaky": 0,
@@ -2654,6 +2787,11 @@
         },
         {
           "runId": "github-45317592963-attempt-1",
+          "status": "passed",
+          "flaky": false
+        },
+        {
+          "runId": "github-45319201450-attempt-1",
           "status": "passed",
           "flaky": false
         }
@@ -2662,16 +2800,16 @@
       "tags": [],
       "lastStatus": "passed",
       "lastFlaky": false,
-      "lastRunId": "github-45317592963-attempt-1",
-      "lastRunAt": "2026-11-24T03:16:52.839Z"
+      "lastRunId": "github-45319201450-attempt-1",
+      "lastRunAt": "2026-11-24T03:24:59.225Z"
     },
     "0e1f562c10937a6dc34a978c668ddb9a6be3e1f12bd475f865bdd7c2d15437b7": {
       "id": "0e1f562c10937a6dc34a978c668ddb9a6be3e1f12bd475f865bdd7c2d15437b7",
       "project": "chromium",
       "file": "tests/ui/users.spec.ts",
       "title": "chromium › ui/users.spec.ts › Users screen › filters users by part of a name",
-      "totalRuns": 4,
-      "passed": 4,
+      "totalRuns": 5,
+      "passed": 5,
       "failed": 0,
       "skipped": 0,
       "flaky": 0,
@@ -2693,6 +2831,11 @@
         },
         {
           "runId": "github-45317592963-attempt-1",
+          "status": "passed",
+          "flaky": false
+        },
+        {
+          "runId": "github-45319201450-attempt-1",
           "status": "passed",
           "flaky": false
         }
@@ -2703,8 +2846,8 @@
       ],
       "lastStatus": "passed",
       "lastFlaky": false,
-      "lastRunId": "github-45317592963-attempt-1",
-      "lastRunAt": "2026-11-24T03:16:52.839Z"
+      "lastRunId": "github-45319201450-attempt-1",
+      "lastRunAt": "2026-11-24T03:24:59.225Z"
     }
   }
 }
