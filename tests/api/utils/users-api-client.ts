@@ -37,11 +37,13 @@ export class UsersApiClient {
 
   /** Searches users by optional name or email values. */
   async searchUsers(params: { name?: string; email?: string }): Promise<ApiUser[]> {
-    const response = await this.request.get('/api/users/search', {
-      headers: this.headers,
-      params,
-    });
+    const response = await this.searchUsersResponse(params);
     return parseApiResponse(response, ApiUsersSchema);
+  }
+
+  /** Sends an authenticated search request and returns its unparsed response. */
+  async searchUsersResponse(params: { name?: string; email?: string }): Promise<APIResponse> {
+    return this.request.get('/api/users/search', { headers: this.headers, params });
   }
 
   /** Returns the validated number of users stored by the API. */

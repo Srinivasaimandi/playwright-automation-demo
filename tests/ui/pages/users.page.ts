@@ -13,6 +13,9 @@ export class UsersPage {
   readonly usersTable: Locator;
   readonly columnHeaders: Locator;
   readonly userRows: Locator;
+  readonly fetchFailedMessage: Locator;
+  readonly unauthorizedMessage: Locator;
+  readonly noUsersMessage: Locator;
   readonly addUserDialog: Locator;
   readonly addUserValidationMessage: Locator;
   readonly addUserNameInput: Locator;
@@ -33,6 +36,10 @@ export class UsersPage {
     this.usersTable = page.getByRole('table');
     this.columnHeaders = this.usersTable.getByRole('columnheader');
     this.userRows = this.usersTable.getByRole('rowgroup').nth(1).getByRole('row');
+    // The page's status banner has no accessible role, so each message is located by its text.
+    this.fetchFailedMessage = page.getByText('Failed to fetch users.', { exact: true });
+    this.unauthorizedMessage = page.getByText('Unauthorized. Please login again.', { exact: true });
+    this.noUsersMessage = page.getByText('No users found.', { exact: true });
     this.addUserDialog = page.getByRole('dialog', { name: 'Add User' });
     this.addUserValidationMessage = this.addUserDialog.getByText('Please fill out all fields.', {
       exact: true,
@@ -61,6 +68,16 @@ export class UsersPage {
     await this.addUserEmailInput.fill(user.email);
     await this.addUserUsernameInput.fill(user.username);
     await this.addUserPasswordInput.fill(user.password);
+  }
+
+  /** Locates an error message shown inside the add-user dialog. */
+  getAddUserError(message: string) {
+    return this.addUserDialog.getByText(message, { exact: true });
+  }
+
+  /** Reads the login token the page stores for API calls, or null when signed out. */
+  async getStoredApiToken() {
+    return this.page.evaluate(() => localStorage.getItem('x-api-token'));
   }
 
   /** Closes the add-user dialog without saving its draft. */

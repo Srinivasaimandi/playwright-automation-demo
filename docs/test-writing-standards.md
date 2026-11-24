@@ -6,14 +6,15 @@ The rules every new or changed Playwright test in this repo must follow. They ar
 
 ## Where files go
 
-| Kind of test | Location | Playwright project |
-| --- | --- | --- |
-| UI scenario on one screen | `tests/ui/<feature>.spec.ts` | `chromium` |
-| Multi-screen user journey | `tests/ui/e2e/<journey>.spec.ts` | `chromium` |
-| REST API contract / CRUD | `tests/api/<resource>.api.spec.ts` | `api` |
-| Page object | `tests/ui/pages/<page>.page.ts` | — |
-| API client / response schema | `tests/api/utils/` | — |
-| Shared test data / factories | `tests/data/` | — |
+| Kind of test                 | Location                           | Playwright project                               |
+| ---------------------------- | ---------------------------------- | ------------------------------------------------ |
+| UI scenario on one screen    | `tests/ui/<feature>.spec.ts`       | `chromium`, `firefox`, `webkit`, `mobile-chrome` |
+| Multi-screen user journey    | `tests/ui/e2e/<journey>.spec.ts`   | `chromium`, `firefox`, `webkit`, `mobile-chrome` |
+| Accessibility scan           | `tests/ui/accessibility.spec.ts`   | all UI projects                                  |
+| REST API contract / CRUD     | `tests/api/<resource>.api.spec.ts` | `api`                                            |
+| Page object                  | `tests/ui/pages/<page>.page.ts`    | —                                                |
+| API client / response schema | `tests/api/utils/`                 | —                                                |
+| Shared test data / factories | `tests/data/`                      | —                                                |
 
 Prefer adding a `test` to an existing spec file for the same feature over creating a new file.
 
@@ -31,7 +32,7 @@ Prefer adding a `test` to an existing spec file for the same feature over creati
 - Wrap tests in `test.describe('<Feature>', { tag: '@<feature>' }, () => { ... })` with a one-line JSDoc comment above it.
 - Test titles are lowercase behaviour statements: `'filters users by email without case sensitivity'`.
 - Tags: `@smoke` for fast critical-path checks, `@validation` for input rules, `@auth` for login-dependent checks,
-  `@e2e` on journeys, `@api` on API suites, and **`@test-data` on any test that creates, edits or deletes data**
+  `@e2e` on journeys, `@a11y` on accessibility scans, `@api` on API suites, and **`@test-data` on any test that creates, edits or deletes data**
   (these are excluded from dev/staging runs).
 - Link the test to its requirement in `requirement/` with an annotation:
   `{ tag: [...], annotation: { type: 'requirement', description: 'REQ-001' } }`.
@@ -51,6 +52,14 @@ Prefer adding a `test` to an existing spec file for the same feature over creati
 - Every test asserts the outcome the requirement asks for — not just that steps ran without error.
 - API responses are validated with `parseApiResponse(response, <ZodSchema>, <status>)`; add schemas to
   `tests/api/utils/schemas.ts`.
+
+## Accessibility and failure-state tests
+
+- Scan with the `makeAxeBuilder` fixture, which checks WCAG 2.1 A/AA rules, and assert
+  `expect(results.violations).toEqual([])`. Scope a scan with `.include(...)` instead of disabling rules.
+- Simulate API failures with `page.route()` (`fulfill` for error statuses, `abort` for network failures). Use
+  `route.fallback()` for requests the test does not mean to change. Do not use `context.setOffline()`: Firefox
+  ignores it for loopback hosts.
 
 ## Data and environment safety
 

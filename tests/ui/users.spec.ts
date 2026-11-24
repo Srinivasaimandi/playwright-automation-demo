@@ -1,3 +1,4 @@
+import { createUniqueUserData } from '../data/factories.ts';
 import { expect, test } from './fixtures.ts';
 
 /** Authenticated UI scenarios for browsing and managing users. */
@@ -142,5 +143,85 @@ test.describe('Users screen', { tag: '@users' }, () => {
 
     await expect(page).toHaveURL(/\/index\.html$/);
     await expect(loginPage.heading).toBeVisible();
+  });
+
+  /** The users screen's behaviour when the users API fails, simulated with network routing. */
+  test.describe('when the users API fails', () => {
+    test('shows a fetch error when the users request fails at the network level', async ({
+      page,
+      authenticatedUsersPage: usersPage,
+      testData,
+    }) => {
+      await expect(usersPage.getUserRow(testData.existingUsers.jane.name)).toBeVisible();
+      // Aborting the request is used instead of context.setOffline(), which Firefox ignores for loopback hosts.
+      await page.route('**/api/users', (route) => route.abort('internetdisconnected'));
+
+      await usersPage.refreshUsersButton.click();
+
+      await expect(usersPage.fetchFailedMessage).toBeVisible();
+    });
+
+    test('asks the user to log in again and drops the token when the API rejects it', async ({
+      page,
+      authenticatedUsersPage: usersPage,
+    }) => {
+      await page.route('**/api/users', (route) =>
+        route.fulfill({ status: 401, json: { message: 'Unauthorized: Invalid API Key' } }),
+      );
+
+      await usersPage.refreshUsersButton.click();
+
+      await expect(usersPage.unauthorizedMessage).toBeVisible();
+      await expect.poll(() => usersPage.getStoredApiToken()).toBeNull();
+    });
+
+    test('shows an empty-state message when the API returns no users', async ({
+      page,
+      authenticatedUsersPage: usersPage,
+    }) => {
+      await page.route('**/api/users', (route) => route.fulfill({ status: 204 }));
+
+      await usersPage.refreshUsersButton.click();
+
+      await expect(usersPage.noUsersMessage).toBeVisible();
+    });
+
+    test('keeps the add-user dialog open and shows the server rejection message', async ({
+      page,
+      authenticatedUsersPage: usersPage,
+      testData,
+    }) => {
+      const user = createUniqueUserData(testData.newUser);
+      const rejection = `Email ${user.email} already exists`;
+      await page.route('**/api/users', (route) =>
+        route.request().method() === 'POST'
+          ? route.fulfill({ status: 400, json: { message: rejection } })
+          : route.fallback(),
+      );
+
+      await usersPage.openAddUserDialog();
+      await usersPage.fillAddUserForm(user);
+      await usersPage.saveUserButton.click();
+
+      await expect(usersPage.getAddUserError(rejection)).toBeVisible();
+      await expect(usersPage.addUserDialog).toBeVisible();
+    });
+
+    test('shows a generic error when saving a user fails at the network level', async ({
+      page,
+      authenticatedUsersPage: usersPage,
+      testData,
+    }) => {
+      await page.route('**/api/users', (route) =>
+        route.request().method() === 'POST' ? route.abort('failed') : route.fallback(),
+      );
+
+      await usersPage.openAddUserDialog();
+      await usersPage.fillAddUserForm(createUniqueUserData(testData.newUser));
+      await usersPage.saveUserButton.click();
+
+      await expect(usersPage.getAddUserError('Failed to add user.')).toBeVisible();
+      await expect(usersPage.addUserDialog).toBeVisible();
+    });
   });
 });

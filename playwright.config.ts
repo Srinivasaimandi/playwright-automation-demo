@@ -37,6 +37,14 @@ const startsLocalApp =
   ['local', 'test'].includes(testEnvironment) &&
   ['localhost', '127.0.0.1', '::1', '[::1]'].includes(hostname);
 
+/** UI browser projects; every UI spec runs in each one. */
+const browserProjects: { name: string; device: string }[] = [
+  { name: 'chromium', device: 'Desktop Chrome' },
+  { name: 'firefox', device: 'Desktop Firefox' },
+  { name: 'webkit', device: 'Desktop Safari' },
+  { name: 'mobile-chrome', device: 'Pixel 7' },
+];
+
 export default defineConfig({
   testDir: './tests',
   fullyParallel: true,
@@ -79,15 +87,15 @@ export default defineConfig({
       testMatch: '**/api/**/*.spec.ts',
       fullyParallel: false,
     },
-    {
-      name: 'chromium',
+    ...browserProjects.map(({ name, device }) => ({
+      name,
       testMatch: '**/ui/**/*.spec.ts',
       ...(hasLoginCredentials ? { dependencies: ['setup'] } : {}),
       use: {
-        ...devices['Desktop Chrome'],
+        ...devices[device],
         ...(hasLoginCredentials ? { storageState: authStatePath } : {}),
       },
-    },
+    })),
   ],
   outputDir: 'test-results',
 });

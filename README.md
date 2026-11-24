@@ -15,7 +15,7 @@ See the [framework developer guide](./docs/index.html) for the architecture, fix
 git submodule update --init --recursive
 npm ci
 npm ci --prefix app
-npx playwright install chromium
+npx playwright install chromium firefox webkit
 ```
 
 The Users App source is in [`app/`](./app/) as a Git submodule, cloned from
@@ -74,7 +74,7 @@ cp env/.env.staging.example env/.env.staging
 
 The `test` environment is intended for a disposable test instance. Set `BASE_URL`, `LOGIN_USERNAME`, `LOGIN_PASSWORD`, and `TEST_DATA_ALLOWED_HOSTS` in `env/.env.test` or CI. A loopback URL starts the bundled app; remote test URLs must already be reachable. The API test-data fixture creates a unique user for its test and deletes it afterward; it only permits loopback hosts under `TEST_ENV=local`, or explicitly allowlisted hosts under `TEST_ENV=test`. Do not point it at development, staging, or production data.
 
-UI specs live under `tests/ui/` and run in Chromium. Full user journeys live under `tests/ui/e2e/`. API specs live under `tests/api/` and run once in the `api` project. Run API tests alone with `npm run test:api`; `npm run test:local` runs the full suite. Development and staging scripts exclude tests tagged `@test-data`, which create or delete users.
+UI specs live under `tests/ui/` and run in four projects: `chromium`, `firefox`, `webkit` and `mobile-chrome` (Pixel 7). Run one with `--project`, for example `npm run test:local -- --project=firefox`. Full user journeys live under `tests/ui/e2e/`. API specs live under `tests/api/` and run once in the `api` project. Run API tests alone with `npm run test:api`; `npm run test:local` runs the full suite. Development and staging scripts exclude tests tagged `@test-data`, which create or delete users.
 
 The login spec covers form rendering, required-field validation, and successful authentication. Set `LOGIN_USERNAME` and `LOGIN_PASSWORD` in the selected environment file or CI secrets to run the authenticated test; it is skipped if either value is missing. Run the login tests with:
 
@@ -82,9 +82,16 @@ The login spec covers form rendering, required-field validation, and successful 
 npm run test:local -- --grep @login
 ```
 
+## Accessibility and failure-state tests
+
+- `tests/ui/accessibility.spec.ts` (`@a11y`) scans the login page, users page and add-user dialog with
+  [axe-core](https://github.com/dequelabs/axe-core) against WCAG 2.1 A/AA rules. Any violation fails the test.
+- The `when the users API fails` tests in `tests/ui/users.spec.ts` use `page.route()` to simulate network
+  failures, rejected sessions, empty results and rejected saves, then check the message the page shows.
+
 ## Playwright fixtures
 
-`tests/ui/fixtures.ts` extends the API fixtures with reusable `loginPage` and `usersPage` page objects, plus `authenticatedUsersPage`, which opens the users screen using saved browser state. When login credentials are configured, the `setup` project logs in once and saves the app's local-storage token to `.auth/user.json`; the Chromium project loads that state for each isolated test context. The `.auth/` directory is ignored by Git because the state contains an authentication token. Login-flow tests still exercise the login form directly. Authenticated tests are skipped when `LOGIN_USERNAME` or `LOGIN_PASSWORD` is missing. `tests/api/fixtures.ts` provides the API key and `apiTestUser` fixtures, while `testData` supplies typed shared values from `tests/data/`. The `testData` fixture itself is read-only; `apiTestUser` is the separate fixture for creating and cleaning up an application record.
+`tests/ui/fixtures.ts` extends the API fixtures with reusable `loginPage` and `usersPage` page objects, plus `authenticatedUsersPage`, which opens the users screen using saved browser state. When login credentials are configured, the `setup` project logs in once and saves the app's local-storage token to `.auth/user.json`; each browser project loads that state for each isolated test context. The `.auth/` directory is ignored by Git because the state contains an authentication token. Login-flow tests still exercise the login form directly. Authenticated tests are skipped when `LOGIN_USERNAME` or `LOGIN_PASSWORD` is missing. `tests/api/fixtures.ts` provides the API key and `apiTestUser` fixtures, while `testData` supplies typed shared values from `tests/data/`. The `testData` fixture itself is read-only; `apiTestUser` is the separate fixture for creating and cleaning up an application record.
 
 Import the extended `test` in specs that use these fixtures:
 
@@ -170,10 +177,10 @@ adding fixed waits or `force: true`, raising timeouts, or editing `app/` or `pla
 checks the diff after each heal and reverts any weakened assertion. Verification runs use the `list` reporter, so they
 don't add entries to the cumulative test history.
 
-| File | Role |
-| --- | --- |
-| `requirement/*.md` | Requirements with numbered acceptance criteria (the orchestrator's input) |
-| `.claude/skills/requirement-to-test/SKILL.md` | Orchestrator: phases, heal limit, approval step |
-| `.claude/agents/playwright-test-writer.md` | Explores the app with Playwright MCP and writes the tests |
-| `.claude/agents/playwright-test-healer.md` | Diagnoses failures and fixes test defects only (never weakens assertions) |
-| `docs/test-writing-standards.md` | The writing standard both agents follow |
+| File                                          | Role                                                                      |
+| --------------------------------------------- | ------------------------------------------------------------------------- |
+| `requirement/*.md`                            | Requirements with numbered acceptance criteria (the orchestrator's input) |
+| `.claude/skills/requirement-to-test/SKILL.md` | Orchestrator: phases, heal limit, approval step                           |
+| `.claude/agents/playwright-test-writer.md`    | Explores the app with Playwright MCP and writes the tests                 |
+| `.claude/agents/playwright-test-healer.md`    | Diagnoses failures and fixes test defects only (never weakens assertions) |
+| `docs/test-writing-standards.md`              | The writing standard both agents follow                                   |

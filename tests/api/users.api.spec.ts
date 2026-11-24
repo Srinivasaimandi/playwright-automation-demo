@@ -1,6 +1,10 @@
+import type { APIResponse } from '@playwright/test';
+import { createUniqueUserData } from '../data/factories.ts';
+import { assertTestDataTargetIsSafe } from '../utils/environment.ts';
 import { expect, test } from './fixtures.ts';
 import { parseApiResponse } from './utils/parse-response.ts';
-import { ApiErrorSchema } from './utils/schemas.ts';
+import { ApiErrorSchema, ApiUserSchema } from './utils/schemas.ts';
+import type { UsersApiClient } from './utils/users-api-client.ts';
 
 /** Contract and CRUD smoke coverage for the documented users API. */
 test.describe('Users API', { tag: '@api' }, () => {
@@ -70,13 +74,17 @@ test.describe('Users API', { tag: '@api' }, () => {
   );
 
   test(
-    'PUT /users/{id} updates a created user',
+    'PUT /users/{id} updates only the supplied fields of a created user',
     { tag: '@test-data' },
     async ({ usersApi, apiTestUser }) => {
       const updatedName = `${apiTestUser.name} Updated`;
       await usersApi.updateUser(apiTestUser.id, { name: updatedName });
 
-      await expect(usersApi.getUser(apiTestUser.id)).resolves.toMatchObject({ name: updatedName });
+      await expect(usersApi.getUser(apiTestUser.id)).resolves.toMatchObject({
+        name: updatedName,
+        email: apiTestUser.email,
+        username: apiTestUser.username,
+      });
     },
   );
 
@@ -88,4 +96,84 @@ test.describe('Users API', { tag: '@api' }, () => {
       await expect(usersApi.getUserStatus(apiTestUser.id)).resolves.toBe(404);
     },
   );
+
+  test('POST /login rejects invalid credentials', async ({ request }) => {
+    const response = await request.post('/api/login', {
+      data: { username: 'no-such-user', password: 'wrong-password' },
+    });
+    const error = await parseApiResponse(response, ApiErrorSchema, 401);
+
+    expect(error.message).toBe('Invalid credentials');
+  });
+
+  test('GET /users rejects an unknown API key', async ({ request }) => {
+    const response = await request.get('/api/users', {
+      headers: { 'x-api-key': 'not-a-real-api-key' },
+    });
+    const error = await parseApiResponse(response, ApiErrorSchema, 401);
+
+    expect(error.message).toBe('Unauthorized: Invalid API Key');
+  });
+
+  test('GET /users/search returns 204 No Content when nothing matches', async ({
+    usersApi,
+    testData,
+  }) => {
+    const response = await usersApi.searchUsersResponse({ name: testData.searches.noResults });
+
+    expect(response.status()).toBe(204);
+  });
+
+  test(
+    'POST /users rejects a duplicate email',
+    { tag: '@test-data' },
+    async ({ usersApi, apiTestUser, testData }) => {
+      const duplicate = { ...createUniqueUserData(testData.newUser), email: apiTestUser.email };
+      const response = await usersApi.createUserResponse(duplicate);
+      await deleteIfCreated(usersApi, response);
+
+      const error = await parseApiResponse(response, ApiErrorSchema, 400);
+      expect(error.message).toBe(`Email ${apiTestUser.email} already exists`);
+    },
+  );
+
+  test(
+    'POST /users rejects a duplicate username',
+    { tag: '@test-data' },
+    async ({ usersApi, apiTestUser, testData }) => {
+      const duplicate = {
+        ...createUniqueUserData(testData.newUser),
+        username: apiTestUser.username,
+      };
+      const response = await usersApi.createUserResponse(duplicate);
+      await deleteIfCreated(usersApi, response);
+
+      const error = await parseApiResponse(response, ApiErrorSchema, 400);
+      expect(error.message).toBe(`Username ${apiTestUser.username} already exists`);
+    },
+  );
+
+  test(
+    'DELETE /users/{id} refuses to delete the protected seeded user',
+    // Tagged @test-data because a regression here would delete a real record.
+    { tag: '@test-data' },
+    async ({ baseURL, usersApi, testData }) => {
+      assertTestDataTargetIsSafe(baseURL);
+      const protectedId = testData.deleteProtectedUserId;
+
+      const response = await usersApi.deleteUserResponse(protectedId);
+      const error = await parseApiResponse(response, ApiErrorSchema, 403);
+
+      expect(error.message).toBe(`User with id ${protectedId} is restricted from deleting`);
+      await expect(usersApi.getUserStatus(protectedId)).resolves.toBe(200);
+    },
+  );
 });
+
+/** Removes a user that a rejection test created by mistake, so a regression does not leak data. */
+async function deleteIfCreated(usersApi: UsersApiClient, response: APIResponse) {
+  if (response.status() === 201) {
+    const { id } = ApiUserSchema.parse(await response.json());
+    await usersApi.deleteUserIfPresent(id);
+  }
+}
