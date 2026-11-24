@@ -88,12 +88,12 @@ jobs:
       - name: Install Playwright browsers
         if: steps.pw-cache.outputs.cache-hit != 'true'
         timeout-minutes: 10
-        run: npx playwright install --with-deps chromium firefox webkit
+        run: npx playwright install --with-deps chromium
 
       - name: Install Playwright system dependencies
         if: steps.pw-cache.outputs.cache-hit == 'true'
         timeout-minutes: 10
-        run: npx playwright install-deps chromium firefox webkit
+        run: npx playwright install-deps chromium
 
       - name: Test cumulative history logic
         run: npm run test:history:unit
