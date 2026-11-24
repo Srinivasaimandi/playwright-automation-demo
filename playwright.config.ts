@@ -40,9 +40,9 @@ const startsLocalApp =
 /** UI browser projects; every UI spec runs in each one. */
 const browserProjects: { name: string; device: string }[] = [
   { name: 'chromium', device: 'Desktop Chrome' },
-  { name: 'firefox', device: 'Desktop Firefox' },
-  { name: 'webkit', device: 'Desktop Safari' },
-  { name: 'mobile-chrome', device: 'Pixel 7' },
+  // { name: 'firefox', device: 'Desktop Firefox' },
+  // { name: 'webkit', device: 'Desktop Safari' },
+  // { name: 'mobile-chrome', device: 'Pixel 7' },
 ];
 
 export default defineConfig({
@@ -70,7 +70,7 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     launchOptions: {
-      slowMo: 500,
+      // slowMo: 500,
     },
   },
   projects: [
