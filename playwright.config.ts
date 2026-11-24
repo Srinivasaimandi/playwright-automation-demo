@@ -37,15 +37,12 @@ const startsLocalApp =
   ['local', 'test'].includes(testEnvironment) &&
   ['localhost', '127.0.0.1', '::1', '[::1]'].includes(hostname);
 
-/**
- * UI browser projects. Chromium is the reference browser and the only one that runs visual
- * comparisons, because screenshots differ between rendering engines.
- */
-const browserProjects: { name: string; device: string; grepInvert?: RegExp }[] = [
+/** UI browser projects; every UI spec runs in each one. */
+const browserProjects: { name: string; device: string }[] = [
   { name: 'chromium', device: 'Desktop Chrome' },
-  { name: 'firefox', device: 'Desktop Firefox', grepInvert: /@visual/ },
-  { name: 'webkit', device: 'Desktop Safari', grepInvert: /@visual/ },
-  { name: 'mobile-chrome', device: 'Pixel 7', grepInvert: /@visual/ },
+  { name: 'firefox', device: 'Desktop Firefox' },
+  { name: 'webkit', device: 'Desktop Safari' },
+  { name: 'mobile-chrome', device: 'Pixel 7' },
 ];
 
 export default defineConfig({
@@ -53,10 +50,6 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
-  expect: {
-    // Absorbs anti-aliasing noise; real layout or style changes exceed 1% of pixels.
-    toHaveScreenshot: { maxDiffPixelRatio: 0.01 },
-  },
   webServer: startsLocalApp
     ? {
         command: 'npm --prefix app start',
@@ -94,10 +87,9 @@ export default defineConfig({
       testMatch: '**/api/**/*.spec.ts',
       fullyParallel: false,
     },
-    ...browserProjects.map(({ name, device, grepInvert }) => ({
+    ...browserProjects.map(({ name, device }) => ({
       name,
       testMatch: '**/ui/**/*.spec.ts',
-      grepInvert,
       ...(hasLoginCredentials ? { dependencies: ['setup'] } : {}),
       use: {
         ...devices[device],

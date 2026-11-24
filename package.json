@@ -20,7 +20,6 @@
     "test:ui": "playwright test --ui",
     "pretest:debug": "node scripts/update-app.mjs",
     "test:debug": "playwright test --debug",
-    "test:visual:update": "cross-env TEST_ENV=local playwright test --project=chromium --grep @visual --update-snapshots",
     "test:report": "playwright show-report",
     "test:history:report": "node scripts/render-test-history.mjs",
     "test:history:unit": "node --test scripts/test-history.test.mjs",

@@ -39,7 +39,6 @@ npm run test:staging
 npm run test:headed
 npm run test:ui
 npm run test:debug
-npm run test:visual:update
 npm run test:report
 npm run test:history:report
 npm run test:history:unit
@@ -83,22 +82,10 @@ The login spec covers form rendering, required-field validation, and successful 
 npm run test:local -- --grep @login
 ```
 
-## Accessibility, visual and failure-state tests
+## Accessibility and failure-state tests
 
 - `tests/ui/accessibility.spec.ts` (`@a11y`) scans the login page, users page and add-user dialog with
   [axe-core](https://github.com/dequelabs/axe-core) against WCAG 2.1 A/AA rules. Any violation fails the test.
-- `tests/ui/visual.spec.ts` (`@visual`) compares screenshots against committed baselines in
-  `tests/ui/visual.spec.ts-snapshots/`. It runs in Chromium only. Screenshots render differently per operating
-  system, so there are `-darwin` baselines for local runs and `-linux` baselines for CI. After an intended UI change,
-  update both:
-
-  ```bash
-  npm run test:visual:update
-  docker run --rm --ipc=host -e SKIP_APP_UPDATE=1 -v "$PWD":/work -w /work \
-    mcr.microsoft.com/playwright:v<installed @playwright/test version>-noble \
-    npx cross-env TEST_ENV=local playwright test --project=chromium --grep @visual --update-snapshots --reporter=line
-  ```
-
 - The `when the users API fails` tests in `tests/ui/users.spec.ts` use `page.route()` to simulate network
   failures, rejected sessions, empty results and rejected saves, then check the message the page shows.
 
