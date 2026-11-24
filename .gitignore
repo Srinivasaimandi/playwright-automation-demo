@@ -8,7 +8,10 @@ test-results/
 reports/test-history-report*.html
 playwright/.cache/
 # Keep local environment credentials ignored while allowing shared templates.
-# .env
-# .env.*
-# !env/.env.example
-# !env/.env.*.example
+.env
+.env.*
+!env/.env.example
+!env/.env.*.example
+
+# macOS metadata
+.DS_Store
