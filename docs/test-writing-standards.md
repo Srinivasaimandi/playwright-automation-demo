@@ -6,15 +6,19 @@ The rules every new or changed Playwright test in this repo must follow. They ar
 
 ## Where files go
 
-| Kind of test                 | Location                           | Playwright project                               |
-| ---------------------------- | ---------------------------------- | ------------------------------------------------ |
-| UI scenario on one screen    | `tests/ui/<feature>.spec.ts`       | `chromium`, `firefox`, `webkit`, `mobile-chrome` |
-| Multi-screen user journey    | `tests/ui/e2e/<journey>.spec.ts`   | `chromium`, `firefox`, `webkit`, `mobile-chrome` |
-| Accessibility scan           | `tests/ui/accessibility.spec.ts`   | all UI projects                                  |
-| REST API contract / CRUD     | `tests/api/<resource>.api.spec.ts` | `api`                                            |
-| Page object                  | `tests/ui/pages/<page>.page.ts`    | —                                                |
-| API client / response schema | `tests/api/utils/`                 | —                                                |
-| Shared test data / factories | `tests/data/`                      | —                                                |
+| Kind of test                  | Location                                   | Playwright project                               |
+| ----------------------------- | ------------------------------------------ | ------------------------------------------------ |
+| UI scenario on one screen     | `tests/ui/<feature>.spec.ts`               | `chromium`, `firefox`, `webkit`, `mobile-chrome` |
+| Multi-screen user journey     | `tests/ui/e2e/<journey>.spec.ts`           | `chromium`, `firefox`, `webkit`, `mobile-chrome` |
+| Accessibility scan            | `tests/ui/accessibility.spec.ts`           | all UI projects                                  |
+| REST API contract / CRUD      | `tests/api/<resource>.api.spec.ts`         | `api`                                            |
+| GraphQL API                   | `tests/api/<resource>.graphql.spec.ts`     | `api`                                            |
+| OpenAPI document checks       | `tests/api/openapi.contract.spec.ts`       | `api`                                            |
+| Test that resets all app data | `tests/api/destructive/<name>.api.spec.ts` | `api-destructive` (runs last)                    |
+| Network mocks for UI tests    | `tests/ui/mocks/<api>-mock.ts`             | —                                                |
+| Page object                   | `tests/ui/pages/<page>.page.ts`            | —                                                |
+| API client / response schema  | `tests/api/utils/`                         | —                                                |
+| Shared test data / factories  | `tests/data/`                              | —                                                |
 
 Prefer adding a `test` to an existing spec file for the same feature over creating a new file.
 
@@ -23,7 +27,7 @@ Prefer adding a `test` to an existing spec file for the same feature over creati
 - UI specs import `{ expect, test }` from `./fixtures.ts` (or `../fixtures.ts` from `e2e/`). API specs import from
   `./fixtures.ts` in `tests/api`. Never import `test` directly from `@playwright/test` in a spec (only `auth.setup.ts` does).
 - Use the provided fixtures instead of constructing objects in tests: `loginPage`, `usersPage`,
-  `authenticatedUsersPage`, `usersApi`, `apiTestUser`, `testData`.
+  `authenticatedUsersPage`, `usersApiMock`, `usersApi`, `graphqlApi`, `apiTestUser`, `testData`.
 - Use `.ts` extensions in relative imports (the repo runs native TypeScript ESM).
 - If a test needs a new reusable resource, add a fixture in the matching `fixtures.ts` rather than setup code in the spec.
 
@@ -32,7 +36,8 @@ Prefer adding a `test` to an existing spec file for the same feature over creati
 - Wrap tests in `test.describe('<Feature>', { tag: '@<feature>' }, () => { ... })` with a one-line JSDoc comment above it.
 - Test titles are lowercase behaviour statements: `'filters users by email without case sensitivity'`.
 - Tags: `@smoke` for fast critical-path checks, `@validation` for input rules, `@auth` for login-dependent checks,
-  `@e2e` on journeys, `@a11y` on accessibility scans, `@api` on API suites, and **`@test-data` on any test that creates, edits or deletes data**
+  `@e2e` on journeys, `@a11y` on accessibility scans, `@api` on API suites, `@graphql` on GraphQL suites,
+  `@contract` on OpenAPI checks, `@mocked` on UI tests that mock the network, and **`@test-data` on any test that creates, edits or deletes data**
   (these are excluded from dev/staging runs).
 - Link the test to its requirement in `requirement/` with an annotation:
   `{ tag: [...], annotation: { type: 'requirement', description: 'REQ-001' } }`.
@@ -57,9 +62,20 @@ Prefer adding a `test` to an existing spec file for the same feature over creati
 
 - Scan with the `makeAxeBuilder` fixture, which checks WCAG 2.1 A/AA rules, and assert
   `expect(results.violations).toEqual([])`. Scope a scan with `.include(...)` instead of disabling rules.
-- Simulate API failures with `page.route()` (`fulfill` for error statuses, `abort` for network failures). Use
-  `route.fallback()` for requests the test does not mean to change. Do not use `context.setOffline()`: Firefox
-  ignores it for loopback hosts.
+- Mock the users API with the `usersApiMock` fixture rather than calling `page.route()` in a spec: `fulfill` for
+  canned responses and error statuses, `abort` for network failures, and `hold` to check the page while a response
+  is slow (never use a fixed delay). Requests the mock does not match reach the real app. Do not use
+  `context.setOffline()`: Firefox ignores it for loopback hosts.
+- Mock rows that a test edits or deletes with `testData.mockUsers`, whose IDs no real user has.
+- Always mock `resetData` in UI tests: a real reset deletes users that parallel tests depend on.
+
+## Known app defects
+
+- When the app does not yet behave as it should, write the test for the correct behaviour and declare it with
+  `test.fail(title, { annotation: { type: 'app-defect', description } }, body)`, grouped under a
+  `known app defects` describe. Never weaken the assertion to make it pass.
+- Check that the test fails for the reason in the annotation. When the app is fixed, the test fails as an
+  unexpected pass: change it to an ordinary `test`.
 
 ## Data and environment safety
 

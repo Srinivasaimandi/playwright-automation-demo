@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test as apiTest } from '../api/fixtures.ts';
 import { getLoginCredentials } from '../utils/environment.ts';
+import { UsersApiMock } from './mocks/users-api-mock.ts';
 import { LoginPage } from './pages/login.page.ts';
 import { UsersPage } from './pages/users.page.ts';
 
@@ -10,6 +11,7 @@ type UiFixtures = {
   usersPage: UsersPage;
   authenticatedUsersPage: UsersPage;
   makeAxeBuilder: () => AxeBuilder;
+  usersApiMock: UsersApiMock;
 };
 
 /** WCAG 2.1 A and AA rule tags checked by accessibility tests. */
@@ -40,6 +42,10 @@ export const test = apiTest.extend<UiFixtures>({
 
   makeAxeBuilder: async ({ page }, use) => {
     await use(() => new AxeBuilder({ page }).withTags(wcagTags));
+  },
+
+  usersApiMock: async ({ page }, use) => {
+    await use(new UsersApiMock(page));
   },
 });
 

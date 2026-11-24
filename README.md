@@ -86,8 +86,22 @@ npm run test:local -- --grep @login
 
 - `tests/ui/accessibility.spec.ts` (`@a11y`) scans the login page, users page and add-user dialog with
   [axe-core](https://github.com/dequelabs/axe-core) against WCAG 2.1 A/AA rules. Any violation fails the test.
-- The `when the users API fails` tests in `tests/ui/users.spec.ts` use `page.route()` to simulate network
-  failures, rejected sessions, empty results and rejected saves, then check the message the page shows.
+- The `@mocked` tests in `tests/ui/users.spec.ts` use the `usersApiMock` fixture (`tests/ui/mocks/users-api-mock.ts`),
+  which wraps `page.route()`. They simulate network failures, server errors, rejected sessions, empty results, slow
+  responses, and rejected or failed saves, edits, deletes and data resets, then check what the page shows. Mocked
+  rows use IDs no real user has, so a request that escapes its mock cannot change seeded data.
+
+## GraphQL, OpenAPI contract and data-reset tests
+
+- `tests/api/users.graphql.spec.ts` (`@graphql`) covers the `/graphql` queries and mutations through the
+  `graphqlApi` fixture.
+- `tests/api/openapi.contract.spec.ts` (`@contract`) reads the OpenAPI document Swagger UI serves at `/api-docs` and
+  checks it against the REST client's operation list and the suite's Zod schemas.
+- Tests for app defects that are not fixed yet use `test.fail()` with an `app-defect` annotation. They pass while the
+  defect exists and fail once it is fixed, so they can be turned into ordinary tests.
+- `PUT /users/reset-data` deletes every user added since startup, so its spec lives in `tests/api/destructive/` and
+  runs in the `api-destructive` project. That project starts after all other projects finish and is skipped if any
+  of them has a failing test.
 
 ## Playwright fixtures
 
@@ -116,7 +130,10 @@ test('shows a created user', async ({ authenticatedUsersPage, apiTestUser }) => 
 
 ## Shared test utilities and API schemas
 
-- `tests/api/utils/users-api-client.ts` centralizes authenticated user API operations.
+- `tests/api/utils/users-api-client.ts` centralizes authenticated user API operations and lists them in
+  `usersApiOperations` for the contract test.
+- `tests/api/utils/graphql-client.ts` holds the GraphQL documents and an authenticated client.
+- `tests/api/utils/openapi.ts` fetches the published OpenAPI document and compares response schemas with Zod schemas.
 - `tests/api/utils/schemas.ts` defines Zod schemas for login, user, user-list, and count responses. The API client validates each successful JSON response and reports status, JSON, or schema errors with the endpoint path. Unknown response fields are stripped from parsed user objects.
 - `tests/data/factories.ts` creates unique user data for tests.
 - `tests/utils/environment.ts` provides shared credential lookup and guards API data changes to loopback or allowlisted test hosts.

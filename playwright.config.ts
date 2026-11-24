@@ -85,7 +85,16 @@ export default defineConfig({
     {
       name: 'api',
       testMatch: '**/api/**/*.spec.ts',
+      testIgnore: '**/api/destructive/**',
       fullyParallel: false,
+    },
+    {
+      // Specs here wipe data other tests depend on, so they run only after every other project
+      // finishes. Playwright skips this project if any of those projects has a failing test.
+      name: 'api-destructive',
+      testMatch: '**/api/destructive/**/*.spec.ts',
+      fullyParallel: false,
+      dependencies: ['api', ...browserProjects.map(({ name }) => name)],
     },
     ...browserProjects.map(({ name, device }) => ({
       name,

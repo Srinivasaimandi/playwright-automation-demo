@@ -2,8 +2,45 @@ import type { APIRequestContext, APIResponse } from '@playwright/test';
 import type { NewUserData } from '../../data/users.ts';
 import { assertApiStatus, parseApiResponse } from './parse-response.ts';
 import type { ApiUser } from './schemas.ts';
-import { ApiKeySchema, ApiUserCountSchema, ApiUserSchema, ApiUsersSchema } from './schemas.ts';
+import {
+  ApiKeySchema,
+  ApiMessageSchema,
+  ApiUserCountSchema,
+  ApiUserSchema,
+  ApiUsersSchema,
+} from './schemas.ts';
 import type { LoginCredentials } from '../../utils/environment.ts';
+
+/**
+ * Every REST operation this client calls, as `METHOD /path` in the OpenAPI document's notation.
+ * The OpenAPI contract test checks this list against the published document in both directions.
+ */
+export const usersApiOperations = [
+  'POST /login',
+  'GET /users',
+  'POST /users',
+  'GET /users/search',
+  'GET /users/count',
+  'PUT /users/reset-data',
+  'POST /users/bulk',
+  'GET /users/{id}',
+  'PUT /users/{id}',
+  'DELETE /users/{id}',
+] as const;
+
+/**
+ * Logs in and returns the validated API key used by the REST and GraphQL clients.
+ * @param request Playwright's API request context.
+ * @param credentials Account credentials from the selected environment.
+ */
+export async function requestApiKey(
+  request: APIRequestContext,
+  credentials: LoginCredentials,
+): Promise<string> {
+  const response = await request.post('/api/login', { data: credentials });
+  const { apiKey } = await parseApiResponse(response, ApiKeySchema);
+  return apiKey;
+}
 
 /** Authenticated client for the documented Users API endpoints. */
 export class UsersApiClient {
@@ -21,12 +58,7 @@ export class UsersApiClient {
    * @param credentials Account credentials from the selected environment.
    */
   static async login(request: APIRequestContext, credentials: LoginCredentials) {
-    const response = await request.post('/api/login', {
-      data: credentials,
-    });
-    const { apiKey } = await parseApiResponse(response, ApiKeySchema);
-
-    return new UsersApiClient(request, apiKey);
+    return new UsersApiClient(request, await requestApiKey(request, credentials));
   }
 
   /** Returns users after validating each response record. */
@@ -84,6 +116,27 @@ export class UsersApiClient {
     });
   }
 
+  /** Creates every user in one request and validates the API's 201 response. */
+  async bulkAddUsers(users: readonly NewUserData[]): Promise<ApiUser[]> {
+    const response = await this.bulkAddUsersResponse(users);
+    return parseApiResponse(response, ApiUsersSchema, 201);
+  }
+
+  /** Sends an authenticated bulk-create request and returns its unparsed response. */
+  async bulkAddUsersResponse(users: readonly Partial<NewUserData>[]): Promise<APIResponse> {
+    return this.request.post('/api/users/bulk', { data: users, headers: this.headers });
+  }
+
+  /**
+   * Restores the app's seeded data, deleting every user added since. This affects every test
+   * running against the same app, so only the serial `api-destructive` project may call it.
+   */
+  async resetData(): Promise<string> {
+    const response = await this.request.put('/api/users/reset-data', { headers: this.headers });
+    const { message } = await parseApiResponse(response, ApiMessageSchema);
+    return message;
+  }
+
   /** Updates supplied fields and validates the returned user. */
   async updateUser(id: number, data: Partial<NewUserData>): Promise<ApiUser> {
     const response = await this.updateUserResponse(id, data);
@@ -107,6 +160,23 @@ export class UsersApiClient {
   /** Sends an authenticated delete request and returns its unparsed response. */
   async deleteUserResponse(id: number): Promise<APIResponse> {
     return this.request.delete(`/api/users/${id}`, { headers: this.headers });
+  }
+
+  /**
+   * Deletes every user whose email exactly matches one of the given emails.
+   * Used to clean up after create calls whose response cannot be trusted to list what was saved.
+   */
+  async deleteUsersByEmail(emails: readonly string[]) {
+    for (const email of emails) {
+      const response = await this.searchUsersResponse({ email });
+      if (response.status() === 204) {
+        continue;
+      }
+      const matches = await parseApiResponse(response, ApiUsersSchema);
+      for (const user of matches.filter((match) => match.email === email)) {
+        await this.deleteUserIfPresent(user.id);
+      }
+    }
   }
 
   /** Cleans up a user while tolerating a prior successful deletion. */

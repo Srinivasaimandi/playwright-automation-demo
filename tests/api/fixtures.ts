@@ -3,11 +3,13 @@ import type { ApiTestUser } from '../data/users.ts';
 import { createUniqueUserData } from '../data/factories.ts';
 import { usersTestData } from '../data/users.ts';
 import { assertTestDataTargetIsSafe, getLoginCredentials } from '../utils/environment.ts';
+import { GraphqlClient } from './utils/graphql-client.ts';
 import { UsersApiClient } from './utils/users-api-client.ts';
 
 /** API resources provided to each API test. */
 type ApiFixtures = {
   usersApi: UsersApiClient;
+  graphqlApi: GraphqlClient;
   apiTestUser: ApiTestUser;
   testData: typeof usersTestData;
 };
@@ -22,6 +24,16 @@ export const test = base.extend<ApiFixtures>({
     }
 
     await use(await UsersApiClient.login(request, credentials));
+  },
+
+  graphqlApi: async ({ request }, use) => {
+    const credentials = getLoginCredentials();
+    if (!credentials) {
+      base.skip(true, 'Set LOGIN_USERNAME and LOGIN_PASSWORD to run GraphQL tests');
+      return;
+    }
+
+    await use(await GraphqlClient.login(request, credentials));
   },
 
   apiTestUser: async ({ baseURL, usersApi, testData }, use) => {

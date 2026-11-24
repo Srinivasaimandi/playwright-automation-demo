@@ -168,7 +168,96 @@ test.describe('Users API', { tag: '@api' }, () => {
       await expect(usersApi.getUserStatus(protectedId)).resolves.toBe(200);
     },
   );
+
+  /** Bulk creation; the API validates the whole batch and saves nothing if any user is rejected. */
+  test.describe('POST /users/bulk', { tag: '@test-data' }, () => {
+    test('creates every user in the batch', async ({ baseURL, usersApi, testData }) => {
+      assertTestDataTargetIsSafe(baseURL);
+      const users = [
+        createUniqueUserData(testData.newUser),
+        createUniqueUserData(testData.newUser),
+      ];
+
+      try {
+        const created = await usersApi.bulkAddUsers(users);
+
+        expect(created).toHaveLength(users.length);
+        for (const [index, user] of users.entries()) {
+          const expected = { name: user.name, email: user.email, username: user.username };
+          expect(created[index]).toMatchObject(expected);
+          await expect(usersApi.getUser(created[index].id)).resolves.toMatchObject(expected);
+        }
+      } finally {
+        await usersApi.deleteUsersByEmail(users.map((user) => user.email));
+      }
+    });
+
+    test('rejects the batch and saves no one when a user is missing a field', async ({
+      baseURL,
+      usersApi,
+      testData,
+    }) => {
+      assertTestDataTargetIsSafe(baseURL);
+      const valid = createUniqueUserData(testData.newUser);
+      const incomplete = { ...createUniqueUserData(testData.newUser), password: '' };
+
+      try {
+        const response = await usersApi.bulkAddUsersResponse([valid, incomplete]);
+
+        const error = await parseApiResponse(response, ApiErrorSchema, 400);
+        expect(error.message).toBe('All fields are required for each user');
+        await expectNoUserWithEmail(usersApi, valid.email);
+      } finally {
+        await usersApi.deleteUsersByEmail([valid.email, incomplete.email]);
+      }
+    });
+
+    test('rejects the batch when a user duplicates an existing email', async ({
+      usersApi,
+      apiTestUser,
+      testData,
+    }) => {
+      const valid = createUniqueUserData(testData.newUser);
+      const duplicate = { ...createUniqueUserData(testData.newUser), email: apiTestUser.email };
+
+      try {
+        const response = await usersApi.bulkAddUsersResponse([valid, duplicate]);
+
+        const error = await parseApiResponse(response, ApiErrorSchema, 400);
+        expect(error.message).toBe(`Email ${apiTestUser.email} already exists`);
+        await expectNoUserWithEmail(usersApi, valid.email);
+      } finally {
+        await usersApi.deleteUsersByEmail([valid.email]);
+      }
+    });
+
+    test('rejects a batch that repeats the same username', async ({
+      baseURL,
+      usersApi,
+      testData,
+    }) => {
+      assertTestDataTargetIsSafe(baseURL);
+      const first = createUniqueUserData(testData.newUser);
+      const second = { ...createUniqueUserData(testData.newUser), username: first.username };
+
+      try {
+        const response = await usersApi.bulkAddUsersResponse([first, second]);
+
+        const error = await parseApiResponse(response, ApiErrorSchema, 400);
+        expect(error.message).toBe(`Username ${first.username} already exists`);
+        await expectNoUserWithEmail(usersApi, first.email);
+      } finally {
+        await usersApi.deleteUsersByEmail([first.email, second.email]);
+      }
+    });
+  });
 });
+
+/** Asserts that no user with this email was saved. */
+async function expectNoUserWithEmail(usersApi: UsersApiClient, email: string) {
+  const response = await usersApi.searchUsersResponse({ email });
+  expect(response.status(), `a user with email ${email} was saved`).toBe(204);
+}
 
 /** Removes a user that a rejection test created by mistake, so a regression does not leak data. */
 async function deleteIfCreated(usersApi: UsersApiClient, response: APIResponse) {
