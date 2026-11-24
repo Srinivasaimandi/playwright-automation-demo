@@ -49,10 +49,16 @@
         background: #fbfdff;
       }
 
-      aside h2 {
+      aside .brand {
         margin: 0 0 16px;
         font-size: 1rem;
+        font-weight: 700;
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity .2s, visibility .2s;
       }
+      aside .brand.show-app { visibility: visible; opacity: 1; }
+      aside .brand span { display: block; font-weight: 400; color: var(--muted); font-size: .85rem; }
 
       aside nav { display: grid; gap: 4px; }
       aside nav a {
@@ -191,7 +197,7 @@
   <body>
     <div class="layout">
       <aside aria-label="Documentation navigation">
-        <h2>Developer guide</h2>
+        <div class="brand">Users App Test Framework<span>Developer guide</span></div>
         <nav>
           <a href="#overview">Overview</a>
           <a href="#quick-start">Quick start</a>
@@ -212,7 +218,7 @@
       <main>
         <header>
           <div class="eyebrow">Project documentation</div>
-          <h1>Users App Test Framework</h1>
+          <h1 id="page-title">Users App Test Framework</h1>
           <p class="lead">
             A practical guide to how this TypeScript framework configures environments, runs browser and API tests,
             manages test data, validates API responses, organizes its source files, and generates tests from
@@ -814,5 +820,16 @@ A signed-in user on the Users screen can narrow the users table by typing in the
         </footer>
       </main>
     </div>
+    <script>
+      // Show the framework name in the sidebar heading once the page title scrolls out of view.
+      (() => {
+        const brand = document.querySelector('aside .brand');
+        const title = document.getElementById('page-title');
+        if (!brand || !title || !('IntersectionObserver' in window)) return;
+        new IntersectionObserver(([entry]) => {
+          brand.classList.toggle('show-app', !entry.isIntersecting);
+        }).observe(title);
+      })();
+    </script>
   </body>
 </html>
