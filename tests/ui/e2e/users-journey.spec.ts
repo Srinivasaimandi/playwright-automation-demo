@@ -4,6 +4,10 @@ import { assertTestDataTargetIsSafe, getLoginCredentials } from '../../utils/env
 
 /** End-to-end user journeys for authentication and user management. */
 test.describe('Users end-to-end journey', { tag: '@e2e' }, () => {
+  // These journeys log in through the form, so they start signed out. The first one logs out,
+  // which revokes its API key; that must not be the key the shared signed-in state uses.
+  test.use({ storageState: { cookies: [], origins: [] } });
+
   test('logs in, searches for a user, and logs out', async ({
     page,
     loginPage,
@@ -58,9 +62,8 @@ test.describe('Users end-to-end journey', { tag: '@e2e' }, () => {
         await expect(usersPage.addUserDialog).toBeHidden();
         await expect(usersPage.getUserRow(newUser.name)).toBeVisible();
 
-        const newUserId = Number(
-          await usersPage.getUserRow(newUser.name).getByRole('cell').first().innerText(),
-        );
+        // Editing moves the name into a textbox, so keep hold of the row by its user ID.
+        const newUserId = await usersPage.getRowUserId(usersPage.getUserRow(newUser.name));
         const newUserRow = usersPage.getUserRowById(newUserId);
         await newUserRow.getByRole('button', { name: 'Edit row' }).click();
         await newUserRow.getByRole('textbox').nth(0).fill(updatedName);
@@ -70,7 +73,7 @@ test.describe('Users end-to-end journey', { tag: '@e2e' }, () => {
         await expect(updatedUserRow).toBeVisible();
         await expect(updatedUserRow).toContainText(newUser.email);
 
-        await updatedUserRow.getByRole('button', { name: 'Delete row' }).click();
+        await usersPage.deleteRow(updatedUserRow);
         await expect(usersPage.getUserRow(updatedName)).toHaveCount(0);
       } finally {
         const createdUser = (await usersApi.listUsers()).find(

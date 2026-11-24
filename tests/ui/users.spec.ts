@@ -1,4 +1,5 @@
 import { createUniqueUserData } from '../data/factories.ts';
+import { getLoginCredentials } from '../utils/environment.ts';
 import { expect, test } from './fixtures.ts';
 
 /** Authenticated UI scenarios for browsing and managing users. */
@@ -15,7 +16,7 @@ test.describe('Users screen', { tag: '@users' }, () => {
       await expect(usersPage.logoutLink).toBeVisible();
       await expect(usersPage.usersTable).toBeVisible();
       await expect(usersPage.columnHeaders).toHaveText([
-        'ID',
+        '#',
         'Name',
         'Email',
         'Username',
@@ -122,9 +123,8 @@ test.describe('Users screen', { tag: '@users' }, () => {
 
     const janeNameRow = usersPage.getUserRow(jane.name);
     await expect(janeNameRow).toHaveCount(1);
-    // Edit mode moves the name into a textbox, so keep hold of the row by its stable ID cell.
-    const janeId = Number(await janeNameRow.getByRole('cell').first().innerText());
-    const janeRow = usersPage.getUserRowById(janeId);
+    // Edit mode moves the name into a textbox, so keep hold of the row by its user ID.
+    const janeRow = usersPage.getUserRowById(await usersPage.getRowUserId(janeNameRow));
     await janeRow.getByRole('button', { name: 'Edit row' }).click();
 
     const editableFields = janeRow.getByRole('textbox');
@@ -134,15 +134,46 @@ test.describe('Users screen', { tag: '@users' }, () => {
     await expect(editableFields.nth(2)).toHaveValue(jane.username);
   });
 
-  test('logs out and returns to the login form', async ({
-    page,
-    loginPage,
-    authenticatedUsersPage: usersPage,
-  }) => {
-    await usersPage.logout();
+  /**
+   * These tests start signed out. Logout revokes the API key on the server, so the logout test
+   * signs in with its own session: logging out of the shared signed-in state would revoke the key
+   * every other UI test uses.
+   */
+  test.describe('when signed out', () => {
+    test.use({ storageState: { cookies: [], origins: [] } });
 
-    await expect(page).toHaveURL(/\/index\.html$/);
-    await expect(loginPage.heading).toBeVisible();
+    test('sends a visitor without a login token to the login page', async ({ page, loginPage }) => {
+      await page.goto('/usersPage.html');
+
+      await expect(page).toHaveURL(/\/index\.html$/);
+      await expect(loginPage.heading).toBeVisible();
+    });
+
+    test('logs out, returns to the login form, and revokes the API key', async ({
+      page,
+      request,
+      loginPage,
+      usersPage,
+    }) => {
+      const credentials = getLoginCredentials();
+      if (!credentials) {
+        test.skip(true, 'Set LOGIN_USERNAME and LOGIN_PASSWORD to run this authenticated test');
+        return;
+      }
+      await loginPage.goto();
+      await loginPage.login(credentials.username, credentials.password);
+      await expect(usersPage.heading).toBeVisible();
+      const apiKey = await usersPage.getStoredApiToken();
+      expect(apiKey).toBeTruthy();
+
+      await usersPage.logout();
+
+      await expect(page).toHaveURL(/\/index\.html$/);
+      await expect(loginPage.heading).toBeVisible();
+      await expect.poll(() => usersPage.getStoredApiToken()).toBeNull();
+      const response = await request.get('/api/users', { headers: { 'x-api-key': apiKey! } });
+      expect(response.status()).toBe(401);
+    });
   });
 
   /** The users screen's behaviour when the users API fails, simulated with network mocks. */
@@ -176,22 +207,23 @@ test.describe('Users screen', { tag: '@users' }, () => {
       await expect(usersPage.fetchFailedMessage).toBeVisible();
     });
 
-    for (const status of [401, 403]) {
-      test(`asks the user to log in again and drops the token on a ${status} response`, async ({
-        authenticatedUsersPage: usersPage,
-        usersApiMock,
-      }) => {
-        await usersApiMock.fulfill('list', 'GET', {
-          status,
-          json: { message: 'Unauthorized: Invalid API Key' },
-        });
-
-        await usersPage.refreshUsersButton.click();
-
-        await expect(usersPage.unauthorizedMessage).toBeVisible();
-        await expect.poll(() => usersPage.getStoredApiToken()).toBeNull();
+    test('returns to the login page and drops the token when the API key is rejected', async ({
+      page,
+      loginPage,
+      authenticatedUsersPage: usersPage,
+      usersApiMock,
+    }) => {
+      await usersApiMock.fulfill('list', 'GET', {
+        status: 401,
+        json: { message: 'Unauthorized: Invalid API Key' },
       });
-    }
+
+      await usersPage.refreshUsersButton.click();
+
+      await expect(page).toHaveURL(/\/index\.html$/);
+      await expect(loginPage.heading).toBeVisible();
+      await expect.poll(() => usersPage.getStoredApiToken()).toBeNull();
+    });
 
     test('shows an empty-state message when the API returns no users', async ({
       authenticatedUsersPage: usersPage,
@@ -349,6 +381,57 @@ test.describe('Users screen', { tag: '@users' }, () => {
       await expect(usersPage.getStatusMessage('Failed to update user.')).toBeVisible();
     });
 
+    // The "#" column's numbers are drawn by a CSS counter, which is not in the DOM or the
+    // accessibility tree, so these tests check what the numbering depends on: row order, and that
+    // the column no longer shows user IDs.
+    test('shows a row-number column instead of user IDs', async ({
+      authenticatedUsersPage: usersPage,
+      testData,
+    }) => {
+      const { alice, bob } = testData.mockUsers;
+
+      await expect(await usersPage.getColumnCells('Name')).toHaveText([alice.name, bob.name]);
+      await expect(await usersPage.getColumnCells('#')).toHaveText(['', '']);
+      for (const { id } of [alice, bob]) {
+        await expect(usersPage.usersTable.getByRole('cell', { name: String(id) })).toHaveCount(0);
+      }
+    });
+
+    test('asks for confirmation naming the user before deleting', async ({
+      authenticatedUsersPage: usersPage,
+      testData,
+    }) => {
+      const { alice } = testData.mockUsers;
+
+      await usersPage.getRowButton(usersPage.getUserRowById(alice.id), 'Delete row').click();
+
+      await expect(usersPage.deleteUserDialog).toBeVisible();
+      await expect(usersPage.deleteUserMessage).toHaveText(
+        `Delete ${alice.name} (${alice.username})? This can't be undone.`,
+      );
+      await expect(usersPage.cancelDeleteButton).toBeFocused();
+    });
+
+    test('keeps the row and sends no request when the delete is cancelled', async ({
+      page,
+      authenticatedUsersPage: usersPage,
+      testData,
+    }) => {
+      const { alice } = testData.mockUsers;
+      const deleteRequests: string[] = [];
+      page.on('request', (request) => {
+        if (request.method() === 'DELETE') deleteRequests.push(request.url());
+      });
+      const row = usersPage.getUserRowById(alice.id);
+
+      await usersPage.getRowButton(row, 'Delete row').click();
+      await usersPage.cancelDeleteButton.click();
+
+      await expect(usersPage.deleteUserDialog).toBeHidden();
+      await expect(row).toBeVisible();
+      expect(deleteRequests).toEqual([]);
+    });
+
     test('removes a row once the API confirms the delete', async ({
       authenticatedUsersPage: usersPage,
       usersApiMock,
@@ -357,10 +440,12 @@ test.describe('Users screen', { tag: '@users' }, () => {
       const { alice, bob } = testData.mockUsers;
       await usersApiMock.fulfill('user', 'DELETE', { status: 204 });
 
-      await usersPage.getRowButton(usersPage.getUserRowById(alice.id), 'Delete row').click();
+      await usersPage.deleteRow(usersPage.getUserRowById(alice.id));
 
+      await expect(usersPage.deleteUserDialog).toBeHidden();
       await expect(usersPage.getUserRowById(alice.id)).toHaveCount(0);
       await expect(usersPage.getUserRowById(bob.id)).toBeVisible();
+      await expect(await usersPage.getColumnCells('Name')).toHaveText([bob.name]);
     });
 
     test('keeps a row and shows the server message when a delete is refused', async ({
@@ -373,7 +458,7 @@ test.describe('Users screen', { tag: '@users' }, () => {
       await usersApiMock.fulfill('user', 'DELETE', { status: 403, json: { message: refusal } });
       const row = usersPage.getUserRowById(alice.id);
 
-      await usersPage.getRowButton(row, 'Delete row').click();
+      await usersPage.deleteRow(row);
 
       await expect(usersPage.getStatusMessage(refusal)).toBeVisible();
       await expect(row).toBeVisible();
@@ -387,7 +472,7 @@ test.describe('Users screen', { tag: '@users' }, () => {
       await usersApiMock.abort('user', 'DELETE');
       const row = usersPage.getUserRowById(testData.mockUsers.alice.id);
 
-      await usersPage.getRowButton(row, 'Delete row').click();
+      await usersPage.deleteRow(row);
 
       await expect(usersPage.getStatusMessage('Failed to delete user.')).toBeVisible();
       await expect(row).toBeVisible();

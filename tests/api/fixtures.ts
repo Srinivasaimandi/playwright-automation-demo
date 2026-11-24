@@ -45,8 +45,7 @@ export const test = base.extend<ApiFixtures>({
     try {
       await use({ ...userData, id: createdUser.id });
     } finally {
-      // Clean up by the unique email, not the id: the app reuses ids (max + 1), so if the test
-      // already deleted this user, its id may now belong to a user another test created.
+      // Clean up by the unique email, which tolerates the test having already deleted the user.
       await usersApi.deleteUsersByEmail([userData.email]);
     }
   },

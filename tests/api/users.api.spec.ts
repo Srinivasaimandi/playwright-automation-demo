@@ -118,6 +118,15 @@ test.describe('Users API', { tag: '@api' }, () => {
     expect(error.message).toBe('Unauthorized: Invalid API Key');
   });
 
+  test('POST /logout revokes the API key it is sent with', async ({ usersApi }) => {
+    // The fixture logs in for this test alone, so revoking its key affects no other test.
+    await usersApi.logout();
+
+    const response = await usersApi.searchUsersResponse({});
+    const error = await parseApiResponse(response, ApiErrorSchema, 401);
+    expect(error.message).toBe('Unauthorized: Invalid API Key');
+  });
+
   test('GET /users/search returns 204 No Content when nothing matches', async ({
     usersApi,
     testData,
