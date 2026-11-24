@@ -196,6 +196,7 @@
           <a href="#overview">Overview</a>
           <a href="#quick-start">Quick start</a>
           <a href="#execution">How a run works</a>
+          <a href="#projects">Projects &amp; tags</a>
           <a href="#fixtures">Fixtures</a>
           <a href="#api-validation">API validation</a>
           <a href="#test-data">Test data &amp; safety</a>
@@ -220,8 +221,10 @@
           <div class="badges" aria-label="Framework capabilities">
             <span class="badge">Playwright Test</span>
             <span class="badge">TypeScript</span>
-            <span class="badge">Chromium · Firefox · WebKit</span>
+            <span class="badge">Chromium · Firefox · WebKit · Mobile Chrome</span>
+            <span class="badge">REST · GraphQL · OpenAPI</span>
             <span class="badge">Zod API validation</span>
+            <span class="badge">axe-core accessibility</span>
             <span class="badge">Claude Code orchestrator</span>
           </div>
         </header>
@@ -230,8 +233,9 @@
           <h2>Overview</h2>
           <p>
             The framework tests the Users App at the <code>BASE_URL</code> selected for a run. Browser tests cover the
-            home page, login flow, users screen, and a complete login-to-logout journey. API tests cover the documented
-            user endpoints and validate successful response payloads at runtime.
+            home page, login flow, users screen, accessibility, network-failure states, and complete user journeys.
+            API tests cover the REST endpoints, the GraphQL API, and the published OpenAPI document, and validate
+            response payloads at runtime.
           </p>
           <div class="grid">
             <article class="card">
@@ -253,6 +257,18 @@
             <code>TEST_ENV=test</code>, Playwright starts it with <code>npm --prefix app start</code> and waits for
             <code>BASE_URL</code>. Remote test, development, and staging targets must already be reachable.
           </p>
+          <div class="notice">
+            <strong>The app is force-updated before local runs.</strong> The <code>pre</code> hooks of
+            <code>npm test</code>, <code>test:local</code>, <code>test:test</code>, <code>test:api</code>,
+            <code>test:headed</code>, <code>test:ui</code>, and <code>test:debug</code> run
+            <a href="../scripts/update-app.mjs"><code>scripts/update-app.mjs</code></a>. It discards any local edits in
+            <code>app/</code>, checks out the latest commit of the submodule's tracked branch (<code>main</code>, from
+            <code>.gitmodules</code>), and runs <code>npm ci --prefix app</code> only when the app's dependencies changed.
+            Fix app defects upstream in users-app-demo, not in <code>app/</code>. If the fetch fails or times out, the run
+            continues on the current checkout. Set <code>SKIP_APP_UPDATE=1</code> to skip the update; it is also skipped
+            when <code>CI</code> is set, because the workflow updates the submodule itself. <code>test:dev</code> and
+            <code>test:staging</code> have no update hook because they target remote apps.
+          </div>
         </section>
 
         <section id="quick-start">
@@ -278,19 +294,67 @@ npm run test:local</code></pre>
         <section id="execution">
           <h2>How a test run works</h2>
           <ol class="flow">
-            <li><strong>Select environment.</strong><br><code>TEST_ENV</code> chooses the matching <code>env/.env.*</code> file.</li>
+            <li><strong>Update app.</strong><br>The npm <code>pre</code> hook moves <code>app/</code> to the latest upstream commit (skipped in CI or with <code>SKIP_APP_UPDATE</code>).</li>
+            <li><strong>Select environment.</strong><br><code>TEST_ENV</code> chooses the matching <code>env/.env.*</code> file; an unknown value fails fast.</li>
             <li><strong>Resolve URL.</strong><br><code>BASE_URL</code> is required except for the local default.</li>
             <li><strong>Start local app.</strong><br>Loopback targets in the local or test environment start <code>app/</code>; local runs reuse a responding server.</li>
-            <li><strong>Select project.</strong><br>API specs run once and serially because the bundled app uses shared JSON storage; UI specs run in three browser engines.</li>
+            <li><strong>Authenticate once.</strong><br>When credentials are set, the <code>setup</code> project logs in and saves <code>.auth/user.json</code> for the browser projects.</li>
+            <li><strong>Run projects.</strong><br>API specs run once in the <code>api</code> project; UI specs run in four browser projects; <code>api-destructive</code> runs last.</li>
             <li><strong>Set up fixtures.</strong><br>Each test receives only the page objects, data, and API client it requests.</li>
             <li><strong>Capture diagnostics.</strong><br>Failures retain screenshots and video; traces are collected on retries.</li>
             <li><strong>Update history.</strong><br>Final outcomes update per-test pass rates and the standalone cumulative report.</li>
           </ol>
           <p>
             <a href="../playwright.config.ts"><code>playwright.config.ts</code></a> defines projects, reporters, retries,
-            browser settings, output locations, and environment loading. In CI, retries are enabled and
-            <code>test.only</code> is rejected.
+            browser settings, output locations, and environment loading. In CI, retries are set to 2 and
+            <code>test.only</code> is rejected; locally there are no retries.
           </p>
+          <h3>Browser and reporter settings</h3>
+          <table>
+            <thead><tr><th>Setting</th><th>Value</th></tr></thead>
+            <tbody>
+              <tr><td><code>fullyParallel</code></td><td><code>true</code> for UI projects; <code>false</code> for <code>api</code> and <code>api-destructive</code>, so tests within one API file run in order against the app's shared data.</td></tr>
+              <tr><td><code>launchOptions.slowMo</code></td><td><code>500</code> ms between browser actions, in every environment. This makes runs easier to watch but slower; lower it in <code>playwright.config.ts</code> if you need faster local feedback.</td></tr>
+              <tr><td><code>trace</code></td><td><code>on-first-retry</code> (so only in CI, where retries are enabled).</td></tr>
+              <tr><td><code>screenshot</code> / <code>video</code></td><td><code>only-on-failure</code> / <code>retain-on-failure</code>.</td></tr>
+              <tr><td>Reporters</td><td><code>list</code>, <code>html</code> (<code>playwright-report/</code>), <code>json</code> (<code>test-results/results.json</code>), and the cumulative history reporter.</td></tr>
+              <tr><td><code>webServer</code></td><td><code>npm --prefix app start</code>, 120&nbsp;s start-up timeout, existing server reused outside CI.</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="projects">
+          <h2>Projects and tags</h2>
+          <table>
+            <thead><tr><th>Project</th><th>Runs</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td><code>setup</code></td><td><code>tests/ui/auth.setup.ts</code></td><td>Defined only when <code>LOGIN_USERNAME</code> and <code>LOGIN_PASSWORD</code> are set. Saves the <code>x-api-token</code> local-storage entry to <code>.auth/user.json</code>.</td></tr>
+              <tr><td><code>chromium</code>, <code>firefox</code>, <code>webkit</code>, <code>mobile-chrome</code></td><td><code>tests/ui/**/*.spec.ts</code></td><td>Desktop Chrome, Desktop Firefox, Desktop Safari, and Pixel 7 device profiles. Depend on <code>setup</code> and load its storage state when credentials are set.</td></tr>
+              <tr><td><code>api</code></td><td><code>tests/api/**/*.spec.ts</code> except <code>destructive/</code></td><td>REST, GraphQL, and OpenAPI contract specs, run once (no browser).</td></tr>
+              <tr><td><code>api-destructive</code></td><td><code>tests/api/destructive/**/*.spec.ts</code></td><td>Depends on <code>api</code> and every browser project, so it starts last and is skipped if any of them has a failing test.</td></tr>
+            </tbody>
+          </table>
+          <pre><code># Run one browser project
+npm run test:local -- --project=firefox
+
+# Run only the API and Chromium projects (api-destructive is not selected, so it does not run)
+npm run test:local -- --project=api --project=chromium</code></pre>
+          <h3>Tags</h3>
+          <table>
+            <thead><tr><th>Tag</th><th>Meaning</th></tr></thead>
+            <tbody>
+              <tr><td><code>@smoke</code></td><td>Fast critical-path checks.</td></tr>
+              <tr><td><code>@login</code>, <code>@users</code></td><td>Feature suites for the login form and the users screen.</td></tr>
+              <tr><td><code>@validation</code></td><td>Input validation rules.</td></tr>
+              <tr><td><code>@auth</code></td><td>Tests that need login credentials.</td></tr>
+              <tr><td><code>@e2e</code></td><td>Multi-screen user journeys in <code>tests/ui/e2e/</code>.</td></tr>
+              <tr><td><code>@a11y</code></td><td>axe-core WCAG 2.1 A/AA scans.</td></tr>
+              <tr><td><code>@mocked</code></td><td>UI tests that mock the users API with <code>usersApiMock</code>.</td></tr>
+              <tr><td><code>@api</code>, <code>@graphql</code>, <code>@contract</code></td><td>REST, GraphQL, and OpenAPI contract suites.</td></tr>
+              <tr><td><code>@test-data</code></td><td>Creates, edits, or deletes real data. Excluded by <code>test:dev</code> and <code>test:staging</code>.</td></tr>
+            </tbody>
+          </table>
+          <p>Filter by tag with <code>--grep</code>, for example <code>npm run test:local -- --grep @a11y</code>, or exclude one with <code>--grep-invert</code>.</p>
         </section>
 
         <section id="fixtures">
@@ -314,6 +378,7 @@ npm run test:local</code></pre>
             <li><code>authenticatedUsersPage</code> opens the users screen using the saved state; each test still receives an isolated browser context.</li>
             <li>Login-flow tests continue to navigate and submit the login form directly.</li>
             <li><code>usersApiMock</code> mocks users-API endpoints with <code>page.route()</code>: canned responses, network failures, and requests held back to test slow responses.</li>
+            <li><code>makeAxeBuilder</code> returns a factory for an axe-core <code>AxeBuilder</code> preconfigured with the WCAG 2.1 A/AA tags (<code>wcag2a</code>, <code>wcag2aa</code>, <code>wcag21a</code>, <code>wcag21aa</code>).</li>
           </ul>
           <p>
             UI fixtures extend the API fixtures in <a href="../tests/ui/fixtures.ts"><code>tests/ui/fixtures.ts</code></a>.
@@ -395,6 +460,12 @@ npm run test:local</code></pre>
               <tr><td><code>BASE_URL</code></td><td>Base URL for browser navigation and API requests.</td><td>Required outside the local fallback.</td></tr>
               <tr><td><code>LOGIN_USERNAME</code>, <code>LOGIN_PASSWORD</code></td><td>Credentials used by UI and API authentication.</td><td>Authenticated tests; otherwise those tests skip.</td></tr>
               <tr><td><code>TEST_DATA_ALLOWED_HOSTS</code></td><td>Comma-separated exact hostnames permitted for API data mutations.</td><td>When running mutating tests with <code>TEST_ENV=test</code>.</td></tr>
+              <tr><td><code>SKIP_APP_UPDATE</code></td><td>Any value skips the pre-test update of <code>app/</code>.</td><td>Optional; use it to test a specific app checkout.</td></tr>
+              <tr><td><code>APP_UPDATE_TIMEOUT_MS</code></td><td>Timeout for fetching the latest app commit.</td><td>Optional; defaults to <code>15000</code>.</td></tr>
+              <tr><td><code>CI</code></td><td>Enables retries, rejects <code>test.only</code>, always starts a fresh app server, and skips the pre-test app update.</td><td>Set automatically by GitHub Actions.</td></tr>
+              <tr><td><code>PLAYWRIGHT_HISTORY_FILE</code></td><td>Location of the cumulative history JSON.</td><td>Optional; defaults to <code>.playwright-history/history.json</code>.</td></tr>
+              <tr><td><code>PLAYWRIGHT_HISTORY_REPORT</code></td><td>Location of the cumulative HTML report landing page.</td><td>Optional; defaults to <code>reports/test-history-report.html</code>.</td></tr>
+              <tr><td><code>PLAYWRIGHT_HISTORY_BRANCH</code></td><td>Branch that <code>persist-test-history.sh</code> writes history to.</td><td>Optional; defaults to <code>test-history</code>.</td></tr>
             </tbody>
           </table>
           <p>
@@ -413,13 +484,16 @@ npm run test:local</code></pre>
           <table>
             <thead><tr><th>Command</th><th>Behavior</th></tr></thead>
             <tbody>
+              <tr><td><code>npm test</code></td><td>Full suite with the default <code>TEST_ENV</code> (<code>local</code> unless set).</td></tr>
               <tr><td><code>npm run test:local</code></td><td>Full suite against the local environment, including mutating tests.</td></tr>
               <tr><td><code>npm run test:test</code></td><td>Full suite against the dedicated test environment.</td></tr>
               <tr><td><code>npm run test:api</code></td><td>API project only, using the local environment.</td></tr>
               <tr><td><code>npm run test:dev</code></td><td>Development suite, excluding <code>@test-data</code> mutations.</td></tr>
               <tr><td><code>npm run test:staging</code></td><td>Staging suite, excluding <code>@test-data</code> mutations.</td></tr>
               <tr><td><code>npm run test:local -- tests/ui/e2e</code></td><td>End-to-end UI journeys in all configured browser projects.</td></tr>
+              <tr><td><code>npm run test:headed</code></td><td>Runs the suite with visible browser windows.</td></tr>
               <tr><td><code>npm run test:ui</code></td><td>Opens Playwright's interactive UI mode.</td></tr>
+              <tr><td><code>npm run test:debug</code></td><td>Runs with the Playwright Inspector for step-by-step debugging.</td></tr>
               <tr><td><code>npm run test:report</code></td><td>Opens the last HTML report.</td></tr>
               <tr><td><code>npm run test:history:report</code></td><td>Regenerates the cumulative report from saved history.</td></tr>
               <tr><td><code>npm run test:history:unit</code></td><td>Tests history merging, pass rates, flaky tracking, and HTML escaping.</td></tr>
@@ -427,13 +501,17 @@ npm run test:local</code></pre>
               <tr><td><code>npm run lint</code></td><td>Runs ESLint on JavaScript configuration and utility files.</td></tr>
               <tr><td><code>npm run format:check</code></td><td>Checks TypeScript and JavaScript formatting with Prettier.</td></tr>
               <tr><td><code>npm run format</code></td><td>Formats TypeScript and JavaScript files with Prettier.</td></tr>
+              <tr><td><code>npm run app:update</code></td><td>Updates <code>app/</code> to the latest upstream commit without running tests.</td></tr>
             </tbody>
           </table>
           <pre><code># Run one API file
 npm run test:api -- tests/api/users.api.spec.ts
 
 # Run smoke tests across the UI browser projects
-npm run test:local -- --grep @smoke</code></pre>
+npm run test:local -- --grep @smoke
+
+# Run against the current app checkout without updating it
+SKIP_APP_UPDATE=1 npm run test:local</code></pre>
         </section>
 
         <section id="history">
@@ -468,6 +546,21 @@ npm run test:local -- --grep @smoke</code></pre>
         <section id="file-reference">
           <h2>File-by-file reference</h2>
           <p>Every TypeScript source under <code>tests/</code> is listed below.</p>
+          <pre><code>tests/
+├── api/
+│   ├── destructive/        # specs that wipe data; run last (api-destructive)
+│   ├── utils/              # REST and GraphQL clients, Zod schemas, OpenAPI helpers
+│   ├── fixtures.ts         # usersApi, graphqlApi, apiTestUser, testData
+│   └── *.spec.ts           # REST, GraphQL, and OpenAPI contract specs
+├── data/                   # reference data and unique-data factories
+├── ui/
+│   ├── e2e/                # multi-screen journeys
+│   ├── mocks/              # page.route() network mocks
+│   ├── pages/              # page objects
+│   ├── auth.setup.ts       # saves authenticated storage state
+│   ├── fixtures.ts         # page objects, auth, axe, and mock fixtures
+│   └── *.spec.ts           # UI specs
+└── utils/                  # credentials and data-safety guards</code></pre>
           <table>
             <thead><tr><th>File</th><th>Responsibility</th></tr></thead>
             <tbody>
@@ -483,7 +576,9 @@ npm run test:local -- --grep @smoke</code></pre>
               <tr><td><a href="../tests/api/utils/users-api-client.ts"><code>tests/api/utils/users-api-client.ts</code></a></td><td>Authenticated, schema-validating API operations.</td></tr>
               <tr><td><a href="../tests/data/factories.ts"><code>tests/data/factories.ts</code></a></td><td>Creates unique user payloads for isolated tests.</td></tr>
               <tr><td><a href="../tests/data/users.ts"><code>tests/data/users.ts</code></a></td><td>Shared data types and stable user/search test values.</td></tr>
-              <tr><td><a href="../tests/ui/e2e/users-journey.spec.ts"><code>tests/ui/e2e/users-journey.spec.ts</code></a></td><td>End-to-end login, user search, and logout journey.</td></tr>
+              <tr><td><a href="../tests/ui/accessibility.spec.ts"><code>tests/ui/accessibility.spec.ts</code></a></td><td>axe-core WCAG 2.1 A/AA scans of the login page, users page, and add-user dialog.</td></tr>
+              <tr><td><a href="../tests/ui/auth.setup.ts"><code>tests/ui/auth.setup.ts</code></a></td><td>Logs in once and saves browser storage state to <code>.auth/user.json</code> (the <code>setup</code> project).</td></tr>
+              <tr><td><a href="../tests/ui/e2e/users-journey.spec.ts"><code>tests/ui/e2e/users-journey.spec.ts</code></a></td><td>End-to-end login, user search, and logout journey, plus an add, update, and delete journey tagged <code>@test-data</code>.</td></tr>
               <tr><td><a href="../tests/ui/fixtures.ts"><code>tests/ui/fixtures.ts</code></a></td><td>Extends API fixtures with page objects, authenticated UI setup, and the users-API mock.</td></tr>
               <tr><td><a href="../tests/ui/mocks/users-api-mock.ts"><code>tests/ui/mocks/users-api-mock.ts</code></a></td><td>Network mocks for users-API endpoints: fulfil, abort, and hold requests.</td></tr>
               <tr><td><a href="../tests/ui/login.spec.ts"><code>tests/ui/login.spec.ts</code></a></td><td>Login form rendering, required-field validation, and successful login.</td></tr>
@@ -503,6 +598,10 @@ npm run test:local -- --grep @smoke</code></pre>
             <li><a href="../scripts/render-test-history.mjs"><code>scripts/render-test-history.mjs</code></a> — regenerates the report from an existing history file.</li>
             <li><a href="../scripts/test-history.test.mjs"><code>scripts/test-history.test.mjs</code></a> — unit tests for history calculations and rendering.</li>
             <li><a href="../scripts/persist-test-history.sh"><code>scripts/persist-test-history.sh</code></a> — stores CI history on the dedicated branch.</li>
+            <li><a href="../scripts/update-app.mjs"><code>scripts/update-app.mjs</code></a> — force-updates the <code>app/</code> submodule before local test runs.</li>
+            <li><a href="../.gitmodules"><code>.gitmodules</code></a> — the <code>app</code> submodule URL and tracked branch.</li>
+            <li><a href="../eslint.config.mjs"><code>eslint.config.mjs</code></a> and <a href="../.prettierrc.json"><code>.prettierrc.json</code></a> — lint rules for JavaScript files and Prettier settings (100-column width, single quotes, trailing commas).</li>
+            <li><a href="../.github/dependabot.yml"><code>.github/dependabot.yml</code></a> — weekly npm and GitHub Actions dependency updates.</li>
             <li><a href="../app/package.json"><code>app/package.json</code></a> and <a href="../app/README.md"><code>app/README.md</code></a> — bundled Users App scripts and setup.</li>
             <li><a href="../requirement/README.md"><code>requirement/</code></a> — requirement files read by the <a href="#orchestrator">orchestrator</a>.</li>
             <li><a href="../.claude/skills/requirement-to-test/SKILL.md"><code>.claude/</code></a> — the orchestrator skill and its writer and healer agents.</li>
@@ -547,6 +646,12 @@ test('searches by email', async ({ usersApi, testData }) => {
   const results = await usersApi.searchUsers({ email: jane.email });
   expect(results[0]).toMatchObject(jane);
 });</code></pre>
+          <h3>Accessibility, mocked, and known-defect tests</h3>
+          <ul>
+            <li>Accessibility: request <code>makeAxeBuilder</code>, run <code>await makeAxeBuilder().analyze()</code>, and assert <code>expect(results.violations).toEqual([])</code>. Scope with <code>.include(...)</code> instead of disabling rules.</li>
+            <li>Network failures: request <code>usersApiMock</code> and use <code>fulfill</code>, <code>respondWithUsers</code>, <code>abort</code>, or <code>hold</code> rather than calling <code>page.route()</code> in a spec. Use <code>testData.mockUsers</code> for rows a test edits or deletes, and always mock data resets in UI tests.</li>
+            <li>Known app defects: write the test for the correct behaviour and declare it with <code>test.fail()</code> and an <code>app-defect</code> annotation, inside a <code>known app defects</code> describe block.</li>
+          </ul>
           <p>
             Both kinds of test follow <a href="test-writing-standards.md"><code>docs/test-writing-standards.md</code></a>.
             To have tests written for a requirement automatically, use the
@@ -676,7 +781,19 @@ A signed-in user on the Users screen can narrow the users table by typing in the
 
         <section id="ci">
           <h2>Continuous integration</h2>
-          <p>The GitHub Actions workflow installs the bundled app, runs lint, formatting, and type checks, then runs the full suite against it.</p>
+          <p>
+            The GitHub Actions workflow (<a href="../.github/workflows/playwright.yml"><code>playwright.yml</code></a>) runs
+            on every push except to <code>test-history</code>, on pull requests, and on manual dispatch. It uses Node.js 22
+            on Ubuntu with a 30-minute timeout and runs these steps in order:
+          </p>
+          <ol>
+            <li>Check out the repository with submodules, then run <code>git submodule update --remote</code> so the app is tested at the latest <code>main</code> commit (logged in the job output).</li>
+            <li>Fail early if the credential secrets are missing; install framework dependencies; restore <code>history.json</code> from the <code>test-history</code> branch.</li>
+            <li>Install app dependencies, then run <code>lint</code>, <code>format:check</code>, and <code>typecheck</code>.</li>
+            <li>Install Chromium, Firefox, and WebKit with system dependencies, and run <code>test:history:unit</code>.</li>
+            <li>Run <code>npm run test:local</code> against <code>http://127.0.0.1:9899</code>.</li>
+            <li>Upload results and, on non-PR runs, persist history.</li>
+          </ol>
           <table>
             <thead><tr><th>GitHub setting</th><th>Value</th></tr></thead>
             <tbody>
