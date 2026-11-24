@@ -14,7 +14,6 @@ export class UsersPage {
   readonly columnHeaders: Locator;
   readonly userRows: Locator;
   readonly fetchFailedMessage: Locator;
-  readonly unauthorizedMessage: Locator;
   readonly noUsersMessage: Locator;
   readonly addUserDialog: Locator;
   readonly addUserValidationMessage: Locator;
@@ -24,6 +23,10 @@ export class UsersPage {
   readonly addUserPasswordInput: Locator;
   readonly saveUserButton: Locator;
   readonly cancelAddUserButton: Locator;
+  readonly deleteUserDialog: Locator;
+  readonly deleteUserMessage: Locator;
+  readonly confirmDeleteButton: Locator;
+  readonly cancelDeleteButton: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -38,7 +41,6 @@ export class UsersPage {
     this.userRows = this.usersTable.getByRole('rowgroup').nth(1).getByRole('row');
     // The page's status banner has no accessible role, so each message is located by its text.
     this.fetchFailedMessage = page.getByText('Failed to fetch users.', { exact: true });
-    this.unauthorizedMessage = page.getByText('Unauthorized. Please login again.', { exact: true });
     this.noUsersMessage = page.getByText('No users found.', { exact: true });
     this.addUserDialog = page.getByRole('dialog', { name: 'Add User' });
     this.addUserValidationMessage = this.addUserDialog.getByText('Please fill out all fields.', {
@@ -50,6 +52,11 @@ export class UsersPage {
     this.addUserPasswordInput = this.addUserDialog.getByRole('textbox', { name: 'Password' });
     this.saveUserButton = this.addUserDialog.getByRole('button', { name: 'Save' });
     this.cancelAddUserButton = this.addUserDialog.getByRole('button', { name: 'Cancel' });
+    this.deleteUserDialog = page.getByRole('alertdialog', { name: 'Delete User' });
+    // The dialog's description is its confirmation text, e.g. "Delete Jane Smith (janesmith)? ...".
+    this.deleteUserMessage = this.deleteUserDialog.getByRole('paragraph');
+    this.confirmDeleteButton = this.deleteUserDialog.getByRole('button', { name: 'Delete' });
+    this.cancelDeleteButton = this.deleteUserDialog.getByRole('button', { name: 'Cancel' });
   }
 
   /** Filters the visible users by a name or email query. */
@@ -76,7 +83,7 @@ export class UsersPage {
   }
 
   /** Locates one of a row's action buttons by its accessible name. */
-  getRowButton(row: Locator, name: 'Edit row' | 'Delete row' | 'Save changes') {
+  getRowButton(row: Locator, name: 'Edit row' | 'Delete row' | 'Save changes' | 'Cancel editing') {
     return row.getByRole('button', { name });
   }
 
@@ -98,6 +105,12 @@ export class UsersPage {
   /** Closes the add-user dialog without saving its draft. */
   async cancelAddUser() {
     await this.cancelAddUserButton.click();
+  }
+
+  /** Deletes a row's user: clicks its delete button, then confirms in the delete dialog. */
+  async deleteRow(row: Locator) {
+    await this.getRowButton(row, 'Delete row').click();
+    await this.confirmDeleteButton.click();
   }
 
   /** Ends the current session through the page's logout link. */
@@ -125,10 +138,22 @@ export class UsersPage {
     return this.usersTable.getByRole('row').filter({ hasText: name });
   }
 
-  /** Locates a table row by its stable, server-assigned user ID. */
+  /**
+   * Locates a table row by its stable, server-assigned user ID.
+   * The table no longer shows IDs (its first column is a row number), so the row is matched by the
+   * `data-user-id` the app puts on the row's action buttons. A CSS selector is used because no
+   * accessible attribute carries the ID. This keeps working while the row is in edit mode.
+   */
   getUserRowById(id: number) {
-    return this.usersTable.getByRole('row').filter({
-      has: this.page.getByRole('cell', { name: String(id), exact: true }),
-    });
+    return this.userRows.filter({ has: this.page.locator(`[data-user-id="${id}"]`) });
+  }
+
+  /** Reads the server-assigned user ID of a row that has edit and delete buttons. */
+  async getRowUserId(row: Locator) {
+    const id = await this.getRowButton(row, 'Edit row').getAttribute('data-user-id');
+    if (id === null) {
+      throw new Error('The row has no data-user-id; protected users have no action buttons.');
+    }
+    return Number(id);
   }
 }

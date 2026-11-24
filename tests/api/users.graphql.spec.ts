@@ -100,8 +100,11 @@ test.describe('Users GraphQL API', { tag: ['@api', '@graphql'] }, () => {
         const result = await graphqlApi.execute(graphqlDocuments.createUser, duplicate);
 
         expect(result.data).toBeNull();
-        expect(result.errors.map((error) => error.message)).toEqual([
-          'Email or username already exists',
+        expect(result.errors).toMatchObject([
+          {
+            message: `Email ${duplicate.email} already exists`,
+            extensions: { code: 'BAD_USER_INPUT' },
+          },
         ]);
       } finally {
         // The duplicate's generated name is unique, so it finds any user saved by mistake.
@@ -119,8 +122,7 @@ test.describe('Users GraphQL API', { tag: ['@api', '@graphql'] }, () => {
     async ({ graphqlApi, usersApi, apiTestUser }) => {
       await expect(graphqlApi.deleteUser(apiTestUser.id)).resolves.toBe(true);
 
-      // The app reuses ids (max + 1), so a parallel test may already own this id again.
-      // Assert on the deleted user's unique email instead.
+      // Assert on the deleted user's unique email, which no other test can create.
       const search = await usersApi.searchUsersResponse({ email: apiTestUser.email });
       expect(search.status(), `user ${apiTestUser.email} still exists`).toBe(204);
     },
@@ -144,72 +146,48 @@ test.describe('Users GraphQL API', { tag: ['@api', '@graphql'] }, () => {
     await expect(graphqlApi.updateUser(999_999_999, { name: 'Missing User' })).resolves.toBeNull();
   });
 
-  /** Expected behaviour the app does not implement yet; each test passes once its defect is fixed. */
-  test.describe('known app defects', () => {
-    test.fail(
-      'updateUser changes only the supplied fields',
-      {
-        tag: '@test-data',
-        annotation: {
-          type: 'app-defect',
-          description:
-            'app/graphql.js updateUser reads req.body, which does not exist in a resolver, so every update of an existing user errors',
-        },
-      },
-      async ({ graphqlApi, usersApi, apiTestUser }) => {
-        const updatedName = `${apiTestUser.name} Updated`;
+  test(
+    'updateUser changes only the supplied fields',
+    { tag: '@test-data' },
+    async ({ graphqlApi, usersApi, apiTestUser }) => {
+      const updatedName = `${apiTestUser.name} Updated`;
 
-        await graphqlApi.updateUser(apiTestUser.id, { name: updatedName });
+      await graphqlApi.updateUser(apiTestUser.id, { name: updatedName });
 
-        await expect(usersApi.getUser(apiTestUser.id)).resolves.toMatchObject({
-          name: updatedName,
-          email: apiTestUser.email,
-          username: apiTestUser.username,
-        });
-      },
-    );
+      await expect(usersApi.getUser(apiTestUser.id)).resolves.toMatchObject({
+        name: updatedName,
+        email: apiTestUser.email,
+        username: apiTestUser.username,
+      });
+    },
+  );
 
-    test.fail(
-      'bulkAddUsers creates every user in the batch',
-      {
-        tag: '@test-data',
-        annotation: {
-          type: 'app-defect',
-          description:
-            'app/graphql.js bulkAddUsers calls newUsers.forEach(userData, ...), which throws "userData is not defined"',
-        },
-      },
-      async ({ baseURL, graphqlApi, usersApi, testData }) => {
-        assertTestDataTargetIsSafe(baseURL);
-        const users = [
-          createUniqueUserData(testData.newUser),
-          createUniqueUserData(testData.newUser),
-        ];
+  test(
+    'bulkAddUsers creates every user in the batch',
+    { tag: '@test-data' },
+    async ({ baseURL, graphqlApi, usersApi, testData }) => {
+      assertTestDataTargetIsSafe(baseURL);
+      const users = [
+        createUniqueUserData(testData.newUser),
+        createUniqueUserData(testData.newUser),
+      ];
 
-        try {
-          const created = await graphqlApi.bulkAddUsers(users);
+      try {
+        const created = await graphqlApi.bulkAddUsers(users);
 
-          expect(created.map((user) => user.email)).toEqual(users.map((user) => user.email));
-        } finally {
-          await usersApi.deleteUsersByEmail(users.map((user) => user.email));
-        }
-      },
-    );
+        expect(created.map((user) => user.email)).toEqual(users.map((user) => user.email));
+      } finally {
+        await usersApi.deleteUsersByEmail(users.map((user) => user.email));
+      }
+    },
+  );
 
-    test.fail(
-      'rejects requests without an API key',
-      {
-        annotation: {
-          type: 'app-defect',
-          description:
-            '/graphql has no API-key check, unlike /api/users, so anyone can read users (including passwords) and change data',
-        },
-      },
-      async ({ request }) => {
-        const result = await executeGraphql(request, graphqlDocuments.users);
+  test('rejects requests without an API key', async ({ request }) => {
+    const result = await executeGraphql(request, graphqlDocuments.users);
 
-        expect(result.status).toBe(401);
-      },
-    );
+    // Apollo rejects a failed context check with 400, not 401, and returns no data.
+    expect(result.status).toBe(400);
+    expect(result.data).toBeUndefined();
+    expect(result.errors).toMatchObject([{ extensions: { code: 'UNAUTHENTICATED' } }]);
   });
 });

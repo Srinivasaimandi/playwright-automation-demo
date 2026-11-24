@@ -27,6 +27,7 @@ const responseSchemas: Record<string, z.ZodType> = {
  */
 const observedStatuses: Record<(typeof usersApiOperations)[number], string[]> = {
   'POST /login': ['200', '401'],
+  'POST /logout': ['204'],
   'GET /users': ['200', '204'],
   'POST /users': ['201', '400'],
   'GET /users/search': ['200', '204'],
@@ -48,6 +49,10 @@ test.describe('Users API OpenAPI contract', { tag: ['@api', '@contract'] }, () =
 
   test('documents exactly the operations the API client calls', () => {
     expect(listOperations(document).sort()).toEqual([...usersApiOperations].sort());
+  });
+
+  test('documents POST /login as not needing an API key', () => {
+    expect(getOperation(document, 'POST /login').security).toEqual([]);
   });
 
   test('documents the x-api-key header the clients authenticate with', () => {
@@ -101,20 +106,6 @@ test.describe('Users API OpenAPI contract', { tag: ['@api', '@contract'] }, () =
         });
 
         expect(undocumented).toEqual([]);
-      },
-    );
-
-    test.fail(
-      'documents POST /login as not needing an API key',
-      {
-        annotation: {
-          type: 'app-defect',
-          description:
-            'POST /login inherits the global ApiKeyAuth requirement; it needs "security: []" to match the API',
-        },
-      },
-      () => {
-        expect(getOperation(document, 'POST /login').security).toEqual([]);
       },
     );
   });

@@ -17,6 +17,7 @@ import type { LoginCredentials } from '../../utils/environment.ts';
  */
 export const usersApiOperations = [
   'POST /login',
+  'POST /logout',
   'GET /users',
   'POST /users',
   'GET /users/search',
@@ -59,6 +60,12 @@ export class UsersApiClient {
    */
   static async login(request: APIRequestContext, credentials: LoginCredentials) {
     return new UsersApiClient(request, await requestApiKey(request, credentials));
+  }
+
+  /** Revokes this client's API key; every later call with it is rejected with 401. */
+  async logout() {
+    const response = await this.request.post('/api/logout', { headers: this.headers });
+    assertApiStatus(response, 204);
   }
 
   /** Returns users after validating each response record. */
