@@ -6,19 +6,19 @@ The rules every new or changed Playwright test in this repo must follow. They ar
 
 ## Where files go
 
-| Kind of test                  | Location                                   | Playwright project                               |
-| ----------------------------- | ------------------------------------------ | ------------------------------------------------ |
-| UI scenario on one screen     | `tests/ui/<feature>.spec.ts`               | `chromium`, `firefox`, `webkit`, `mobile-chrome` |
-| Multi-screen user journey     | `tests/ui/e2e/<journey>.spec.ts`           | `chromium`, `firefox`, `webkit`, `mobile-chrome` |
-| Accessibility scan            | `tests/ui/accessibility.spec.ts`           | all UI projects                                  |
-| REST API contract / CRUD      | `tests/api/<resource>.api.spec.ts`         | `api`                                            |
-| GraphQL API                   | `tests/api/<resource>.graphql.spec.ts`     | `api`                                            |
-| OpenAPI document checks       | `tests/api/openapi.contract.spec.ts`       | `api`                                            |
-| Test that resets all app data | `tests/api/destructive/<name>.api.spec.ts` | `api-destructive` (runs last)                    |
-| Network mocks for UI tests    | `tests/ui/mocks/<api>-mock.ts`             | —                                                |
-| Page object                   | `tests/ui/pages/<page>.page.ts`            | —                                                |
-| API client / response schema  | `tests/api/utils/`                         | —                                                |
-| Shared test data / factories  | `tests/data/`                              | —                                                |
+| Kind of test                  | Location                                   | Playwright project                   |
+| ----------------------------- | ------------------------------------------ | ------------------------------------ |
+| UI scenario on one screen     | `tests/ui/<feature>.spec.ts`               | `chromium` (other browsers disabled) |
+| Multi-screen user journey     | `tests/ui/e2e/<journey>.spec.ts`           | `chromium` (other browsers disabled) |
+| Accessibility scan            | `tests/ui/accessibility.spec.ts`           | all UI projects                      |
+| REST API contract / CRUD      | `tests/api/<resource>.api.spec.ts`         | `api`                                |
+| GraphQL API                   | `tests/api/<resource>.graphql.spec.ts`     | `api`                                |
+| OpenAPI document checks       | `tests/api/openapi.contract.spec.ts`       | `api`                                |
+| Test that resets all app data | `tests/api/destructive/<name>.api.spec.ts` | `api-destructive` (runs last)        |
+| Network mocks for UI tests    | `tests/ui/mocks/<api>-mock.ts`             | —                                    |
+| Page object                   | `tests/ui/pages/<page>.page.ts`            | —                                    |
+| API client / response schema  | `tests/api/utils/`                         | —                                    |
+| Shared test data / factories  | `tests/data/`                              | —                                    |
 
 Prefer adding a `test` to an existing spec file for the same feature over creating a new file.
 
