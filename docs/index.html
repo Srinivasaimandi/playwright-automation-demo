@@ -236,7 +236,7 @@
           <div class="grid">
             <article class="card">
               <h3>UI tests</h3>
-              <p>Located in <code>tests/ui/</code>; executed in Chromium.</p>
+              <p>Located in <code>tests/ui/</code>; executed in Chromium, Firefox, WebKit, and a Pixel 7 mobile viewport. Includes axe accessibility scans, Chromium-only visual comparisons, and routed API-failure states.</p>
             </article>
             <article class="card">
               <h3>API tests</h3>
@@ -266,7 +266,7 @@
           <pre><code>git submodule update --init --recursive
 npm ci
 npm ci --prefix app
-npx playwright install chromium
+npx playwright install chromium firefox webkit
 cp env/.env.example env/.env.local
 npm run test:local</code></pre>
           <p>
@@ -651,7 +651,7 @@ A signed-in user on the Users screen can narrow the users table by typing in the
             </tbody>
           </table>
           <p>
-            The workflow fails early when test credentials are missing. It installs Chromium and
+            The workflow fails early when test credentials are missing. It installs Chromium, Firefox, and WebKit and
             uploads the Playwright report, JSON results, cumulative history, and failure artifacts. On non-PR runs,
             it updates the dedicated <code>test-history</code> branch; workflow permissions grant the required
             <code>contents: write</code> access. Runs are serialized to prevent concurrent history updates.

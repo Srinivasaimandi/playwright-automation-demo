@@ -18,6 +18,8 @@ export const usersTestData = {
       username: 'janesmith',
     },
   },
+  /** Seeded user the API refuses to delete. */
+  deleteProtectedUserId: 3,
   searches: {
     /** Lower-case fragment of seeded names (Jane Smith, Srinivasa Rao Imandi) that no other seeded field contains. */
     janeByPartialName: 'an',
@@ -34,6 +36,7 @@ export const usersTestData = {
   existingUsers: {
     jane: Pick<NewUserData, 'name' | 'email' | 'username'>;
   };
+  deleteProtectedUserId: number;
   searches: {
     janeByPartialName: string;
     janeByEmailCaseInsensitive: string;
