@@ -37,7 +37,7 @@ test.describe('Users screen', { tag: '@users' }, () => {
       await expect(usersPage.getUserRow(testData.existingUsers.jane.name)).toBeVisible();
       const filteredCount = await usersPage.userRows.count();
       expect(filteredCount).toBeLessThan(unfilteredCount);
-      await expect(usersPage.userNameCells).toHaveText(
+      await expect(await usersPage.getColumnCells('Name')).toHaveText(
         Array.from({ length: filteredCount }, () => nameMatcher),
       );
     },
@@ -119,7 +119,11 @@ test.describe('Users screen', { tag: '@users' }, () => {
     const jane = testData.existingUsers.jane;
     await usersPage.searchFor(jane.name);
 
-    const janeRow = usersPage.userRows.first();
+    const janeNameRow = usersPage.getUserRow(jane.name);
+    await expect(janeNameRow).toHaveCount(1);
+    // Edit mode moves the name into a textbox, so keep hold of the row by its stable ID cell.
+    const janeId = Number(await janeNameRow.getByRole('cell').first().innerText());
+    const janeRow = usersPage.getUserRowById(janeId);
     await janeRow.getByRole('button', { name: 'Edit row' }).click();
 
     const editableFields = janeRow.getByRole('textbox');
