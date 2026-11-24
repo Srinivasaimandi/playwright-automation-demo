@@ -119,7 +119,10 @@ test.describe('Users GraphQL API', { tag: ['@api', '@graphql'] }, () => {
     async ({ graphqlApi, usersApi, apiTestUser }) => {
       await expect(graphqlApi.deleteUser(apiTestUser.id)).resolves.toBe(true);
 
-      await expect(usersApi.getUserStatus(apiTestUser.id)).resolves.toBe(404);
+      // The app reuses ids (max + 1), so a parallel test may already own this id again.
+      // Assert on the deleted user's unique email instead.
+      const search = await usersApi.searchUsersResponse({ email: apiTestUser.email });
+      expect(search.status(), `user ${apiTestUser.email} still exists`).toBe(204);
     },
   );
 

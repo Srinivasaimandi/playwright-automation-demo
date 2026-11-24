@@ -93,7 +93,10 @@ test.describe('Users API', { tag: '@api' }, () => {
     { tag: '@test-data' },
     async ({ usersApi, apiTestUser }) => {
       await usersApi.deleteUser(apiTestUser.id);
-      await expect(usersApi.getUserStatus(apiTestUser.id)).resolves.toBe(404);
+
+      // The app assigns ids as max(id) + 1, so a user created by a parallel test can reuse
+      // this id right after the delete. Assert on the deleted user's unique email instead.
+      await expectNoUserWithEmail(usersApi, apiTestUser.email);
     },
   );
 
