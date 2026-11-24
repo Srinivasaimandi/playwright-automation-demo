@@ -66,7 +66,7 @@ test.describe('Application home smoke tests', { tag: '@smoke' }, () => {
     diagnostics.assertNoErrors();
   });
 
-  test.skip('opens the Swagger documentation from the home page', async ({ page, baseURL }) => {
+  test('opens the Swagger documentation from the home page', async ({ page, baseURL }) => {
     if (!baseURL) {
       throw new Error('BASE_URL is required for UI smoke diagnostics');
     }

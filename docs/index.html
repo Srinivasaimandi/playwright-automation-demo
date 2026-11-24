@@ -236,11 +236,11 @@
           <div class="grid">
             <article class="card">
               <h3>UI tests</h3>
-              <p>Located in <code>tests/ui/</code>; executed in Chromium, Firefox, WebKit, and a Pixel 7 mobile viewport. Includes axe accessibility scans and routed API-failure states.</p>
+              <p>Located in <code>tests/ui/</code>; executed in Chromium, Firefox, WebKit, and a Pixel 7 mobile viewport. Includes axe accessibility scans and network-mocked API failures, slow responses, and row actions.</p>
             </article>
             <article class="card">
               <h3>API tests</h3>
-              <p>Located in <code>tests/api/</code>; executed once in the dedicated <code>api</code> project.</p>
+              <p>Located in <code>tests/api/</code>; executed once in the dedicated <code>api</code> project. Covers REST, GraphQL, and the published OpenAPI contract. Data-reset specs in <code>tests/api/destructive/</code> run last, in the <code>api-destructive</code> project.</p>
             </article>
             <article class="card">
               <h3>Shared code</h3>
@@ -298,6 +298,7 @@ npm run test:local</code></pre>
           <h3>API fixtures</h3>
           <ul>
             <li><code>usersApi</code> reads credentials and authenticates with <code>POST /api/login</code>.</li>
+            <li><code>graphqlApi</code> authenticates the same way and sends queries and mutations to <code>/graphql</code>.</li>
             <li><code>testData</code> provides shared, read-only reference values.</li>
             <li><code>apiTestUser</code> creates a uniquely named user for one test and deletes it in teardown.</li>
           </ul>
@@ -312,6 +313,7 @@ npm run test:local</code></pre>
             <li>The <code>setup</code> project logs in once and saves the app's local-storage token to the ignored <code>.auth/user.json</code> file.</li>
             <li><code>authenticatedUsersPage</code> opens the users screen using the saved state; each test still receives an isolated browser context.</li>
             <li>Login-flow tests continue to navigate and submit the login form directly.</li>
+            <li><code>usersApiMock</code> mocks users-API endpoints with <code>page.route()</code>: canned responses, network failures, and requests held back to test slow responses.</li>
           </ul>
           <p>
             UI fixtures extend the API fixtures in <a href="../tests/ui/fixtures.ts"><code>tests/ui/fixtures.ts</code></a>.
@@ -323,13 +325,13 @@ npm run test:local</code></pre>
           <h2>API client and response validation</h2>
           <p>
             <a href="../tests/api/utils/users-api-client.ts"><code>UsersApiClient</code></a> centralizes authenticated
-            requests for list, search, count, create, retrieve, update, and delete operations. Its successful JSON
+            requests for list, search, count, create, bulk create, retrieve, update, delete, and data-reset operations. Its successful JSON
             responses pass through <a href="../tests/api/utils/parse-response.ts"><code>parseApiResponse</code></a>.
           </p>
           <p>
             Runtime contracts are declared with Zod in
             <a href="../tests/api/utils/schemas.ts"><code>tests/api/utils/schemas.ts</code></a>:
-            login API key, individual user, user list, and user count. A response with an unexpected status, invalid
+            login API key, individual user, user list, user count, confirmation message, and the GraphQL response envelope. A response with an unexpected status, invalid
             JSON, or invalid payload shape fails with endpoint context. Unmodeled user fields are stripped from the
             parsed result.
           </p>
@@ -338,6 +340,30 @@ npm run test:local</code></pre>
             They verify listing, search, count, retrieval, update, and deletion. CRUD tests use a generated user and
             are tagged <code>@test-data</code>.
           </p>
+          <p>
+            <a href="../tests/api/utils/graphql-client.ts"><code>GraphqlClient</code></a> wraps every query and mutation
+            in the app's GraphQL schema; <a href="../tests/api/users.graphql.spec.ts"><code>users.graphql.spec.ts</code></a>
+            covers them, including cross-checks against the REST API.
+          </p>
+          <p>
+            <a href="../tests/api/openapi.contract.spec.ts"><code>openapi.contract.spec.ts</code></a> reads the OpenAPI
+            document that Swagger UI embeds in <code>/api-docs/swagger-ui-init.js</code>. It checks that the documented
+            operations match <code>usersApiOperations</code> in the REST client, that the API-key header matches, and that
+            every documented JSON response schema has the same fields as the Zod schema the tests use.
+          </p>
+          <p>
+            Tests for behaviour the app does not implement yet use <code>test.fail()</code> with an
+            <code>app-defect</code> annotation. They report as expected failures and fail once the app is fixed, as a
+            reminder to turn them into ordinary tests. Current defects: GraphQL <code>updateUser</code> and
+            <code>bulkAddUsers</code> throw, <code>/graphql</code> needs no API key, and the OpenAPI document omits some
+            statuses and marks <code>/login</code> as needing an API key.
+          </p>
+          <div class="notice">
+            <strong>Data reset:</strong> <code>PUT /users/reset-data</code> deletes every user added since startup,
+            including users other tests are using. Its spec lives in <code>tests/api/destructive/</code> and runs in
+            the <code>api-destructive</code> project, which waits for every other project and is skipped if any of them
+            has a failing test.
+          </div>
           <div class="notice">
             <strong>API contract note:</strong> The app's current raw user response includes a password property.
             The test schema does not expose that unmodeled property, but the application should avoid returning
@@ -446,17 +472,23 @@ npm run test:local -- --grep @smoke</code></pre>
             <thead><tr><th>File</th><th>Responsibility</th></tr></thead>
             <tbody>
               <tr><td><a href="../tests/api/fixtures.ts"><code>tests/api/fixtures.ts</code></a></td><td>Provides the authenticated API client, typed test data, and a disposable API user fixture.</td></tr>
-              <tr><td><a href="../tests/api/users.api.spec.ts"><code>tests/api/users.api.spec.ts</code></a></td><td>API contract and CRUD scenarios for user endpoints.</td></tr>
+              <tr><td><a href="../tests/api/users.api.spec.ts"><code>tests/api/users.api.spec.ts</code></a></td><td>API contract, CRUD, and bulk-create scenarios for user endpoints.</td></tr>
+              <tr><td><a href="../tests/api/users.graphql.spec.ts"><code>tests/api/users.graphql.spec.ts</code></a></td><td>GraphQL queries, mutations, errors, and known GraphQL defects.</td></tr>
+              <tr><td><a href="../tests/api/openapi.contract.spec.ts"><code>tests/api/openapi.contract.spec.ts</code></a></td><td>Checks the published OpenAPI document against the REST client and Zod schemas.</td></tr>
+              <tr><td><a href="../tests/api/destructive/reset-data.api.spec.ts"><code>tests/api/destructive/reset-data.api.spec.ts</code></a></td><td>Data reset, run last in the <code>api-destructive</code> project.</td></tr>
+              <tr><td><a href="../tests/api/utils/graphql-client.ts"><code>tests/api/utils/graphql-client.ts</code></a></td><td>GraphQL documents and a client that validates response envelopes.</td></tr>
+              <tr><td><a href="../tests/api/utils/openapi.ts"><code>tests/api/utils/openapi.ts</code></a></td><td>Fetches the embedded OpenAPI document and compares it with Zod schemas.</td></tr>
               <tr><td><a href="../tests/api/utils/parse-response.ts"><code>tests/api/utils/parse-response.ts</code></a></td><td>Checks HTTP status, parses JSON, and validates response payloads with Zod.</td></tr>
               <tr><td><a href="../tests/api/utils/schemas.ts"><code>tests/api/utils/schemas.ts</code></a></td><td>Runtime schemas and inferred API user type.</td></tr>
               <tr><td><a href="../tests/api/utils/users-api-client.ts"><code>tests/api/utils/users-api-client.ts</code></a></td><td>Authenticated, schema-validating API operations.</td></tr>
               <tr><td><a href="../tests/data/factories.ts"><code>tests/data/factories.ts</code></a></td><td>Creates unique user payloads for isolated tests.</td></tr>
               <tr><td><a href="../tests/data/users.ts"><code>tests/data/users.ts</code></a></td><td>Shared data types and stable user/search test values.</td></tr>
               <tr><td><a href="../tests/ui/e2e/users-journey.spec.ts"><code>tests/ui/e2e/users-journey.spec.ts</code></a></td><td>End-to-end login, user search, and logout journey.</td></tr>
-              <tr><td><a href="../tests/ui/fixtures.ts"><code>tests/ui/fixtures.ts</code></a></td><td>Extends API fixtures with page objects and authenticated UI setup.</td></tr>
+              <tr><td><a href="../tests/ui/fixtures.ts"><code>tests/ui/fixtures.ts</code></a></td><td>Extends API fixtures with page objects, authenticated UI setup, and the users-API mock.</td></tr>
+              <tr><td><a href="../tests/ui/mocks/users-api-mock.ts"><code>tests/ui/mocks/users-api-mock.ts</code></a></td><td>Network mocks for users-API endpoints: fulfil, abort, and hold requests.</td></tr>
               <tr><td><a href="../tests/ui/login.spec.ts"><code>tests/ui/login.spec.ts</code></a></td><td>Login form rendering, required-field validation, and successful login.</td></tr>
               <tr><td><a href="../tests/ui/smoke.spec.ts"><code>tests/ui/smoke.spec.ts</code></a></td><td>Real home-page smoke checks and Swagger link navigation.</td></tr>
-              <tr><td><a href="../tests/ui/users.spec.ts"><code>tests/ui/users.spec.ts</code></a></td><td>Users table, search, add form, edit mode, and logout scenarios.</td></tr>
+              <tr><td><a href="../tests/ui/users.spec.ts"><code>tests/ui/users.spec.ts</code></a></td><td>Users table, search, add form, edit mode, logout, and network-mocked failure, slow-response, edit, delete, and reset scenarios.</td></tr>
               <tr><td><a href="../tests/ui/pages/login.page.ts"><code>tests/ui/pages/login.page.ts</code></a></td><td>Login form locators and actions.</td></tr>
               <tr><td><a href="../tests/ui/pages/users.page.ts"><code>tests/ui/pages/users.page.ts</code></a></td><td>Users screen locators and user-management actions.</td></tr>
               <tr><td><a href="../tests/utils/environment.ts"><code>tests/utils/environment.ts</code></a></td><td>Credential lookup and safe-target validation for test-data mutations.</td></tr>
@@ -504,6 +536,8 @@ test('finds a seeded user', async ({ authenticatedUsersPage, testData }) => {
             <li>Add a spec under <code>tests/api/</code>.</li>
             <li>Use the <code>usersApi</code> fixture so requests are authenticated and response schemas are validated.</li>
             <li>Use <code>apiTestUser</code> only for tests that need a record created for the test.</li>
+            <li>Use <code>graphqlApi</code> for GraphQL; add new operations to <code>graphqlDocuments</code> in the client.</li>
+            <li>When the client calls a new REST operation, add it to <code>usersApiOperations</code> so the contract test checks it.</li>
             <li>Tag data-changing tests <code>@test-data</code>; fixture teardown removes generated users.</li>
           </ol>
           <pre><code>import { expect, test } from './fixtures.ts';

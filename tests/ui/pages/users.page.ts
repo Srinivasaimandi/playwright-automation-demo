@@ -70,6 +70,21 @@ export class UsersPage {
     await this.addUserPasswordInput.fill(user.password);
   }
 
+  /** Locates a message in the page's status banner, which has no accessible role. */
+  getStatusMessage(message: string) {
+    return this.page.getByText(message, { exact: true });
+  }
+
+  /** Locates one of a row's action buttons by its accessible name. */
+  getRowButton(row: Locator, name: 'Edit row' | 'Delete row' | 'Save changes') {
+    return row.getByRole('button', { name });
+  }
+
+  /** Locates a row's inline-edit textboxes, in column order: name, email, username. */
+  getRowEditFields(row: Locator) {
+    return row.getByRole('textbox');
+  }
+
   /** Locates an error message shown inside the add-user dialog. */
   getAddUserError(message: string) {
     return this.addUserDialog.getByText(message, { exact: true });

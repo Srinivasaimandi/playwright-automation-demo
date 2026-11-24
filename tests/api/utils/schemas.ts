@@ -29,3 +29,23 @@ export const ApiUserCountSchema = z.object({
 
 /** Public user shape inferred from the runtime response schema. */
 export type ApiUser = z.infer<typeof ApiUserSchema>;
+
+/** Validates endpoints that answer with only a confirmation message, such as data reset. */
+export const ApiMessageSchema = z.object({
+  message: z.string().min(1),
+});
+
+/** Validates one entry of a GraphQL `errors` array. */
+export const GraphqlErrorSchema = z.object({
+  message: z.string().min(1),
+  extensions: z.object({ code: z.string().min(1) }).optional(),
+});
+
+/** Validates the GraphQL response envelope returned for every operation. */
+export const GraphqlResponseSchema = z.object({
+  data: z.record(z.string(), z.unknown()).nullable().optional(),
+  errors: z.array(GraphqlErrorSchema).optional(),
+});
+
+/** Public GraphQL error shape inferred from the runtime response schema. */
+export type GraphqlError = z.infer<typeof GraphqlErrorSchema>;
