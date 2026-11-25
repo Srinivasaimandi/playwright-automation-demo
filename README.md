@@ -14,6 +14,165 @@ See the [framework developer guide](./docs/index.html) for the architecture, fix
 - **Tooling**: per-environment config, safe disposable test data, a cumulative pass-rate history report, GitHub
   Actions CI, and a Claude Code orchestrator that writes tests from requirements.
 
+### Smoke, accessibility and failure-state tests
+
+- `tests/ui/smoke.spec.ts` (`@smoke`) loads the real home page and checks for console and network errors. Its
+  Swagger documentation navigation test is currently skipped (`test.skip`).
+- `tests/ui/accessibility.spec.ts` (`@a11y`) scans the login page, users page and add-user dialog with
+  [axe-core](https://github.com/dequelabs/axe-core) against WCAG 2.1 A/AA rules. Any violation fails the test.
+- The `@mocked` tests in `tests/ui/users.spec.ts` use the `usersApiMock` fixture (`tests/ui/mocks/users-api-mock.ts`),
+  which wraps `page.route()`. They simulate network failures, server errors, rejected sessions, empty results, slow
+  responses, and rejected or failed saves, edits, deletes and data resets, then check what the page shows. Mocked
+  rows use IDs no real user has, so a request that escapes its mock cannot change seeded data.
+
+### GraphQL and OpenAPI contract tests
+
+- `tests/api/users.graphql.spec.ts` (`@graphql`) covers the `/graphql` queries and mutations through the
+  `graphqlApi` fixture.
+- `tests/api/openapi.contract.spec.ts` (`@contract`) reads the OpenAPI document Swagger UI serves at `/api-docs` and
+  checks it against the REST client's operation list and the suite's Zod schemas.
+
+## Stack
+
+| Concern            | Tool                                                     |
+| ------------------ | -------------------------------------------------------- |
+| Browser automation | Playwright Test                                          |
+| Language           | TypeScript                                               |
+| API testing        | Playwright `APIRequestContext`, with Zod validation      |
+| Accessibility      | axe-core (`@axe-core/playwright`)                        |
+| Reporting          | Playwright HTML report, plus a cumulative history report |
+| Config             | `.env` files read with dotenv                            |
+
+## Prerequisites
+
+- Node.js 20.19+, 22.13+, or 24+
+- npm
+- Git (the app is a submodule)
+
+## Setup
+
+```bash
+git submodule update --init --recursive
+npm ci
+npm ci --prefix app
+npx playwright install chromium
+```
+
+Install `firefox` and `webkit` too only if you enable those projects (see [Browser support](#browser-support)).
+
+The Users App source is in [`app/`](./app/) as a Git submodule, cloned from
+[users-app-demo](https://github.com/srinivasaimandi/users-app-demo). Playwright starts it automatically for local
+and loopback test runs with `npm --prefix app start` (port 9899). If that URL is already serving the app, local runs
+reuse it; CI starts a fresh server. Remote development and staging targets are not started by Playwright.
+
+Before each local `npm test*` run, `scripts/update-app.mjs` force-updates `app/` to the latest commit of its tracked
+branch. Any local edits in `app/` are discarded, so fix app defects upstream in users-app-demo, not here. Set
+`SKIP_APP_UPDATE=1` to run against the current checkout unchanged. App dependencies are reinstalled only when they
+changed. If the fetch fails or takes longer than `APP_UPDATE_TIMEOUT_MS` (default 15000), the run continues on the
+current checkout. Run `npm run app:update` to update the app without running tests. The update is skipped in CI (the
+workflow updates the submodule itself) and by `test:dev` and `test:staging`, which target remote apps.
+
+## Running tests
+
+```bash
+npm test
+npm run test:local
+npm run test:test
+npm run test:api
+npm run test:dev
+npm run test:staging
+npm run test:headed
+npm run test:ui
+npm run test:debug
+npm run test:report
+npm run test:history:report
+npm run test:history:unit
+npm run typecheck
+npm run lint
+npm run format:check
+npm run app:update
+```
+
+`npm run test:local` runs the full suite; run API tests alone with `npm run test:api`. Filter by tag with
+`--grep @tag` or exclude with `--grep-invert @tag` (see [Tags](#tags)).
+
+The login spec covers form rendering, required-field validation, and successful authentication. Set `LOGIN_USERNAME` and `LOGIN_PASSWORD` in the selected environment file or CI secrets to run the authenticated test; it is skipped if either value is missing. Run the login tests with:
+
+```bash
+npm run test:local -- --grep @login
+```
+
+## Environments
+
+Select an environment with `npm run test:local`, `npm run test:test`, `npm run test:dev`, or `npm run test:staging`. Each run uses its matching `env/.env.<environment>` file, if present; `BASE_URL` must be set for non-local environments. Process environment variables take precedence over values in the file.
+
+Copy the example files and set each environment's URL:
+
+```bash
+cp env/.env.example env/.env.local
+cp env/.env.test.example env/.env.test
+cp env/.env.dev.example env/.env.dev
+cp env/.env.staging.example env/.env.staging
+```
+
+`env/.env` is also supported as a fallback for local runs. Environment files are ignored by Git; keep credentials there for local work and use your CI secret store in CI. For application tests, navigate with `page.goto('/')` so Playwright uses the selected environment's `BASE_URL`.
+
+**Test data safety.** The `test` environment is intended for a disposable test instance. Set `BASE_URL`, `LOGIN_USERNAME`, `LOGIN_PASSWORD`, and `TEST_DATA_ALLOWED_HOSTS` in `env/.env.test` or CI. A loopback URL starts the bundled app; remote test URLs must already be reachable. The API test-data fixture creates a unique user for its test and deletes it afterward; it only permits loopback hosts under `TEST_ENV=local`, or explicitly allowlisted hosts under `TEST_ENV=test`. Do not point it at development, staging, or production data. Development and staging scripts exclude tests tagged `@test-data`, which create or delete users.
+
+## How the suite runs
+
+UI specs live under `tests/ui/` and run in the `chromium` project; full user journeys live under `tests/ui/e2e/`. API
+specs live under `tests/api/` and run once in the `api` project.
+
+| Project           | Runs                                          | Notes                                                        |
+| ----------------- | --------------------------------------------- | ------------------------------------------------------------ |
+| `setup`           | `tests/ui/auth.setup.ts`                      | Only when login credentials are set; saves `.auth/user.json` |
+| `chromium`        | `tests/ui/**/*.spec.ts`                       | Depends on `setup` when credentials are set                  |
+| `api`             | `tests/api/**/*.spec.ts` (not `destructive/`) | REST, GraphQL and OpenAPI specs, run once                    |
+| `api-destructive` | `tests/api/destructive/**/*.spec.ts`          | Runs after all other projects; skipped if any of them fails  |
+
+`PUT /users/reset-data` deletes every user added since startup, so its spec lives in `tests/api/destructive/` and
+runs in the `api-destructive` project. That project starts after all other projects finish and is skipped if any of
+them has a failing test.
+
+Note: `slowMo` is commented out in `playwright.config.ts`, so UI runs at full speed. Uncomment it (500 ms) under
+`launchOptions` to slow actions down for watching. Traces are recorded on the first retry (CI only, where retries are 2); screenshots and video are kept for
+failures.
+
+## Tags
+
+| Tag                             | Meaning                                                                 |
+| ------------------------------- | ----------------------------------------------------------------------- |
+| `@smoke`                        | Fast critical-path checks                                               |
+| `@login`, `@users`              | Login form and users screen suites                                      |
+| `@validation`, `@auth`          | Input validation; tests that need credentials                           |
+| `@e2e`                          | Multi-screen journeys                                                   |
+| `@a11y`                         | axe-core WCAG 2.1 A/AA scans                                            |
+| `@mocked`                       | UI tests that mock the users API                                        |
+| `@api`, `@graphql`, `@contract` | REST, GraphQL and OpenAPI contract suites                               |
+| `@test-data`                    | Creates, edits or deletes data; excluded from `test:dev`/`test:staging` |
+
+Filter with `--grep @tag` or exclude with `--grep-invert @tag`.
+
+## Browser support
+
+UI tests run in Chromium by default. `firefox`, `webkit` and `mobile-chrome` (Pixel 7) are defined in
+`browserProjects` in `playwright.config.ts` but commented out. Uncomment one to add it as a UI project (install its
+browser with `npx playwright install`), then select it with `--project`, for example
+`npm run test:local -- --project=firefox`. `api-destructive` waits for any enabled UI project automatically.
+
+## Reports
+
+Every Playwright run writes its raw JSON results to `test-results/results.json`, updates the ignored local store at
+`.playwright-history/history.json`, and generates `reports/test-history-report.html` plus its companion pages. The report shows all-time per-test pass
+rates and recent trends; skipped tests are excluded from pass-rate denominators, and flaky passes are counted
+separately. The landing page shows statistics, with separate Per-test history and Recent runs pages available from
+the header navigation. Per-test totals are all-time, the latest 100 run summaries are kept, and each test retains its
+latest 30 outcomes. Metrics include latest and all-time pass rates, known tests, flaky outcomes, a pass-rate trend for
+up to 12 runs, and the latest run's outcome breakdown. Filter per-test history by UI/API/E2E category, latest status,
+or tag, or search scenario titles, paths, projects, and tags. Use `npm run test:history:report` to regenerate all
+report pages from the saved history, and `npm run test:report` to open Playwright's HTML report.
+
 ## Project structure
 
 ```text
@@ -38,144 +197,9 @@ See the [framework developer guide](./docs/index.html) for the architecture, fix
 └── playwright.config.ts      # Environments, projects, reporters, web server
 ```
 
-## Requirements
+## Writing tests
 
-- Node.js 20.19+, 22.13+, or 24+
-- npm
-- Git (the app is a submodule)
-
-## Setup
-
-```bash
-git submodule update --init --recursive
-npm ci
-npm ci --prefix app
-npx playwright install chromium
-```
-
-Install `firefox` and `webkit` too only if you enable those projects (see [Projects and tags](#projects-and-tags)).
-
-The Users App source is in [`app/`](./app/) as a Git submodule, cloned from
-[users-app-demo](https://github.com/srinivasaimandi/users-app-demo). Playwright starts it automatically for local
-and loopback test runs with `npm --prefix app start` (port 9899). If that URL is already serving the app, local runs
-reuse it; CI starts a fresh server. Remote development and staging targets are not started by Playwright.
-
-Before each local `npm test*` run, `scripts/update-app.mjs` force-updates `app/` to the latest commit of its tracked
-branch. Any local edits in `app/` are discarded, so fix app defects upstream in users-app-demo, not here. Set
-`SKIP_APP_UPDATE=1` to run against the current checkout unchanged. App dependencies are reinstalled only when they
-changed. If the fetch fails or takes longer than `APP_UPDATE_TIMEOUT_MS` (default 15000), the run continues on the
-current checkout. Run `npm run app:update` to update the app without running tests. The update is skipped in CI (the
-workflow updates the submodule itself) and by `test:dev` and `test:staging`, which target remote apps.
-
-## Run tests
-
-```bash
-npm test
-npm run test:local
-npm run test:test
-npm run test:api
-npm run test:dev
-npm run test:staging
-npm run test:headed
-npm run test:ui
-npm run test:debug
-npm run test:report
-npm run test:history:report
-npm run test:history:unit
-npm run typecheck
-npm run lint
-npm run format:check
-npm run app:update
-```
-
-Use `npm run format` to apply the configured Prettier formatting. ESLint checks JavaScript configuration and utility files; TypeScript is type-checked and formatted with Prettier.
-
-Every Playwright run writes its raw JSON results to `test-results/results.json`, updates the ignored local store at
-`.playwright-history/history.json`, and generates `reports/test-history-report.html` plus its companion pages. The report shows all-time per-test pass
-rates and recent trends; skipped tests are excluded from pass-rate denominators, and flaky passes are counted
-separately. The landing page shows statistics, with separate Per-test history and Recent runs pages available from
-the header navigation. Per-test totals are all-time, the latest 100 run summaries are kept, and each test retains its
-latest 30 outcomes. Metrics include latest and all-time pass rates, known tests, flaky outcomes, a pass-rate trend for
-up to 12 runs, and the latest run's outcome breakdown. Filter per-test history by UI/API/E2E category, latest status,
-or tag, or search scenario titles, paths, projects, and tags. Use `npm run test:history:report` to regenerate all
-report pages from the saved history.
-
-Select an environment with `npm run test:local`, `npm run test:test`, `npm run test:dev`, or `npm run test:staging`. Each run uses its matching `env/.env.<environment>` file, if present; `BASE_URL` must be set for non-local environments. Process environment variables take precedence over values in the file.
-
-Copy the example files and set each environment's URL:
-
-```bash
-cp env/.env.example env/.env.local
-cp env/.env.test.example env/.env.test
-cp env/.env.dev.example env/.env.dev
-cp env/.env.staging.example env/.env.staging
-```
-
-`env/.env` is also supported as a fallback for local runs. Environment files are ignored by Git; keep credentials there for local work and use your CI secret store in CI. For application tests, navigate with `page.goto('/')` so Playwright uses the selected environment's `BASE_URL`.
-
-The `test` environment is intended for a disposable test instance. Set `BASE_URL`, `LOGIN_USERNAME`, `LOGIN_PASSWORD`, and `TEST_DATA_ALLOWED_HOSTS` in `env/.env.test` or CI. A loopback URL starts the bundled app; remote test URLs must already be reachable. The API test-data fixture creates a unique user for its test and deletes it afterward; it only permits loopback hosts under `TEST_ENV=local`, or explicitly allowlisted hosts under `TEST_ENV=test`. Do not point it at development, staging, or production data.
-
-UI specs live under `tests/ui/` and run in the `chromium` project. Firefox, WebKit and Pixel 7 projects are defined but commented out in `playwright.config.ts`; uncomment them in `browserProjects` to run there too, then select one with `--project`, for example `npm run test:local -- --project=firefox`. Full user journeys live under `tests/ui/e2e/`. API specs live under `tests/api/` and run once in the `api` project. Run API tests alone with `npm run test:api`; `npm run test:local` runs the full suite. Development and staging scripts exclude tests tagged `@test-data`, which create or delete users.
-
-The login spec covers form rendering, required-field validation, and successful authentication. Set `LOGIN_USERNAME` and `LOGIN_PASSWORD` in the selected environment file or CI secrets to run the authenticated test; it is skipped if either value is missing. Run the login tests with:
-
-```bash
-npm run test:local -- --grep @login
-```
-
-## Projects and tags
-
-| Project           | Runs                                          | Notes                                                        |
-| ----------------- | --------------------------------------------- | ------------------------------------------------------------ |
-| `setup`           | `tests/ui/auth.setup.ts`                      | Only when login credentials are set; saves `.auth/user.json` |
-| `chromium`        | `tests/ui/**/*.spec.ts`                       | Depends on `setup` when credentials are set                  |
-| `api`             | `tests/api/**/*.spec.ts` (not `destructive/`) | REST, GraphQL and OpenAPI specs, run once                    |
-| `api-destructive` | `tests/api/destructive/**/*.spec.ts`          | Runs after all other projects; skipped if any of them fails  |
-
-| Tag                             | Meaning                                                                 |
-| ------------------------------- | ----------------------------------------------------------------------- |
-| `@smoke`                        | Fast critical-path checks                                               |
-| `@login`, `@users`              | Login form and users screen suites                                      |
-| `@validation`, `@auth`          | Input validation; tests that need credentials                           |
-| `@e2e`                          | Multi-screen journeys                                                   |
-| `@a11y`                         | axe-core WCAG 2.1 A/AA scans                                            |
-| `@mocked`                       | UI tests that mock the users API                                        |
-| `@api`, `@graphql`, `@contract` | REST, GraphQL and OpenAPI contract suites                               |
-| `@test-data`                    | Creates, edits or deletes data; excluded from `test:dev`/`test:staging` |
-
-Filter with `--grep @tag` or exclude with `--grep-invert @tag`.
-
-`firefox`, `webkit` and `mobile-chrome` (Pixel 7) are defined in `browserProjects` in `playwright.config.ts` but
-commented out. Uncommenting one adds it as a UI project, and `api-destructive` waits for it automatically.
-
-Note: `slowMo` is commented out in `playwright.config.ts`, so UI runs at full speed. Uncomment it (500 ms) under
-`launchOptions` to slow actions down for watching. Traces are recorded on the first retry (CI only, where retries are 2); screenshots and video are kept for
-failures.
-
-## Smoke, accessibility and failure-state tests
-
-- `tests/ui/smoke.spec.ts` (`@smoke`) loads the real home page and checks for console and network errors. Its
-  Swagger documentation navigation test is currently skipped (`test.skip`).
-- `tests/ui/accessibility.spec.ts` (`@a11y`) scans the login page, users page and add-user dialog with
-  [axe-core](https://github.com/dequelabs/axe-core) against WCAG 2.1 A/AA rules. Any violation fails the test.
-- The `@mocked` tests in `tests/ui/users.spec.ts` use the `usersApiMock` fixture (`tests/ui/mocks/users-api-mock.ts`),
-  which wraps `page.route()`. They simulate network failures, server errors, rejected sessions, empty results, slow
-  responses, and rejected or failed saves, edits, deletes and data resets, then check what the page shows. Mocked
-  rows use IDs no real user has, so a request that escapes its mock cannot change seeded data.
-
-## GraphQL, OpenAPI contract and data-reset tests
-
-- `tests/api/users.graphql.spec.ts` (`@graphql`) covers the `/graphql` queries and mutations through the
-  `graphqlApi` fixture.
-- `tests/api/openapi.contract.spec.ts` (`@contract`) reads the OpenAPI document Swagger UI serves at `/api-docs` and
-  checks it against the REST client's operation list and the suite's Zod schemas.
-- Tests for app defects that are not fixed yet use `test.fail()` with an `app-defect` annotation. They pass while the
-  defect exists and fail once it is fixed, so they can be turned into ordinary tests.
-- `PUT /users/reset-data` deletes every user added since startup, so its spec lives in `tests/api/destructive/` and
-  runs in the `api-destructive` project. That project starts after all other projects finish and is skipped if any
-  of them has a failing test.
-
-## Playwright fixtures
+### Playwright fixtures
 
 | Fixture                  | Defined in              | Provides                                                                  |
 | ------------------------ | ----------------------- | ------------------------------------------------------------------------- |
@@ -211,7 +235,7 @@ test('shows a created user', async ({ authenticatedUsersPage, apiTestUser }) => 
 });
 ```
 
-## Shared test utilities and API schemas
+### Shared test utilities and API schemas
 
 - `tests/api/utils/users-api-client.ts` centralizes authenticated user API operations and lists them in
   `usersApiOperations` for the contract test.
@@ -220,6 +244,22 @@ test('shows a created user', async ({ authenticatedUsersPage, apiTestUser }) => 
 - `tests/api/utils/schemas.ts` defines Zod schemas for login, user, user-list, and count responses. The API client validates each successful JSON response and reports status, JSON, or schema errors with the endpoint path. Unknown response fields are stripped from parsed user objects.
 - `tests/data/factories.ts` creates unique user data for tests.
 - `tests/utils/environment.ts` provides shared credential lookup and guards API data changes to loopback or allowlisted test hosts.
+
+### Known app defects
+
+Tests for app defects that are not fixed yet use `test.fail()` with an `app-defect` annotation. They pass while the
+defect exists and fail once it is fixed, so they can be turned into ordinary tests.
+
+## Formatting and linting
+
+```bash
+npm run format         # format
+npm run format:check   # verify
+npm run lint
+npm run typecheck
+```
+
+ESLint checks JavaScript configuration and utility files; TypeScript is type-checked and formatted with Prettier.
 
 ## Continuous integration
 
